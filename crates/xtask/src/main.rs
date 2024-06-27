@@ -249,7 +249,7 @@ impl SiteManifest {
         let content_dir = std::path::PathBuf::from("content");
         log::trace!("downloading devlog");
 
-        self.build_devlog();
+        //self.build_devlog();
 
         let files = get_files(content_dir);
         let (markdown_files, other_files): (Vec<_>, Vec<_>) = files

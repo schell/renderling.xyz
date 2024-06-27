@@ -8,13 +8,11 @@ use mogwai_dom::prelude::*;
 use snafu::ResultExt;
 
 pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
+    log::trace!("html node:");
     match node {
         html_parser::Node::Text(s) => {
-            if s.is_empty() {
-                None
-            } else {
-                Some(ViewBuilder::text(s))
-            }
+            log::trace!("  text: '{s}'");
+            Some(ViewBuilder::text(s))
         }
         html_parser::Node::Element(Element {
             id,
@@ -25,6 +23,7 @@ pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
             children,
             source_span: _,
         }) => {
+            log::trace!("  element: {name}");
             let mut view = children
                 .into_iter()
                 .fold(ViewBuilder::element(name), |view, child| {
@@ -126,7 +125,6 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
         mdast::Node::MdxTextExpression(_) => todo!("support for MdxTextExpression"),
         mdast::Node::FootnoteReference(_) => todo!("support for footnotes"),
         mdast::Node::Html(Html { value, position: _ }) => {
-            // TODO UNWRAP: todo, make this safe
             let dom = html_parser::Dom::parse(&value).unwrap();
             let children: Vec<_> = dom.children.into_iter().flat_map(make_html_view).collect();
             rsx! {
@@ -193,12 +191,14 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
                 //let c = theme.settings.background.unwrap_or(Color::WHITE);
                 let html = syntect::html::highlighted_html_for_string(&value, &ss, syntax, &theme)
                     .unwrap();
+                log::info!("html_value: {html}");
                 let dom = html_parser::Dom::parse(&html).unwrap();
                 let children: Vec<_> = dom.children.into_iter().flat_map(make_html_view).collect();
-
-                rsx! {
-                    code(class="rust") {{children}}
+                let mut code = ViewBuilder::element("code");
+                for child in children.into_iter() {
+                    code = code.append(child);
                 }
+                code
             } else {
                 rsx! {
                     code(class=lang.unwrap_or_default()) {
