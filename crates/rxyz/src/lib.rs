@@ -93,7 +93,7 @@ impl Site {
             nav {
                 ul(class="nav-links") {
                     li() {
-                        a(href = self.site_path("devlog.html")?){{"devlog"}}
+                        a(href = self.site_path("devlog/index.html")?){{"devlog"}}
                     }
                     li() {
                         a(href = "https://github.com/schell/renderling") {{"github"}}
