@@ -16,6 +16,6 @@ meanwhile
 
 ## deploying 
 
-`cargo xtask deploy staging`
+`cargo xtask -e staging deploy`
 
-`cargo xtask deploy production`
+`cargo xtask -e production deploy`
