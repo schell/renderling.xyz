@@ -3,12 +3,12 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias = "oregon"
+  alias  = "oregon"
   region = "us-west-2"
 }
 
 provider "aws" {
-  alias = "virginia"
+  alias  = "virginia"
   region = "us-east-1"
 }
 
@@ -21,14 +21,15 @@ terraform {
 }
 
 module "production" {
-  source = "git::https://github.com/schell/mars.git//modules/static_site"
-  zone_id = "Z053462417S8CIXH18CJ5"
+  #source = "git::https://github.com/schell/mars.git//modules/static_site"
+  source      = "../mars/modules/static_site"
+  zone_id     = "Z053462417S8CIXH18CJ5"
   domain_name = "renderling.xyz"
 }
 
 module "staging" {
   #source = "git::https://github.com/schell/mars.git//modules/static_site"
-  source = "../mars/modules/static_site"
-  zone_id = "Z053462417S8CIXH18CJ5"
+  source      = "../mars/modules/static_site"
+  zone_id     = "Z053462417S8CIXH18CJ5"
   domain_name = "staging.renderling.xyz"
 }

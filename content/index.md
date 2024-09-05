@@ -1,7 +1,7 @@
 ---
 title: Home
 ---
-_Real-time rendering made easy, with all the bells and whistles_
+_Open source real-time rendering with Rust_
 
 Renderling is an innovative, GPU-driven real-time renderer designed for efficient scene rendering 
 with a focus on leveraging GPU capabilities for nearly all rendering operations. 

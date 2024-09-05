@@ -44,14 +44,27 @@ main p {
   padding: 0.5em;
 }
 
-main code {
-  padding: 0.5em;
+.code-snippet { 
+  border-radius: 1em;
+  padding: 0.5em; 
+  background-color: #efefef;
+} 
+
+main slot p code {
+    padding: 0;
+    outline: none;
+    background-color: #efefef;
+    font-size: 0.9em;
 }
 
 main h2 {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   font-weight: bold;
+}
+
+.devlog h2 {
+    margin-top: 1em;
 }
 
 main h3 {

@@ -56,17 +56,18 @@ impl Environment {
         }
     }
 
+    // TODO: gather these from terraform
     const fn cloudfront_distro(&self) -> Option<&'static str> {
         match self {
             Environment::Local => None,
-            Environment::Staging => Some("E2TJQOQUYFZJ0U"),
-            Environment::Production => Some("E1Q7V5BFHGQLIG"),
+            Environment::Staging => Some("E16FY1FTWBR11T"),
+            Environment::Production => Some("E27AC3A8NB65G6"),
         }
     }
 
     const fn root_url(&self) -> &'static str {
         match self {
-            Environment::Local => "http://127.0.0.1:8888",
+            Environment::Local => "http://127.0.0.1:4000",
             Environment::Staging => "https://staging.renderling.xyz",
             Environment::Production => "https://renderling.xyz",
         }
@@ -192,7 +193,7 @@ impl SiteManifest {
         .unwrap();
 
         log::trace!("rendering the devlog to {}", built_filepath.display());
-        let page_string = self.site().render_markdown_page(content).unwrap();
+        let page_string = self.site().render_markdown_page(content, "devlog").unwrap();
         log::trace!("  writing");
         if let Some(parent) = built_filepath.parent() {
             std::fs::create_dir_all(parent).unwrap();
@@ -249,7 +250,7 @@ impl SiteManifest {
         let content_dir = std::path::PathBuf::from("content");
         log::trace!("downloading devlog");
 
-        //self.build_devlog();
+        self.build_devlog();
 
         let files = get_files(content_dir);
         let (markdown_files, other_files): (Vec<_>, Vec<_>) = files
@@ -273,7 +274,7 @@ impl SiteManifest {
 
             let mut content = String::new();
             let _ = file.read_to_string(&mut content).unwrap();
-            let page_string = self.site().render_markdown_page(content).unwrap();
+            let page_string = self.site().render_markdown_page(content, "").unwrap();
             log::trace!("  writing");
             if let Some(parent) = built_filepath.parent() {
                 std::fs::create_dir_all(parent).unwrap();
@@ -360,7 +361,6 @@ impl SiteManifest {
                 .put_object()
                 .bucket(bucket)
                 .key(key)
-                .acl(aws_sdk_s3::types::ObjectCannedAcl::PublicRead)
                 .content_type(content_type.essence_str())
                 .body(
                     aws_sdk_s3::primitives::ByteStream::from_path(&mfile.built_filepath)

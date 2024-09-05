@@ -174,38 +174,40 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
             log::info!("code_lang: {lang:#?}");
             log::info!("code_meta: {meta:#?}");
             log::info!("code_value:\n{value}");
-
-            if let Some(lang) = lang.as_deref() {
-                use syntect::{highlighting::ThemeSet, parsing::SyntaxSet};
-
-                const DRACULA_BYTES: &[u8] = include_bytes!("../Dracula.tmTheme");
-
-                let ss = SyntaxSet::load_defaults_newlines();
-                let mut cursor = std::io::Cursor::new(DRACULA_BYTES);
-                let theme = ThemeSet::load_from_reader(&mut cursor).unwrap();
-                let syntax = ss
-                    .syntaxes()
-                    .iter()
-                    .find(|s| s.name.to_lowercase() == lang)
-                    .unwrap_or(&ss.syntaxes()[0]);
-                //let c = theme.settings.background.unwrap_or(Color::WHITE);
-                let html = syntect::html::highlighted_html_for_string(&value, &ss, syntax, &theme)
-                    .unwrap();
-                log::info!("html_value: {html}");
-                let dom = html_parser::Dom::parse(&html).unwrap();
-                let children: Vec<_> = dom.children.into_iter().flat_map(make_html_view).collect();
-                let mut code = ViewBuilder::element("code");
-                for child in children.into_iter() {
-                    code = code.append(child);
-                }
-                code
-            } else {
-                rsx! {
-                    code(class=lang.unwrap_or_default()) {
-                        pre(){{value}}
-                    }
-                }
+            rsx! {
+                pre(class = "code-snippet") {{value}}
             }
+            // if let Some(lang) = lang.as_deref() {
+            //     use syntect::{highlighting::ThemeSet, parsing::SyntaxSet};
+
+            //     const DRACULA_BYTES: &[u8] = include_bytes!("../Dracula.tmTheme");
+
+            //     let ss = SyntaxSet::load_defaults_newlines();
+            //     let mut cursor = std::io::Cursor::new(DRACULA_BYTES);
+            //     let theme = ThemeSet::load_from_reader(&mut cursor).unwrap();
+            //     let syntax = ss
+            //         .syntaxes()
+            //         .iter()
+            //         .find(|s| s.name.to_lowercase() == lang)
+            //         .unwrap_or(&ss.syntaxes()[0]);
+            //     //let c = theme.settings.background.unwrap_or(Color::WHITE);
+            //     let html = syntect::html::highlighted_html_for_string(&value, &ss, syntax, &theme)
+            //         .unwrap();
+            //     log::info!("html_value: {html}");
+            //     let dom = html_parser::Dom::parse(&html).unwrap();
+            //     let children: Vec<_> = dom.children.into_iter().flat_map(make_html_view).collect();
+            //     let mut code = ViewBuilder::element("code");
+            //     for child in children.into_iter() {
+            //         code = code.append(child);
+            //     }
+            //     code
+            // } else {
+            //     rsx! {
+            //         code(class=lang.unwrap_or_default()) {
+            //             pre(){{ value}}
+            //         }
+            //     }
+            // }
         }
         mdast::Node::Math(_) => todo!("support for Math"),
         mdast::Node::MdxFlowExpression(_) => todo!("support for MdxFlowExpression"),

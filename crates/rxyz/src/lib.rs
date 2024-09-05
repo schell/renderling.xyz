@@ -95,9 +95,12 @@ impl Site {
                     li() {
                         a(href = self.site_path("devlog")?){{"devlog"}}
                     }
+                    li() {
+                        a(href = "https://github.com/schell/renderling") {{"github"}}
+                    }
                 }
-                a(href = self.site_path("/")?, class="logo-link") {
-                    h1() {
+                h1() {
+                    a(href = self.site_path("/")?, class="logo-link") {
                         {"🍖 renderling"}
                     }
                 }
@@ -105,7 +108,12 @@ impl Site {
         })
     }
 
-    fn render_page(&self, title: impl AsRef<str>, content: ViewBuilder) -> Result<String, Error> {
+    fn render_page(
+        &self,
+        title: impl AsRef<str>,
+        content: ViewBuilder,
+        main_classes: &str,
+    ) -> Result<String, Error> {
         let page = rsx! {
             html(lang = "en") {
                 head {
@@ -116,7 +124,7 @@ impl Site {
                 }
                 body {
                     {self.nav()?}
-                    main() {{content}}
+                    main(class=main_classes) {{content}}
                     footer() {
                         p(){{":)"}}
                     }
@@ -129,8 +137,16 @@ impl Site {
     }
 
     /// Interpolate the markdown bytes as its own page.
-    pub fn render_markdown_page(&self, content: String) -> Result<String, Error> {
+    pub fn render_markdown_page(
+        &self,
+        content: String,
+        extra_classes: &str,
+    ) -> Result<String, Error> {
         let imd = md::interpolate_markdown(content)?;
-        self.render_page(imd.title.unwrap_or("Untitled".to_string()), imd.view)
+        self.render_page(
+            imd.title.unwrap_or("Untitled".to_string()),
+            imd.view,
+            extra_classes,
+        )
     }
 }
