@@ -376,6 +376,14 @@ impl SiteManifest {
         }
 
         log::info!("done uploading to s3, invalidating the cloudfront cache");
+        let hash = String::from_utf8(
+            std::process::Command::new("git")
+                .args(["rev-parse", "HEAD"])
+                .output()
+                .expect("Could not get commit hash")
+                .stdout,
+        )
+        .expect("not utf8");
         let cf = aws_sdk_cloudfront::Client::new(&config);
         let paths = self
             .files
@@ -395,7 +403,7 @@ impl SiteManifest {
                             .build()
                             .unwrap(),
                     )
-                    .caller_reference("xtask")
+                    .caller_reference(format!("xtask-{hash}"))
                     .build()
                     .unwrap(),
             )
