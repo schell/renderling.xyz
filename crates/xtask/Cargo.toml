@@ -12,6 +12,7 @@ clap = { version = "4.5.7", features = ["derive"] }
 env_logger = "0.11.3"
 log = {workspace=true}
 new_mime_guess = "4.0.1"
+pusha = { path = "../../../pusha" }
 rxyz = { path = "../rxyz" }
 serde = {workspace=true}
 serde_yaml = {workspace=true}
