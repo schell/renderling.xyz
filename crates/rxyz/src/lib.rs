@@ -101,7 +101,11 @@ impl Site {
                 }
                 h1() {
                     a(href = self.site_path("/")?, class="logo-link") {
-                        {"🍖 renderling"}
+                        img(
+                            src = self.site_path("/img/logo.png")?,
+                            width = "48",
+                            height = "48"
+                        ) {"renderling"}
                     }
                 }
             }

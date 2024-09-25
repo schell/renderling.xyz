@@ -8,7 +8,7 @@ futures-lite = "2.3.0"
 html_parser = "^0.7"
 http = "1.1.0"
 log = {workspace=true}
-markdown = "1.0.0-alpha.17"
+markdown = "1.0.0-alpha.21"
 mogwai-dom = "^0.2"
 serde = {workspace=true}
 serde_yaml = {workspace=true}

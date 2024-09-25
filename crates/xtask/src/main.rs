@@ -49,13 +49,5 @@ impl pusha::Renderer for Rxyz {
 
 #[tokio::main]
 async fn main() {
-    pusha::run::<Rxyz>(
-        &CONFIG,
-        [ExternalPage {
-            source_url: "https://raw.githubusercontent.com/schell/renderling/main/DEVLOG.md"
-                .to_owned(),
-            local_path: "devlog/index.html".into(),
-        }],
-    )
-    .await;
+    pusha::run::<Rxyz>(&CONFIG, []).await;
 }

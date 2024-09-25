@@ -8,7 +8,7 @@ use mogwai_dom::prelude::*;
 use snafu::ResultExt;
 
 pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
-    log::trace!("html node:");
+    log::debug!("html node:");
     match node {
         html_parser::Node::Text(s) => {
             log::trace!("  text: '{s}'");
@@ -23,7 +23,7 @@ pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
             children,
             source_span: _,
         }) => {
-            log::trace!("  element: {name}");
+            log::debug!("  element: {name}");
             let mut view = children
                 .into_iter()
                 .fold(ViewBuilder::element(name), |view, child| {
@@ -36,11 +36,16 @@ pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
             if let Some(id) = id {
                 attributes.insert("id".into(), Some(id));
             }
-            let classes = classes.join(" ");
-            attributes.insert("class".into(), Some(classes));
+            if !classes.is_empty() {
+                let classes = classes.join(" ");
+                attributes.insert("class".into(), Some(classes));
+            }
             for (k, v) in attributes.into_iter() {
+                log::debug!("  attribute: ({k}, {v:?})");
                 if let Some(v) = v {
                     view = view.with_single_attrib_stream(k, v);
+                } else {
+                    view = view.with_single_bool_attrib_stream(k, true);
                 }
             }
             Some(view)
@@ -62,7 +67,7 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
                 {children}
             } }
         }
-        mdast::Node::BlockQuote(bq) => {
+        mdast::Node::Blockquote(bq) => {
             let children: Vec<_> = bq.children.into_iter().map(make_md_view).collect();
             rsx! {
                 blockquote {
@@ -171,9 +176,9 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
             lang,
             meta,
         }) => {
-            log::info!("code_lang: {lang:#?}");
-            log::info!("code_meta: {meta:#?}");
-            log::info!("code_value:\n{value}");
+            log::trace!("code_lang: {lang:#?}");
+            log::trace!("code_meta: {meta:#?}");
+            log::trace!("code_value:\n{value}");
             rsx! {
                 pre(class = "code-snippet") {{value}}
             }
@@ -227,14 +232,35 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
             }
         }
         mdast::Node::Table(Table {
-            children,
+            mut children,
             position: _,
             align: _,
         }) => {
+            let ast_head = children.remove(0);
+            log::info!("ast_head: {ast_head:#?}");
+            let table_head = match ast_head {
+                mdast::Node::TableRow(TableRow{ children, ..}) => {
+                    let children = children.into_iter().map(|node| match node {
+                        mdast::Node::TableCell(TableCell { children, .. }) => rsx! {
+                            th() {{children.into_iter().map(make_md_view).collect::<Vec<_>>()}} 
+                        },
+                        n => make_md_view(n),
+                    }).collect::<Vec<_>>();  
+                    rsx! {
+                        thead() {
+                            {{children}}
+                        }
+                    }
+                }
+                node => make_md_view(node),
+            };
             let children: Vec<_> = children.into_iter().map(make_md_view).collect();
             rsx! {
                 table() {
-                    {children}
+                    {table_head}
+                    tbody() {
+                        {children}
+                    }
                 }
             }
         }
@@ -248,10 +274,8 @@ pub fn make_md_view(node: mdast::Node) -> ViewBuilder {
                 tr() {{children}}
             }
         }
-        mdast::Node::TableCell(TableCell {
-            children,
-            position: _,
-        }) => {
+        mdast::Node::TableCell(TableCell { children, position }) => {
+            log::info!("position: {position:?}");
             let children: Vec<_> = children.into_iter().map(make_md_view).collect();
             rsx! {
                 td() {{children}}
@@ -321,7 +345,7 @@ pub fn get_frontmatter(node: &mut mdast::Node) -> Option<mdast::Yaml> {
 pub fn interpolate_markdown(
     content: impl AsRef<str>,
 ) -> Result<InterpolatedMarkdown, crate::Error> {
-    let mut opts = markdown::ParseOptions::default();
+    let mut opts = markdown::ParseOptions::gfm();
     opts.constructs.frontmatter = true;
     let mut node = markdown::to_mdast(content.as_ref(), &opts)
         .map_err(|message| crate::Error::Md { message })?;

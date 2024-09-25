@@ -10,6 +10,14 @@ nav h1 {
     width: auto;
 }
 
+nav h1 img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  position: relative;
+  top: 3px;
+}
+
 nav ul {
     margin: 0;    
     padding: 0;
@@ -105,3 +113,33 @@ footer {
     padding: 1em;
     font-size: smaller;
 }
+
+th {
+    font-weight: bold;
+    background-color: #c6d5bc;
+}
+
+td {
+    border-bottom: 0.1rem solid #e1e1e1;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
