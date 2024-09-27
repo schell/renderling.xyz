@@ -12,6 +12,29 @@ My private stuff. Pay no attention to the man behind the curtain.
 
 -->
 
+## Fri Sep 27, 2024
+
+The (very) naive frustum culling implementation shows around a 30% reduction in GPU time
+while rendering Sponza - previously ~55ms and now ~38ms. That's pretty good. The target 
+is to reduce the GPU time enough to get an entire frame down to 16ms. I'm confident I 
+can do better than 38ms.
+
+![renderling Sponza GPU frame capture after naive compute-culling](https://renderling.xyz/uploads/Screenshot_2024-09-25_at_7.19.24PM.png)
+
+You can see here though, that the roof is erroneously being culled.
+
+So I set up a test application that draws a frustum and then tests it against 
+randomly generated Aabbs, hoping to find if there are any obvious mistakes.
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-27_at_3.58.46PM.mov" type="video/mp4" />
+  A video of culling BVH intersection test.
+</video>
+
+Nothing obvious.
+
+But then I remembered that the frustum is being calculated from the [`Camera`][docs_rs_camera].
+
 ## Wed Sep 25, 2024
 
 Updating my macOS worked. Now it seems I can capture GPU frames more reliably.
@@ -145,7 +168,7 @@ while strafing. I'm not sure what's up with that.
 
 <video controls width="100%"> 
   <source src="https://renderling.xyz/video/screen-recording-sponza2-2024-09-23.mov" type="video/mp4"/>
-  Renderling rendering Sponza 2
+  A video of renderling rendering Sponza 2
 </video>
 
 ### nlnet updates 
@@ -2119,3 +2142,5 @@ then throw away that texture.
 
 I have to generate mipmaps to smooth out the irradiance and prefiltered
 cubemaps that we use for pbr shading.
+
+[docs_rs_camera]: https://docs.rs/renderling/latest/renderling/camera/struct.Camera.html

@@ -1,13 +1,19 @@
+body {
+    font-size: larger;    
+}
+
 nav {
     width: 100%;
     border-color: black;
     padding: 1vw 1vw;
+    font-size: xx-large;
+    display: inline-flex;
 }
 
 nav h1 {
     margin: 0;
     padding: 0;
-    width: auto;
+    display: inline;
 }
 
 nav h1 img {
@@ -87,16 +93,36 @@ main h3 {
     padding-left: 3ex;
 }
 
+h2 .heading-link {
+    visibility: hidden;
+}
+
+h2:hover .heading-link {
+    visibility: visible;    
+}
+
+.nav-middle {
+    flex-grow: 1;
+}
+
+.nav-right {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.nav-top {
+    flex-grow: 1;
+}
+
 .nav-links {
-    float: right;
-    padding-top: 0.25em;
     list-style: none;
+    font-size: smaller;
+    display: inline-flex;
+    margin-bottom: 0.75em;
 }
 
 .nav-links li {
-    float: left;
     padding-right: 1em;
-    margin-top: 0.75em;
 }
 
 .logo-link {

@@ -58,6 +58,7 @@ pub struct Site {
 impl Site {
     /// Create a new site object that will do the rendering.
     pub fn new(url_root: impl AsRef<str>) -> Result<Self, Error> {
+        log::debug!("creating new Site with url_root '{}'", url_root.as_ref());
         Ok(Self {
             url_root: http::Uri::try_from(url_root.as_ref()).context(InvalidUriSnafu)?,
         })
@@ -85,27 +86,29 @@ impl Site {
             path.as_ref().trim_matches('/')
         );
         let uri = uri.path_and_query(path).build().context(HttpSnafu)?;
-        Ok(format!("{}", uri))
+        let site_path = format!("{}", uri);
+        log::debug!("site_path: {site_path}");
+        Ok(site_path)
     }
 
     fn nav(&self) -> Result<ViewBuilder, Error> {
         Ok(rsx! {
             nav {
-                ul(class="nav-links") {
-                    li() {
-                        a(href = self.site_path("devlog/index.html")?){{"devlog"}}
-                    }
-                    li() {
-                        a(href = "https://github.com/schell/renderling") {{"github"}}
-                    }
-                }
                 h1() {
                     a(href = self.site_path("/")?, class="logo-link") {
-                        img(
-                            src = self.site_path("/img/logo.png")?,
-                            width = "48",
-                            height = "48"
-                        ) {"renderling"}
+                        img(src = self.site_path("/img/logo.png")?) {"renderling"}
+                    }
+                }
+                div(class="nav-middle") {}
+                div(class="nav-right") {
+                    div(class="nav-top") {}
+                    ul(class="nav-links") {
+                        li() {
+                            a(href = self.site_path("devlog/index.html")?){{"devlog"}}
+                        }
+                        li() {
+                            a(href = "https://github.com/schell/renderling") {{"github"}}
+                        }
                     }
                 }
             }
@@ -136,6 +139,8 @@ impl Site {
             }
         };
         let dom = SsrDom::try_from(page).context(RenderSnafu)?;
+        // This executes any changes to inputs/outputs in the builder.
+        while dom.executor.try_tick() {}
         let s = futures_lite::future::block_on(dom.html_string());
         Ok(prefix_doctype(s))
     }
