@@ -1,4 +1,4 @@
-use pusha::{Environment, ExternalPage, SiteConfig};
+use pusha::{Environment, SiteConfig};
 
 const CONFIG: SiteConfig = {
     const fn root_url(e: Environment) -> &'static str {

@@ -93,11 +93,27 @@ main h3 {
     padding-left: 3ex;
 }
 
+h1 .heading-link {
+    visibility: hidden;
+}
+
+h1:hover .heading-link {
+    visibility: visible;    
+}
+
 h2 .heading-link {
     visibility: hidden;
 }
 
 h2:hover .heading-link {
+    visibility: visible;    
+}
+
+h3 .heading-link {
+    visibility: hidden;
+}
+
+h3:hover .heading-link {
     visibility: visible;    
 }
 

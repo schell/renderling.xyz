@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use futures_lite::StreamExt;
 use html_parser::Element;
 use markdown::mdast::{
-    self, Code, Definition, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, LinkReference, List, ListItem, Paragraph, Strong, Table, TableCell, TableRow, Text, ThematicBreak
+    self, Code, Definition, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Paragraph, Strong, Table, TableCell, TableRow, Text, ThematicBreak
 };
 use mogwai_dom::prelude::*;
 use snafu::ResultExt;
@@ -288,22 +288,28 @@ impl AstRenderer {
                 position: _,
                 depth,
             }) => {
-                let href = format!("#{}", children.iter().map(to_text).collect::<Vec<_>>().concat());
+                let id = children.iter().map(to_text).collect::<Vec<_>>().concat();
+                let href = format!("#{}", id);
                 let children: Vec<_> = children.into_iter().map(|c| self.make_md_view(c)).collect();
                 match depth {
                     1 => rsx! { 
-                        h1{
+                        h1(id = id){
                             {children}
                             a(class = "heading-link", href = href) { "§" }
                         }
                     },
                     2 => rsx! { 
-                        h2{
+                        h2(id = id){
                             {children}
                             a(class = "heading-link", href = href) { "§" }
                         }
                     },
-                    3 => rsx! { h3{{children}}},
+                    3 => rsx! { 
+                        h3(id = id){
+                            {children}
+                            a(class = "heading-link", href = href) { "§" }
+                        }
+                    },
                     4 => rsx! { h4{{children}}},
                     5 => rsx! { h5{{children}}},
                     _ => rsx! { h6{{children}}},
