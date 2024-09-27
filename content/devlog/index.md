@@ -33,7 +33,10 @@ randomly generated Aabbs, hoping to find if there are any obvious mistakes.
 
 Nothing obvious.
 
-But then I remembered that the frustum is being calculated from the [`Camera`][docs_rs_camera].
+But then I remembered that the frustum is being calculated from the [`Camera`][docs_rs_camera], and 
+the camera used in the example glTF viewer (the app being profiled above), uses a 
+`Mat4::perspective_infinite_rh` projection matrix. This is not what the function that calculates the 
+frustum expects, and so I think that's where things are screwy. We'll see tomorrow morning.
 
 ## Wed Sep 25, 2024
 
