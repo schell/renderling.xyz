@@ -5,11 +5,311 @@ _Part stream of consiousness, part development notes. Updated often._
 
 <!-- 
 
-My private stuff. Pay no attention to the man behind the curtain.
+My private stuff used for editing. 
+Pay no attention to the man behind the curtain.
 
-🤞 
+emojis: 🤞🍖😈🚧⏱️😉🔗
+
+video: 
+
+
+<video controls width="100%">
+  <source src="" type="video/mp4" />
+  Backup text.
+</video>
+
 
 -->
+
+## Sat Sep 28, 2024 
+
+Today I'm digging into the real meat 🍖 of polishing frustum culling, and hopefully 
+wrapping that up with enough time to get to occlusion culling as a stretch goal. 
+
+Let's see how it goes.
+
+...⏱️
+
+My ADD strikes again.
+
+### Header links!
+
+On this website you should now see a "section link" (🔗) to the right of h1, h2
+and h3 headers when you mouse over them, or tap on them on mobile. You and I
+can use them to link to a specific section of  the devlog (but mostly **I**
+will be using them to link to a specific section of the devlog 😉).
+
+Oh, by the way - if anyone is interested in the static site pushing code that
+is used on this website, you can check it out here:
+<https://github.com/schell/pusha>.
+
+And if you're interested in the markdown parsing and HTML generation code that
+is used on this website, you can check it out here:
+<https://github.com/schell/renderling.xyz>.
+
+### Logo stuff!
+
+But first I'm going to fix the logo in the README, because after [briefly considering paying 
+for a logo](#thu_sep_19_2024), I've changed it to the "happy daddy troll": 
+
+![renderling's happy daddy troll](/img/logo.png)
+
+This is a pixel art troll I had made to test a feature in an old hand-made engine, 
+"[Old Gods](https://github.com/schell/old-gods)", which is defunct. But the troll itself 
+is a strong, happy caretaker - which is what I _try_ to be, so I've been using him as my 
+discord profile image for years and I thought "why not just use that as the logo"? I 
+had meant to do some modelling in Blender to upgrade him from pixel art to real 3d so 
+why not use this in the meantime and make the upgrade official renderling business?
+
+I like the troll, he resonates with me and so I think I'll just keep using this asset. 
+
+I made this switch after Michiel Leenaars suggested that the "meat-on-bone" emoji 
+wasn't quite up-to-snuff as the project's logo, which of course is correct. 
+
+There are a few places where the meat-on-bone emoji is still kicking around though.
+
+### Actual frustum culling.
+
+Ok, back to actually working on frustum culling...
+
+...⏱️
+
+So... ...in the glTF viewer the camera is constructed with an infinite, right-handed 
+perspective projection matrix. This did indeed mess up the the frustum culling shader.
+
+But _why_ is kinda interesting. 
+
+It's easy to see that using this infinite, right-handed projection would result in a 
+view frustum with a far plane (`zfar`) that is infinitely far away. That's the point, 
+really. When we use this projection we don't want to cull anything in front of the 
+camera. But the problem is that using this projection to construct the frustum in 
+the compute-culling shader results in a frustum with `inf` and `NaN` values, which 
+crash the shader. We don't get any info about this crash either, because it's on the
+GPU. 
+
+There are at least two ways to fix this.
+
+1. Don't use `Mat4::perspective_infinite_*`.
+2. Sanitize the frustum construction.
+
+I'm going to investigate **2**, as it's a better developer experience.
+
+...⏱️
+
+So the frustum construction function looks like this (some details omitted):
+
+```rust 
+        pub fn from_camera(camera: &Camera) -> Frustum {
+            let viewprojection = camera.projection * camera.view;
+            let mvp = viewprojection.to_cols_array_2d();
+
+            let left = normalize_plane(Vec4::new(
+                mvp[0][0] + mvp[0][3],
+                mvp[1][0] + mvp[1][3],
+                mvp[2][0] + mvp[2][3],
+                mvp[3][0] + mvp[3][3],
+            ));
+
+            // ... omitted for brevity
+
+            let fplane = Vec4::new(
+                -mvp[0][2] + mvp[0][3],
+                -mvp[1][2] + mvp[1][3],
+                -mvp[2][2] + mvp[2][3],
+                -mvp[3][2] + mvp[3][3],
+            );
+            let far = normalize_plane(fplane);
+
+            // ...
+
+            Frustum {
+                planes: [near, left, right, bottom, top, far],
+                points: [nlt, nrt, nlb, nrb, flt, frt, flb, frb],
+            }
+        }
+```
+
+In our case the values are: 
+
+* `fplane = Vec4(0.0, 0.0, 0.0, 4.0)` 
+* `far = Vec4(NaN, NaN, NaN, inf)`
+
+...and attempting to calculate these `inf` and `NaN` values crashes the shader.
+
+It's also important to note that I'm going to assume it doesn't matter which way the 
+camera is pointing, `fplane` should always contain a non-zero `x`, `y` or `z` unless 
+it's an infinite projection. We'll have to check later with an orthogonal projection.
+
+Ok, so here's our `normalize_plane` function: 
+
+```rust 
+/// Normalize a plane.
+pub fn normalize_plane(mut plane: Vec4) -> Vec4 {
+    let normal_magnitude = (plane.x.powi(2) + plane.y.powi(2) + plane.z.powi(2)).sqrt();
+    plane.x /= normal_magnitude;
+    plane.y /= normal_magnitude;
+    plane.z /= normal_magnitude;
+    plane.w /= normal_magnitude;
+    plane
+}
+```
+
+It seems like a good place to check if `normal_magnitude` is zero, and if so, make it some 
+very minimal value instead. So I'll do this instead: 
+
+```rust 
+    let normal_magnitude = (plane.x.powi(2) + plane.y.powi(2) + plane.z.powi(2))
+        .sqrt()
+        .max(f32::EPSILON);
+```
+
+This seems to get us further. Now we have: 
+
+* `fplane = Vec4(0.0, 0.0, 0.0, 4.0)`
+* `far = Vec4(0.0, 0.0, 0.0, 33554432.0)`
+
+So far so good? Except that `far` is supposed to be a plane, which is a unit vector 
+and a scalar distance from the origin, and `(0, 0, 0)` is not a unit vector.
+
+Indeed, we get a bunch of `inf` in the resulting frustum: 
+
+```
+Frustum {
+        planes: [
+            Vec4(
+                -0.2182179,
+                -0.8728716,
+                -0.4364358,
+                20.91288,
+            ),
+            Vec4(
+                0.74283457,
+                -0.33403352,
+                -0.5801882,
+                8.76838,
+            ),
+            Vec4(
+                -0.9098514,
+                -0.33403355,
+                0.24615471,
+                8.768381,
+            ),
+            Vec4(
+                -0.44415402,
+                0.116773516,
+                -0.88830805,
+                8.76838,
+            ),
+            Vec4(
+                0.27713725,
+                -0.7848406,
+                0.5542745,
+                8.76838,
+            ),
+            Vec4(
+                0.0,
+                0.0,
+                0.0,
+                33554432.0,
+            ),
+        ],
+        points: [
+            Vec3(
+                3.4992118,
+                18.65849,
+                8.850844,
+            ),
+            Vec3(
+                4.9811487,
+                18.658491,
+                8.109876,
+            ),
+            Vec3(
+                4.1459827,
+                17.850029,
+                10.144382,
+            ),
+            Vec3(
+                5.6279173,
+                17.850029,
+                9.403414,
+            ),
+            Vec3(
+                -inf,
+                -inf,
+                -inf,
+            ),
+            Vec3(
+                -inf,
+                -inf,
+                -inf,
+            ),
+            Vec3(
+                -inf,
+                -inf,
+                inf,
+            ),
+            Vec3(
+                -inf,
+                inf,
+                inf,
+            ),
+        ],
+    }
+```
+
+As you can see, all the far plane's corner points are `inf`, when what we want is for 
+them to be `f32::MAX` or `f32::MIN`.
+
+Now, I have an intuition that the near and far planes are mirrors of each other. At 
+least it seems that way geometrically. So I think we can simply take the `xyz` 
+components the near plane, invert it, and then take the distance from the origin 
+to the far plane to get a representable far plane:
+
+```rust
+let final_far = (-1.0 * near.xyz()).extend(far.w);
+```
+
+And that does it! Now the four corners of the far plane are: 
+
+```
+Vec3(
+    -25179066.0,
+    -22506832.0,
+    -19279666.0,
+),
+Vec3(
+    -316292.97,
+    -22506834.0,
+    -31711054.0,
+),
+Vec3(
+    -14328063.0,
+    -36070588.0,
+    2422342.3,
+),
+Vec3(
+    10534711.0,
+    -36070588.0,
+    -10009045.0,
+)
+```
+
+Big numbers, expectedly. Let's see if that helps.
+
+...
+
+Well, it looks like the constructed frustum can be used as a mesh, so we know the shader 
+can handle those big numbers (they didn't seem _all that big_, anyway). 
+
+Here's a clip of the example-culling app displaying the infinite frustum. 
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_11.26.03AM.mov" type="video/mp4" />
+  Infinite frustum.
+</video>
+
+So now let's recompile the shaders and see what happens with Sponza.
 
 ## Fri Sep 27, 2024
 

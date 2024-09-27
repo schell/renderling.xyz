@@ -9,6 +9,8 @@ use markdown::mdast::{
 use mogwai_dom::prelude::*;
 use snafu::ResultExt;
 
+const SECTION_LINK: &str = "🔗";
+
 pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
     log::debug!("html node:");
     match node {
@@ -295,19 +297,19 @@ impl AstRenderer {
                     1 => rsx! { 
                         h1(id = id){
                             {children}
-                            a(class = "heading-link", href = href) { "§" }
+                            a(class = "heading-link", href = href) { {SECTION_LINK} }
                         }
                     },
                     2 => rsx! { 
                         h2(id = id){
                             {children}
-                            a(class = "heading-link", href = href) { "§" }
+                            a(class = "heading-link", href = href) { {SECTION_LINK} }
                         }
                     },
                     3 => rsx! { 
                         h3(id = id){
                             {children}
-                            a(class = "heading-link", href = href) { "§" }
+                            a(class = "heading-link", href = href) { {SECTION_LINK} }
                         }
                     },
                     4 => rsx! { h4{{children}}},
