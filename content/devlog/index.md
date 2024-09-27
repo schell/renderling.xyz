@@ -1,8 +1,7 @@
 ---
 title: devlog
 ---
-_[This devlog lives permanently at https://renderling.xyz/devlog/index.html](https://renderling.xyz/devlog/index.html)_
-
+_Part stream of consiousness, part development notes. Updated often._
 
 <!-- 
 
