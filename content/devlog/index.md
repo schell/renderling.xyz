@@ -1,7 +1,7 @@
 ---
 title: devlog
 ---
-_Part stream of consiousness, part development notes. Updated often._
+_Stream of consiousness, live-blogged development notes. Updated often._
 
 <!-- 
 
@@ -400,10 +400,20 @@ So now let's add in rotation to our example-culling app to ensure that's working
   Rotated and translated AABBs being culled from a frustum.
 </video>
 
-That seems to work! There is one AABB in the first group that has a corner inside the 
+That seems to work! 
+
+### A frustum-culling "corner case"
+
+There is one AABB in the first group that has a corner inside the 
 frustum, even though it's marked as outside, so that's not good, but it's a great 
-improvement for an afternoon's work. Let's rebuild the shaders and take a look at 
-Sponza.
+improvement for an afternoon's work. 
+
+I bet that (literal) "corner case" is caused by our infinite perspective matrix fix...
+
+...nah, it happens even with a small frustum. So it's the hit testing code. I'll debug 
+that later.
+
+Let's rebuild the shaders and take a look at Sponza.
 
 <video controls width="100%">
   <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_1.38.27PM.mov" type="video/mp4" />
