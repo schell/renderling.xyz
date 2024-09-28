@@ -8,16 +8,14 @@ _Part stream of consiousness, part development notes. Updated often._
 My private stuff used for editing. 
 Pay no attention to the man behind the curtain.
 
-emojis: 🤞🍖😈🚧⏱️😉🔗
+🤞🍖🚧⏱️🔗
 
-video: 
-
+😭😈😉
 
 <video controls width="100%">
   <source src="" type="video/mp4" />
   Backup text.
 </video>
-
 
 -->
 
@@ -310,6 +308,122 @@ Here's a clip of the example-culling app displaying the infinite frustum.
 </video>
 
 So now let's recompile the shaders and see what happens with Sponza.
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_12.02.06PM.mov" type="video/mp4" />
+  Sponza after attempting to fix frustum culling.
+</video>
+
+Ew. 😭
+
+It almost looks backwards, but not quite.
+
+Let's look at the shader again.
+
+```rust 
+pub fn compute_frustum_culling(
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 0)] slab: &mut [u32],
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 1)] args: &mut [DrawIndirectArgs],
+    #[spirv(global_invocation_id)] global_id: UVec3,
+) {
+    let gid = global_id.x as usize;
+    if gid >= args.len() {
+        return;
+    }
+
+    // Get the draw arg
+    let arg = unsafe { args.index_unchecked_mut(gid) };
+    arg.instance_count = 1;
+
+    // Get the renderlet using the draw arg's renderlet id
+    let renderlet = slab.read_unchecked(arg.first_instance);
+    if renderlet.bounds.is_zero() {
+        return;
+    }
+    let camera = slab.read(renderlet.camera_id);
+    let model = slab.read(renderlet.transform_id);
+    if renderlet.bounds.is_outside_camera_view(&camera, model) {
+        arg.instance_count = 0;
+    }
+}
+```
+
+`Aabb::is_outside_camera_view` isn't the function we're using in the example-culling app.
+In the example-culling app we're using `Aabb::is_outside_frustum`.
+
+So the problem is probably in `Aabb::is_outside_camera_view` before calling `Aabb::is_outside_frustum`.
+
+Here's `Aabb::is_outside_camera_view`: 
+
+```rust 
+pub fn is_outside_camera_view(&self, camera: &Camera, transform: Transform) -> bool {
+    let transform = camera.projection * camera.view * Mat4::from(transform);
+    let min = transform.project_point3(self.min);
+    let max = transform.project_point3(self.max);
+    Aabb::new(min, max).is_outside_frustum(camera.frustum)
+}
+```
+
+So now I'm thinking that rotating the `Aabb`s is not happening as I expect. Let's add 
+that to the example-culling app so we can visualize what's happening.
+
+![Error when aabbs being culled](https://renderling.xyz/uploads/Screenshot_2024-09-28_at_12.52.50PM.png)
+
+So above you can see that even without a rotation happening, the transformation step is 
+causing havok. `Aabb`s that should be outside are colored as if inside and vice versa, 
+though it's not even an inversion of correct behavior.
+
+Wait!
+
+Oof. It's the coordinate system. The frustum is in world coordinates, and the transform 
+we're doing puts the AABB corners into clip space.
+
+The correct implementation of `is_outside_camera_view` should be: 
+
+```rust 
+pub fn is_outside_camera_view(&self, camera: &Camera, transform: Transform) -> bool {
+    let transform = Mat4::from(transform);
+    let min = transform.transform_point3(self.min);
+    let max = transform.transform_point3(self.max);
+    Aabb::new(min, max).is_outside_frustum(camera.frustum)
+}
+```
+
+Indeed, that works now:
+
+![Translated aabbs being properly culled](https://renderling.xyz/uploads/Screenshot_2024-09-28_at_1.24.49PM.png)
+
+So now let's add in rotation to our example-culling app to ensure that's working: 
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_1.30.33PM.mov" type="video/mp4" />
+  Rotated and translated AABBs being culled from a frustum.
+</video>
+
+That seems to work! There is one AABB in the first group that has a corner inside the 
+frustum, even though it's marked as outside, so that's not good, but it's a great 
+improvement for an afternoon's work. Let's rebuild the shaders and take a look at 
+Sponza.
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_1.38.27PM.mov" type="video/mp4" />
+  Sponza rendered with frustum culling.
+</video>
+
+Sweet as! It's like night and day.
+
+Interestingly, and expectedly - the speedup of frustum culling depends on where you're 
+looking. When you look down at the ground the FPS jumps up to 61! If I'm looking at the 
+lion statue, it goes down to around 25. So definitely a lot of room for improvement.
+
+### GPU capture after frustum culling
+
+Now let's see how much time we're really saving with the naive frustum culling.
+
+![renderling Sponza GPU frame capture after some debugging of the naive compute-culling](https://renderling.xyz/uploads/Screenshot_2024-09-28_at_1.48.59PM.png)
+
+So previously ~55ms and now ~37ms. Still about a 30% reduction, but I purposefully captured
+a frame while looking in the direction of the most intricate geometry.
 
 ## Fri Sep 27, 2024
 
