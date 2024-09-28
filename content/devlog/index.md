@@ -411,9 +411,9 @@ improvement for an afternoon's work.
 I bet that (literal) "corner case" is caused by our infinite perspective matrix fix...
 
 ...nah, it happens even with a small frustum. So it's the hit testing code. I'll debug 
-that later.
+that later. [I made a ticket](https://github.com/schell/renderling/issues/131).
 
-Let's rebuild the shaders and take a look at Sponza.
+Now let's rebuild the shaders and take a look at Sponza.
 
 <video controls width="100%">
   <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_1.38.27PM.mov" type="video/mp4" />
@@ -434,6 +434,11 @@ Now let's see how much time we're really saving with the naive frustum culling.
 
 So previously ~55ms and now ~37ms. Still about a 30% reduction, but I purposefully captured
 a frame while looking in the direction of the most intricate geometry.
+
+### That's a wrap on frustum culling
+
+I called this "naive" frustum culling, but that's really about it. I didn't get to try 
+out occlusion culling yet, which is the next step, but I will later.
 
 ## Fri Sep 27, 2024
 
