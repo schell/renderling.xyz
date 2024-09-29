@@ -302,21 +302,22 @@ Big numbers, expectedly. Let's see if that helps.
 Well, it looks like the constructed frustum can be used as a mesh, so we know the shader 
 can handle those big numbers (they didn't seem _all that big_, anyway). 
 
-Here's a video of the example-culling app displaying the infinite frustum. 
+Here's a video of the example-culling app displaying the infinite frustum. AABBs
+that should be culled are shown in red and visible AABBs are blue.
 
 <video controls width="100%">
   <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_11.26.03AM.mov" type="video/mp4" />
   Infinite frustum.
 </video>
 
-So now let's recompile the shaders and see what happens with Sponza.
+Looks okay. So now let's recompile the shaders and see what happens with Sponza.
 
 <video controls width="100%">
   <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_12.02.06PM.mov" type="video/mp4" />
   Sponza after attempting to fix frustum culling.
 </video>
 
-Ew. 😭
+Ew. 😭.
 
 It almost looks backwards, but not quite.
 
@@ -384,6 +385,8 @@ The correct implementation of `is_outside_camera_view` should be:
 
 ```rust 
 pub fn is_outside_camera_view(&self, camera: &Camera, transform: Transform) -> bool {
+    // Here we don't need to multiply by camera.projection * camera.view, because 
+    // we want the AABB in world space.
     let transform = Mat4::from(transform);
     let min = transform.transform_point3(self.min);
     let max = transform.transform_point3(self.max);
@@ -474,13 +477,13 @@ Let's figure out what's going on with this "corner case":
 And you can see from the inside of the frustum that the corner is poking through, and yet that 
 AABB is marked as red, which means "should be culled". 
 
-Obviously this is bad because it would result in an asset being hidden when it should be shown. 
+Obviously this is bad because it would result in geometry being erroneously culled. 
 
 Here's the view from within the frustum:
 
 ![inside the frustum corner case](https://renderling.xyz/uploads/Screenshot_2024-09-29_at_9.25.41AM.png)
 
-So let's get exactly which AABB that is.
+Which clearly shows the "corner case" ;) So let's get exactly which AABB that is.
 
 ...
 
