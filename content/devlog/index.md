@@ -8,7 +8,9 @@ _Stream of consiousness, live-blogged development notes. Updated often._
 My private stuff used for editing. 
 Pay no attention to the man behind the curtain.
 
-🤞🍖🚧⏱️🔗
+🤞🍖🚧🔗🤦
+
+⏱️
 
 😭😈😉
 
@@ -261,7 +263,7 @@ them to be `f32::MAX` or `f32::MIN`.
 
 Now, I have an intuition that the near and far planes are mirrors of each other. At 
 least it seems that way geometrically. So I think we can simply take the `xyz` 
-components the near plane, invert it, and then take the distance from the origin 
+components of the near plane, invert it, and then take the distance from the origin 
 to the far plane to get a representable far plane:
 
 ```rust
@@ -300,7 +302,7 @@ Big numbers, expectedly. Let's see if that helps.
 Well, it looks like the constructed frustum can be used as a mesh, so we know the shader 
 can handle those big numbers (they didn't seem _all that big_, anyway). 
 
-Here's a clip of the example-culling app displaying the infinite frustum. 
+Here's a video of the example-culling app displaying the infinite frustum. 
 
 <video controls width="100%">
   <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-28_at_11.26.03AM.mov" type="video/mp4" />
@@ -435,10 +437,152 @@ Now let's see how much time we're really saving with the naive frustum culling.
 So previously ~55ms and now ~37ms. Still about a 30% reduction, but I purposefully captured
 a frame while looking in the direction of the most intricate geometry.
 
+### Frustum culling last debugging - Camera
+
+I'm debugging some tests that have broken on the `feature/compute-frustum-culling` branch.
+
+The first issue is with `Camera`. 
+
+When a `Camera` is created with `Camera::new`, the `position` and `frustum` are calculated 
+from the `projection` and `view`, and cached in those aptly named fields.
+
+The same thing happens when you update the projection or view using a number of functions.
+
+But if you construct a `Camera` using struct syntax, `position` and `frustum` are never 
+calculated.
+
+This has unexpected effects inside our shaders. 
+
+There's a couple ways to fix this. I'm leaning towards making `position` and `frustum`
+private fields, that way you must use `Camera::new`, but that still won't help the 
+situation `camera.projection = _`, which results in an incorrect `position` and `frustum`.
+
+Maybe all the fields should be private? I don't know why I have a knee-jerk reaction against
+that. That's probably the fix...
+
+I think I don't like it just because it makes the API lop-sided. But that's aesthetic.
+
+Ok, I'm going to do that. This is a breaking change, unfortunately, I guess, though the 
+library isn't popular enough to really be worried about that.
+
+### Frustum culling last debugging - AABB vs Frustum corner case
+
+Let's figure out what's going on with this "corner case":
+
+![outside the frustum corner case](https://renderling.xyz/uploads/Screenshot_2024-09-29_at_9.25.26AM.png)
+
+And you can see from the inside of the frustum that the corner is poking through, and yet that 
+AABB is marked as red, which means "should be culled". 
+
+Obviously this is bad because it would result in an asset being hidden when it should be shown. 
+
+Here's the view from within the frustum:
+
+![inside the frustum corner case](https://renderling.xyz/uploads/Screenshot_2024-09-29_at_9.25.41AM.png)
+
+So let's get exactly which AABB that is.
+
+...
+
+Ha! It's the very first one.
+
+![the perp AABB](https://renderling.xyz/uploads/Screenshot_2024-09-29_at_9.31.43AM.png)
+
+Let's write a unit test.
+
+We've got these values for the AABB (and its transform):
+
+`Aabb { min: Vec3(-3.2869213, -3.0652206, -3.8715153), max: Vec3(3.2869213, 3.0652206, 3.8715153) }`
+
+`Transform { translation: Vec3(7.5131035, -9.947085, -5.001645), rotation: Quat(0.4700742, 0.34307128, 0.6853008, -0.43783003), scale: Vec3(1.0, 1.0, 1.0) }`
+
+And the camera, which constructs the frustum:
+
+```rust 
+let aspect = 1.0;
+let fovy = core::f32::consts::FRAC_PI_4;
+let znear = 4.0;
+let zfar = 1000.0;
+let projection = Mat4::perspective_rh(fovy, aspect, znear, zfar);
+let eye = Vec3::new(0.0, 0.0, 10.0);
+let target = Vec3::ZERO;
+let up = Vec3::Y;
+let view = Mat4::look_at_rh(eye, target, up);
+Camera::new(projection, view)
+```
+
+From this we should be able to write a unit test and start poking around.
+
+...
+
+Here's our failing unit test: 
+
+```rust 
+let camera = {
+    let aspect = 1.0;
+    let fovy = core::f32::consts::FRAC_PI_4;
+    let znear = 4.0;
+    let zfar = 1000.0;
+    let projection = Mat4::perspective_rh(fovy, aspect, znear, zfar);
+    let eye = Vec3::new(0.0, 0.0, 10.0);
+    let target = Vec3::ZERO;
+    let up = Vec3::Y;
+    let view = Mat4::look_at_rh(eye, target, up);
+    Camera::new(projection, view)
+};
+let aabb = Aabb {
+    min: Vec3::new(-3.2869213, -3.0652206, -3.8715153),
+    max: Vec3::new(3.2869213, 3.0652206, 3.8715153),
+};
+let transform = Transform {
+    translation: Vec3::new(7.5131035, -9.947085, -5.001645),
+    rotation: Quat::from_xyzw(0.4700742, 0.34307128, 0.6853008, -0.43783003),
+    scale: Vec3::new(1.0, 1.0, 1.0),
+};
+assert!(
+    !aabb.is_outside_camera_view(&camera, transform),
+    "aabb should be inside the frustum"
+);
+```
+
+...⏱️⏱️⏱️
+
+Ah. Shoot. 🤦. You may have caught this way before I did. 
+
+When you rotate an AABB, you can't simply take its rotated min and max values and 
+create a new AABB, because the other two corners may have smaller and larger 
+components. To properly enclose all corners you have to min/max all of them.
+
+Here's a screenshot of the same frustum culling demo, but we also draw the 
+erroneous AABBs that I thought would enclose the transformed objects:
+
+![Erroneous AABBs not really enclosing trasformed AABBs](https://renderling.xyz/uploads/Screenshot_2024-09-29_at_4.23.27PM.png)
+
+This is just an embarrassing oversight on my part. So instead of calculating 
+the AABB of the _transformed AABB_ of the object, I think we should go with a 
+bounding sphere. The other engines do this, and it makes sense. It also means 
+we store less data on the GPU (one less `f32` per draw call). 
+
+### Frustum culling - Bounding spheres
+
+
+
 ### That's a wrap on frustum culling
 
-I called this "naive" frustum culling, but that's really about it. I didn't get to try 
-out occlusion culling yet, which is the next step, but I will later.
+I called this "naive" frustum culling, but that's really about all there is to it. 
+I didn't get to try out occlusion culling yet, which is the next step, but I will later.
+
+Occlusion culling is not part of this milestone, and I have limited time on my grant 
+project to hit the other milestones (specifically light tiling). So I can circle back 
+to this later.
+
+#### How rust-gpu helped me with frustum culling
+
+I almost forgot to mention that this is a great example of how much it helps to have 
+the same language used on each side of the CPU/GPU barrier. Here because my project 
+uses Rust on both sides, [I was able to set up an example app that excercises GPU 
+code on the CPU](https://github.com/schell/renderling/pull/130/files#diff-61c616792498cbf0db32072c16e9d0c12e4714bc7f22b253b7ae1e74a0220a5b),
+showing me exactly what the problem is, visually.
 
 ## Fri Sep 27, 2024
 
