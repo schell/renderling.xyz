@@ -558,6 +558,10 @@ erroneous AABBs that I thought would enclose the transformed objects:
 
 ![Erroneous AABBs not really enclosing trasformed AABBs](https://renderling.xyz/uploads/Screenshot_2024-09-29_at_4.23.27PM.png)
 
+It's obvious from the screenshot that the calculated AABBs (shown in white) don't enclose 
+all corners of the transformed AABBs. You can even see that one pesky AABB that started
+this whole "corner case" - its white AABB obviously _not_ intersecting the frustum.
+
 This is just an embarrassing oversight on my part. So instead of calculating 
 the AABB of the _transformed AABB_ of the object, I think we should go with a 
 bounding sphere. The other engines do this, and it makes sense. It also means 
