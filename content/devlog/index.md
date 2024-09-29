@@ -52,7 +52,7 @@ is used on this website, you can check it out here:
 But first I'm going to fix the logo in the README, because after [briefly considering paying 
 for a logo](#thu_sep_19_2024), I've changed it to the "happy daddy troll": 
 
-![renderling's happy daddy troll](/img/logo.png)
+![renderling's happy daddy troll](https://renderling.xyz/uploads/old_gods.png)
 
 This is a pixel art troll I had made to test a feature in an old hand-made engine, 
 "[Old Gods](https://github.com/schell/old-gods)", which is defunct. But the troll itself 
