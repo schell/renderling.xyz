@@ -569,13 +569,25 @@ we store less data on the GPU (one less `f32` per draw call).
 
 ### Frustum culling - Bounding spheres
 
-... I'll be implementing this later, and updating it here. It's really just about 
-changing the gltf import code to use a bounding radius and center instead of an AABB,
-and then using a bounding sphere in culling instead of the AABB.
+I'm changing the gltf import code to use a bounding radius and center instead of an AABB,
+and then doing the same in the culling code.
+
+That does it.
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/Screen_Recording_2024-09-29_at_8.23.29PM.mov" type="video/mp4" />
+  Properly culled AABBs by using bounding spheres.
+</video>
+
+You can see from the video that using a bounding sphere is more conservative in what 
+it culls. This means we'll have less of an FPS boost, but it will be correct!
+
+I have a feeling that occlusion culling will really help out on the Sponza scene.
 
 ### That's a wrap on frustum culling
 
-I called this "naive" frustum culling, but that's really about all there is to it. 
+I called this "naive" frustum culling, but that's really about all there is to 
+the algorithm. Don't get me wrong, this took plenty of time (my whole weekend).
 I didn't get to try out occlusion culling yet, which is the next step, but I will later.
 
 Occlusion culling is not part of this milestone, and I have limited time on my grant 
