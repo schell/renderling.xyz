@@ -565,7 +565,9 @@ we store less data on the GPU (one less `f32` per draw call).
 
 ### Frustum culling - Bounding spheres
 
-
+... I'll be implementing this later, and updating it here. It's really just about 
+changing the gltf import code to use a bounding radius and center instead of an AABB,
+and then using a bounding sphere in culling instead of the AABB.
 
 ### That's a wrap on frustum culling
 
