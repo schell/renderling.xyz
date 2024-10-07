@@ -21,6 +21,32 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Tue Oct 8, 2024
+
+I've been working on extending the pre-render culling phase by adding occlusion culling.
+
+The algorithm roughly goes like this: 
+
+1. create a mipmap pyramid of the depth texture
+2. get the screen-space AABB of each object
+3. for each AABB, fetch the depth of the pyramid at the level where one pixel covers as much space as the AABB
+4. if the depth is greater than that of the aabb, cull
+
+This would involve at least two shaders, one to generate the depth pyramid and one to do the culling.
+
+I'm still working on generating the depth pyramid and so far it's been pretty painful, mostly because 
+the SPIR-V support in `naga` for working with depth textures is not up to par.
+
+After a bunch of thrashing, I landed on an implementation that sidesteps a lot of the depth texture stuff. 
+Instead of using a bunch of mipmaps, I represent the pyramid by an array of
+arrays that I can hold in a storage buffer, using [`crabslab`](crabslab).
+
+I still need to copy the depth texture to the top level of the pyramid, though, 
+and that's where I'm running into trouble. It just doesn't seem possible for 
+naga to validate SPIR-V shaders that sample a depth texture. 
+
+[I found a very on-topic pre-existing naga issue](https://github.com/gfx-rs/wgpu/issues/4551).
+
 ## Sat Sep 28, 2024 
 
 Today I'm digging into the real meat 🍖 of polishing frustum culling, and hopefully 
@@ -2740,3 +2766,4 @@ I have to generate mipmaps to smooth out the irradiance and prefiltered
 cubemaps that we use for pbr shading.
 
 [docs_rs_camera]: https://docs.rs/renderling/latest/renderling/camera/struct.Camera.html
+[crabslab]: https://github.com/schell/crabslab
