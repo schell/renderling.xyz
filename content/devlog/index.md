@@ -39,7 +39,7 @@ the SPIR-V support in `naga` for working with depth textures is not up to par.
 
 After a bunch of thrashing, I landed on an implementation that sidesteps a lot of the depth texture stuff. 
 Instead of using a bunch of mipmaps, I represent the pyramid by an array of
-arrays that I can hold in a storage buffer, using [`crabslab`](crabslab).
+arrays that I can hold in a storage buffer, using [`crabslab`][crabslab].
 
 I still need to copy the depth texture to the top level of the pyramid, though, 
 and that's where I'm running into trouble. It just doesn't seem possible for 
