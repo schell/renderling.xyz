@@ -21,6 +21,15 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Wed Oct 9, 2024
+
+I submitted a [PR to fix the depth texture sampling problem](https://github.com/gfx-rs/wgpu/pull/6384) in `naga`.
+
+It's odd though, because the technique I employed fixes sampling (with a sampler), but fetching/loading still
+seems not to validate. I'm pretty sure it's ok to load from a depth texture, though.
+
+I'll have to find the relevant parts in the WGSL spec or something.
+
 ## Tue Oct 8, 2024
 
 I've been working on extending the pre-render culling phase by adding occlusion culling.
@@ -30,7 +39,7 @@ The algorithm roughly goes like this:
 1. create a mipmap pyramid of the depth texture
 2. get the screen-space AABB of each object
 3. for each AABB, fetch the depth of the pyramid at the level where one pixel covers as much space as the AABB
-4. if the depth is greater than that of the aabb, cull
+4. if the depth is less than that of the aabb, cull
 
 This would involve at least two shaders, one to generate the depth pyramid and one to do the culling.
 
