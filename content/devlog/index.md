@@ -30,6 +30,20 @@ seems not to validate. I'm pretty sure it's ok to load from a depth texture, tho
 
 I'll have to find the relevant parts in the WGSL spec or something.
 
+### Going deeper on sampling depth textures
+
+So on the fix branch above^ it looks like the snapshot test for `shadow.spv` is failing validation. 
+
+It's expecting that some function return a scalar, but now it's returning a vector. 
+
+That tracks because I've changed depth texture loads/samples to splat their return value, since WGSL expects 
+sampled depth textures to return vectors, but SPIR-V expects them to return scalars.
+
+The exception is that in the case of the SPIR-V ops `OpImageSampleDrefExplicitLod` or `OpImageSampleDrefImplicitLod`, 
+the result type must be a scalar. 
+
+So the fix is easy then, check if there's a "dref" in the parsed image op and only splat if we can't find one.
+
 ## Tue Oct 8, 2024
 
 I've been working on extending the pre-render culling phase by adding occlusion culling.
