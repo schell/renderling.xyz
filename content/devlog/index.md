@@ -21,6 +21,92 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Thu Oct 10, 2024
+
+I'm running with a patched version of `naga` until my [PR to fix the depth texture sampling problem](https://github.com/gfx-rs/wgpu/pull/6384)
+gets merged. Well - I'll still be running witha patch until that stuff and my atomics work hits crates.io.
+
+So, let's do some occlusion culling!
+
+### Workin' at the pyramid 🔻
+
+I think that now that I can use depth textures, I might just go the more traditional route of storing the pyramid in actual 
+texture mips...
+
+...⏱️
+
+Ugh! 
+
+According to the [WGSL spec](https://gpuweb.github.io/gpuweb/wgsl/#texture-depth): 
+> Depth textures only allow read accesses.
+
+Blarg. That means I can't use depth textures for the pyramid, because I have to read **and** write them. 
+I'll have to change them to `R32Float` so I can write to them, which means writing one more shader to copy
+the depth texture to the top level of the pyramid.
+
+I've written the shaders using these image types here:
+
+```rust 
+pub type DepthImage2d = Image!(2D, type=f32, sampled=true, depth=true);
+pub type DepthPyramidImage = Image!(2D, format = r32f, sampled = false, depth = false);
+```
+
+...but compilation errs in SPIR-V validation with:
+
+```
+error: error:0:0 - Expected Image 'Sampled' parameter to be 1
+         %114 = OpImageFetch %v4float %113 %110 Lod %111
+```
+
+I guess you can only `fetch` from sampled images, and can only `write` to non-sampled images. 
+
+This effectively means that an image must either be read-only or write-only.
+
+So now I have these image types:
+
+```rust 
+pub type DepthImage2d = Image!(2D, type=f32, sampled=true, depth=true);
+pub type DepthPyramidImage = Image!(2D, format = r32f, sampled = true, depth = false);
+pub type DepthPyramidImageMut = Image!(2D, format = r32f, sampled = false, depth = false);
+```
+
+Which compiles. Phwew.
+
+Now does it validate in `naga`?
+
+Ugh. I have to fix errors on the CPU side before I can run the tests, lol.
+
+It looks like the latest `wgpu` changed somethings. 
+Most notably that shader entry points and render/compute pass bindings are optional.
+
+...⏱️
+
+One of the shaders validates. The one that copies the depth to the top of the pyramid. 
+
+The downsampling shader doesn't validate, because it has an "Inappropriate
+sample or level-of-detail index for texel access".
+
+I've been using `fetch_with` using a level-of-detail `0`. So I guess I'll try just 
+using `fetch`?
+
+...⏱️
+
+Ok, that did it. Odd. I've found that working with graphics APIs are often like this.
+I should figure out exactly _why_, but that's a distraction I get revisit later.
+
+...⏱️
+
+### Rust-Gpu image read/write woes
+
+I'm having trouble getting my copy-depth pipeline layout to match the shader.
+The shader expects the mip to be a read/write storage texture, but WebGPU only
+allows write-only storage textures. I can't seem to figure out how to have my 
+shader specify that the image is write-only. Indeed there does _not_ seem to 
+be a way to express this in the 
+[`Image`](https://docs.rs/spirv-std/0.9.0/spirv_std/image/struct.Image.html) type.
+
+Looks like I'll have to open an issue.
+
 ## Wed Oct 9, 2024
 
 I submitted a [PR to fix the depth texture sampling problem](https://github.com/gfx-rs/wgpu/pull/6384) in `naga`.

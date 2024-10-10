@@ -82,6 +82,19 @@ main h3 {
   font-weight: bold;
 }
 
+h1, h2, h3, h4 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+blockquote {
+    background-color: lemonchiffon;
+    margin: 1em;
+}
+
+blockquote p {
+    border-left: 0.5em solid gold;
+}
+
 .hero {
     float: right;
 }
