@@ -10,7 +10,7 @@ Pay no attention to the man behind the curtain.
 
 🤞🍖🚧🔗🤦
 
-⏱️
+...⏱️
 
 😭😈😉
 
@@ -20,6 +20,33 @@ Pay no attention to the man behind the curtain.
 </video>
 
 -->
+
+## Sat Oct 12, 2024
+
+### rust-gpu `Image` access
+
+I opened an [issue to add `AccessQualifier` to `Image` in Rust-GPU](https://github.com/Rust-GPU/rust-gpu/issues/28).
+Resolving that should result in my pyramid-copy-depth shader being usable from `wgpu`. 
+
+But resolving that... ...is going to have to come from me, I'm afraid, lol.
+
+...⏱️
+
+Ok so I'm attempting to `cargo build` the `rust-gpu` repo and am hitting a segfault, so now I'm using `lldb`
+to debug `rustc`...
+
+...not to much avail. There are a lot of arguments and env vars that `cargo` sets that make it difficult to 
+debug `rustc` directly.
+
+I'm thrashing by installing all macOS updates and restarting, then doing a `cargo clean`...
+
+...⏱️
+
+My [PR to fix the depth texture sampling problem](https://github.com/gfx-rs/wgpu/pull/6384) in `naga` merged!
+
+And my [PR to add AccessQualifier to Image](https://github.com/Rust-GPU/rust-gpu/pull/30) in `rust-gpu` is ready.
+
+So I _should_ be able to write this occlusion culling now, lol.
 
 ## Thu Oct 10, 2024
 
