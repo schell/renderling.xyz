@@ -21,6 +21,63 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Sun Oct 13, 2024 
+
+### A pyramid of woes
+
+I'm still working on occlusion culling - just trying to get my shader operational
+(a simple one that copies a depth texture to the top of a depth pyramid).
+
+When creating a `ComputePipeline` for my SPIR-V shader I'm getting this error:
+
+```
+wgpu error: Validation Error
+
+Caused by:
+  In Device::create_compute_pipeline, label = 'compute-occlusion-copy-depth-to-pyramid'
+    Error matching shader requirements against the pipeline
+      Shader global ResourceBinding { group: 0, binding: 2 } is not available in the pipeline layout
+        Texture class Storage { format: R32Float, access: StorageAccess(STORE) } doesn't match the shader Storage { format: R32Float, access: StorageAccess(LOAD | STORE) }
+```
+
+but the texture in question can't be marked as write-only, as that's not possible in SPIR-V:
+
+> Sampled indicates whether or not this image is accessed in combination with a sampler, and must be one of the following values:
+> 0 indicates this is only known at run time, not at compile time
+> 1 indicates an image compatible with sampling operations
+> 2 indicates an image compatible with read/write operations (a storage or subpass data image).
+
+The texture in question is defined as `%37 = OpTypeImage %float 2d 0 0 0 2 r32f`.
+
+I had thought that providing the access qualifier would tell `wgpu` that the texture is write-only, but that was a wild goose chase.
+
+I guess I should use 0 for "Sampled" (the second to last value in `OpTypeImage`)?
+
+No, because that fails spir-val: `error: [VUID-StandaloneSpirv-OpTypeImage-04657] Sampled must be 1 or 2 in the Vulkan environment.`
+
+So, the [SPIR-V spec for `OpImageWrite`](https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#OpImageWrite) says:
+
+> Image must be an object whose type is OpTypeImage with a Sampled operand of 0 or 2.
+
+But using `0` seems to fail spir-val, and using `2` passes `spir-val`'s validation, but fails wgpu's validation with the above error. 
+
+Is this a bug? Or maybe I'm just not doing it right?
+
+...
+
+I found [this issue](https://github.com/gpuweb/gpuweb/issues/513), which is illuminating, but doesn't offer any plan of action. 
+If I read it correctly.
+
+### Back to the pyramid-on-a-buffer
+
+I relayed the same thing above^ to the [`wgpu` matrix channel](https://app.element.io/#/room/#wgpu:matrix.org), but 
+nobody has responded, and as usual I have to prioritize and triage my effort, so I'm going back to storing the 
+pyramid on the slab instead of using textures.
+
+...
+
+
+
 ## Sat Oct 12, 2024
 
 ### rust-gpu `Image` access
