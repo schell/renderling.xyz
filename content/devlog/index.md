@@ -21,6 +21,58 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Mon Oct 14, 2024
+
+### I finally scaled the pyramid (or downsampled, I should say)
+
+So I side-stepped the [pyramid of woes](#a_pyramid_of_woes) by moving the occlusion culling's depth pyramid
+to a storage buffer.
+
+Then I needed to debug the downsampling shader. Turns out I had a couple checks backwards, and I had also 
+forgotten to reset the pyramid's `mip_level` back to zero after downsampling. The `mip_level` in 
+the pyramid descriptor determines which level we're currently downsampling _into_, and also 
+whether compute invocations continue, so that was causing the copy-depth-to-pyramid shader to 
+exit prematurely.
+
+After fixing those issues I now have a nice-looking depth pyramid to use for culling:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Frame</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/frame.png" />
+    </div>
+    <div class="image">
+        <label>Depth</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/depth.png" />
+    </div>
+    <div class="image">
+        <label>Mip 0</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/mip_0.png" />
+    </div>
+    <div class="image">
+        <label>Mip 1</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/mip_1.png" />
+    </div>
+    <div class="image">
+        <label>Mip 2</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/mip_2.png" />
+    </div>
+    <div class="image">
+        <label>Mip 3</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/mip_3.png" />
+    </div>
+    <div class="image">
+        <label>Mip 4</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/mip_4.png" />
+    </div>
+    <div class="image">
+        <label>Mip 5</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1728868413/mip_5.png" />
+    </div>
+</div>    
+
+Check out how it looks like the classic pixelated transition effect ;)
+
 ## Sun Oct 13, 2024 
 
 ### A pyramid of woes
