@@ -21,6 +21,15 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Tue Oct 15, 2024
+
+### Occlusion culling un-occluded
+
+So now that [I finally have a proper depth pyramid](#i_finally_scaled_the_pyramid_or_downsampled_i_should_say)
+I can start working on the compute shader that will use the pyramid to "trim" the indirect draw 
+buffer. Bunny ears on "trim" because it doesn't filter/compact the buffer, it just sets the 
+`instance_count` field to `0`.
+
 ## Mon Oct 14, 2024
 
 ### I finally scaled the pyramid (or downsampled, I should say)
