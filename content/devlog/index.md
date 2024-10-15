@@ -21,6 +21,26 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Wed Oct 16, 2024
+
+### Occlusion culling getting close
+
+[I ran into a couple more hurdles](#about_those_hurdles), but the [occlusion culling feature
+branch](https://github.com/schell/renderling/pull/137) is finally compiling,
+running and passing existing tests. I don't know if it's actually _working_ yet
+though, in that I don't have any tests that verify the occlusion culling.
+
+So that's the next step. Writing unit tests and getting some screenshots, etc.
+
+### About those hurdles
+
+**tl;dr** - multisampling affects the depth buffer.
+
+With MSAA on the depth buffer is multisampled. Not only does changing the
+sample count affect pipeline and bindgorup layouts, it determines the **type**
+of the depth image in any shader that uses it. This means I had to
+make two shaders - one for multisampling and one for not-multisampling. 
+
 ## Tue Oct 15, 2024
 
 ### Occlusion culling un-occluded
