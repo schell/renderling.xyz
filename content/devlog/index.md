@@ -27,11 +27,10 @@ Pay no attention to the man behind the curtain.
 
 This morning I fixed a bug in the texture atlas. 
 
-During re-packing 
-if an existing image changed layers, a simple typo was preventing that layer
-from being updated to the new layer index. 
+During re-packing if an existing image changed layers, a simple typo was
+preventing that layer from being updated to the new layer index. 
 
-It's an bad bug because repacking happens often: any time an image is added or removed.
+It's a bad bug because repacking happens often: any time an image is added or removed.
 
 It was a one line change.
 
