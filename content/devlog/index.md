@@ -8,7 +8,7 @@ _Stream of consiousness, live-blogged development notes. Updated often._
 My private stuff used for editing. 
 Pay no attention to the man behind the curtain.
 
-🤞🍖🚧🔗🤦
+🤞🍖🚧🔗🤦🙇
 
 ...⏱️
 
@@ -20,6 +20,22 @@ Pay no attention to the man behind the curtain.
 </video>
 
 -->
+
+## Thu Oct 17, 2024
+
+### Layer index atlas bug when repacking a texture
+
+This morning I fixed a bug in the texture atlas. 
+
+During re-packing 
+if an existing image changed layers, a simple typo was preventing that layer
+from being updated to the new layer index. 
+
+It's an bad bug because repacking happens often: any time an image is added or removed.
+
+It was a one line change.
+
+Thanks to [@firestar99](https://github.com/Firestar99/) for finding that one 🙇.
 
 ## Wed Oct 16, 2024
 
