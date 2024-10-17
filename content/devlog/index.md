@@ -21,6 +21,24 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Fri Oct 18, 2024
+
+### Pre-debugging occlusion culling results
+
+Sometimes it's hard to write about failure, so I'll let the video do the talking:
+
+<video controls width="100%">
+  <source src="https://renderling.xyz/uploads/1729188064/Screen_Recording_2024-10-18_at_6.56.44AM.mov" type="video/mp4" />
+  First attempt at running occlusion culling on Sponza in Renderling.
+</video>
+
+As you can see the framerate is worse! It's at ~6FPS now. 
+
+I _could_ just dive right in at this point, trying to figure out why it's so slow, but it's also obviously incorrect in that 
+its culling the wrong things.
+
+So I'll take some time to pick apart my occlusion culling shader and verify its different steps first.
+
 ## Thu Oct 17, 2024
 
 ### Layer index atlas bug when repacking a texture
