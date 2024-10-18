@@ -8,7 +8,7 @@ _Stream of consiousness, live-blogged development notes. Updated often._
 My private stuff used for editing. 
 Pay no attention to the man behind the curtain.
 
-🤞🍖🚧🔗🤦🙇
+👍🤞🍖🚧🔗🤦🙇
 
 ...⏱️
 
@@ -19,15 +19,22 @@ Pay no attention to the man behind the curtain.
   Backup text.
 </video>
 
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Label</label>
+        <img class="pixelated" width="100" src="" />
+    </div>
+</div>
 -->
 
-## Fri Oct 18, 2024
+## Fri Oct 18, 2024 & Sat Oct 19, 2024
 
 ### Pre-debugging occlusion culling results
 
 Sometimes it's hard to write about failure, so I'll let the video do the talking:
 
-<video controls width="100%">
+<video controls width="50%">
   <source src="https://renderling.xyz/uploads/1729188064/Screen_Recording_2024-10-18_at_6.56.44AM.mov" type="video/mp4" />
   First attempt at running occlusion culling on Sponza in Renderling.
 </video>
@@ -38,6 +45,266 @@ I _could_ just dive right in at this point, trying to figure out why it's so slo
 its culling the wrong things.
 
 So I'll take some time to pick apart my occlusion culling shader and verify its different steps first.
+
+### Debugging occlusion culling 
+
+First we'll build the scene. We'll need some little cubes, we'll put them in the corner. 
+
+Then we'll add a floor that occludes the little cubes.
+
+Then we'll add a green cube in the middle.
+
+Then we'll add a purple cube that occludes the green one.
+
+You should still be able to see the two little cubes at the top.
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Little cubes</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_0_yellow_cubes.png" />
+    </div>
+    <div class="image">
+        <label>Floor</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_1_floor.png" />
+    </div>
+    <div class="image">
+        <label>Green cube</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_2_green_cube.png" />
+    </div>
+    <div class="image">
+        <label>Purple cube</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_3_purple_cube.png" />
+    </div>
+</div>
+
+Then we'll extract the depth buffer and the hierarchical z-buffer
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_4_depth.png" />
+    </div>
+    <div class="image">
+        <label>Mip 0</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_0.png" />
+    </div>
+    <div class="image">
+        <label>Mip 1</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_1.png" />
+    </div>
+    <div class="image">
+        <label>Mip 2</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_2.png" />
+    </div>
+    <div class="image">
+        <label>Mip 3</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_3.png" />
+    </div>
+    <div class="image">
+        <label>Mip 4</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_4.png" />
+    </div>
+    <div class="image">
+        <label>Mip 5</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_5.png" />
+    </div>
+    <div class="image">
+        <label>Mip 6</label>
+        <img class="pixelated" width="128" src="https://renderling.xyz/uploads/1729217850/debugging_pyramid_mip_6.png" />
+    </div>
+</div>
+
+Everything looks in order. Now we can start running the shader on the CPU...
+
+### HZB debugging on the CPU, gathering buffers
+
+This is the type of the function that computes culling: 
+
+```rust 
+#[spirv(compute(threads(32)))]
+pub fn compute_culling(
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 0)] stage_slab: &[u32],
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 1)] depth_pyramid_slab: &[u32],
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 2)] args: &mut [DrawIndirectArgs],
+    #[spirv(global_invocation_id)] global_id: UVec3,
+)
+```
+
+In order to call this from the CPU we'll need those three buffers, so I have to
+read those from the GPU in my test.
+
+```rust 
+        // The stage's slab, which contains the `Renderlet`s and their `BoundingSphere`s
+        let stage_slab =
+            futures_lite::future::block_on(stage.read(&ctx, Some("read stage"), ..)).unwrap();
+        let draw_calls = stage.draw_calls.read().unwrap();
+        let indirect_draws = draw_calls.drawing_strategy.as_indirect().unwrap();
+        // The HZB slab, which contains a `DepthPyramidDescriptor` at index 0, and all the
+        // pyramid's mips
+        let depth_pyramid_slab = futures_lite::future::block_on(
+            indirect_draws
+                .compute_culling
+                .compute_depth_pyramid
+                .depth_pyramid
+                .slab
+                .read(&ctx, Some("read hzb desc"), ..),
+        )
+        .unwrap();
+        // The indirect draw buffer
+        let mut args_slab =
+            futures_lite::future::block_on(indirect_draws.slab.read(&ctx, Some("read args"), ..))
+                .unwrap();
+        let args: &mut [DrawIndirectArgs] = bytemuck::cast_slice_mut(&mut args_slab);
+        // Number of `DrawIndirectArgs` in the `args` buffer.
+        let num_draw_calls = draw_calls.draw_count();
+```
+
+This is why I love using [`rust-gpu`](https://github.com/Rust-GPU/rust-gpu). I just don't know how 
+I would do this kind of debugging in GLSL or WGSL, etc.
+
+[Here's the source of the cull shader](https://github.com/schell/renderling/blob/d06d5f3058cc86fbdbe539b1450451d49ebe9d9f/crates/renderling/src/cull.rs#L23)
+so you can follow along.
+
+So, usually the compute cull shader gets called like this: 
+
+```rust 
+compute_pass.dispatch_workgroups(num_draw_calls / 32 + 1, 1, 1);
+```
+
+What I'm going to do is put in some logging and just call the `compute_culling`
+function with these buffers and assert some values.
+
+Starting with the `gid` (x of invocation id), renderlet id and bounding sphere.
+
+Before that, we need to know the names of the renderlets: 
+
+```
+id: Id<renderling::stage::Renderlet>(1054), name: yellow_cube_top_left
+id: Id<renderling::stage::Renderlet>(2018), name: yellow_cube_top_right
+id: Id<renderling::stage::Renderlet>(2982), name: yellow_cube_bottom_right
+id: Id<renderling::stage::Renderlet>(3946), name: yellow_cube_bottom_left
+id: Id<renderling::stage::Renderlet>(4130), name: floor
+id: Id<renderling::stage::Renderlet>(5094), name: green_cube
+id: Id<renderling::stage::Renderlet>(6058), name: purple_cube  
+```
+
+Now we can match renderlet id to the name.
+
+Ok, I've added a ton of print statements to the shader function. Let's run it.
+
+```
+gid: 0
+renderlet: Id<renderling::stage::Renderlet>(1054) // yellow_cube_top_left
+renderlet is inside frustum
+center_ndc: [-0.8047378, 0.8047378, 0.99766433]
+screen space bounds center: [0.0976311, -0.9023689, 0.99766433]
+screen space bounds radius: 1.0756001
+screen max dimension: 128
+renderlet size in pixels: 275.35364
+selected mip level: 8
+mip (x, y): (0, -0)
+thread 'cull::cpu::test::occlusion_culling_debugging' panicked at /Users/schell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crabslab-0.6.1/src/lib.rs:38:6:
+index out of bounds: the len is 21863 but the index is 4294967295
+```
+
+Whaaaa! Panic! Well that's definitely a problem, lol. Let's see...
+
+The backtrace tells me it was this line of the shader: 
+
+```rust
+        let depth_in_hzb = depth_pyramid_slab.read_unchecked(depth_id);
+```
+
+And `depth_id` is determined by the `mip_level` and the `x` and `y` of the mip.
+
+Well - right off the bat we know that `mip_level` is out of bounds. We only have 7 mips, and it wants index 8!
+
+Working up the chain we can see that `renderlet size in pixels: 275.35364` is
+obviously wrong, as the image is only 128x128 pixels. 
+
+Let's just go top down and mentally sanity check these values...
+
+* `center_ndc: [-0.8047378, 0.8047378, 0.99766433]`
+  This seems correct - it's the top left, near the back. That's where we put the top-left yellow cube so that tracks.
+* `screen space bounds center: [0.0976311, -0.9023689, 0.99766433]` 
+  This doesn't make sense. We're looking to put `center_ndc` into screen space, which has an x and y range of [0, 1]
+  and the origin at the top left.
+  - I think it's this: `(center_ndc.y + 1.0) * -0.5`
+  - Instead I think we should do `1.0 - (center_ndc.y + 1.0) * 0.5`...
+
+After that change we get this output: 
+
+```
+gid: 0
+renderlet: Id<renderling::stage::Renderlet>(1054)
+renderlet is inside frustum
+center_ndc: [-0.8047378, 0.8047378, 0.99766433]
+screen space bounds center: [0.0976311, 0.0976311, 0.99766433]
+screen space bounds radius: 1.0756001
+screen max dimension: 128
+renderlet size in pixels: 275.35364
+selected mip level: 8
+mip (x, y): (0, 0)
+thread 'cull::cpu::test::occlusion_culling_debugging' panicked at /Users/schell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crabslab-0.6.1/src/lib.rs:38:6:
+index out of bounds: the len is 21863 but the index is 4294967295
+```
+
+It still panic'd, but the screen space center of the top-left yellow cube looks correct.
+
+But the radius seems wrong. The cube is definitely more than 2 pixels in width. Let's open the frame in preview (macOS):
+
+<div class="image">
+    <label>Yellow cubes frame, zoomed</label>
+    <img src="https://renderling.xyz/uploads/1729289341/Screenshot_2024-10-19_at_11.08.39AM.png" /> 
+</div>
+
+Yeah, 14px. 
+
+So I see what's going on here. I'm not correctly projecting the sphere onto the "screen plane".
+
+...
+
+After a good while of poking around I came up with a function on `BoundingSphere` to project into pixel-space: 
+
+```rust 
+    pub fn project_onto_viewport(&self, viewproj: Mat4, viewport: Vec2) -> (Vec2, Vec2) {
+        fn ndc_to_pixel(viewport: Vec2, ndc: Vec3) -> Vec2 {
+            let screen = Vec3::new((ndc.x + 1.0) * 0.5, 1.0 - (ndc.y + 1.0) * 0.5, ndc.z);
+            (screen * viewport.extend(1.0)).xy()
+        }
+
+        // Find the center and radius of the bounding sphere in pixel space, where
+        // (0, 0) is the top-left of the screen and (w, h) is is the bottom-left.
+        let center_clip = viewproj * self.center.extend(1.0);
+        let center_pixels = ndc_to_pixel(viewport, center_clip.xyz() / center_clip.w);
+
+        let radius_pixels = Vec2::new(
+            (self.radius / center_clip.w) * viewport.x,
+            (self.radius / center_clip.w) * viewport.y,
+        );
+
+        (center_pixels - radius_pixels, center_pixels + radius_pixels)
+    }
+```
+
+And for our top-left yellow cube, that gives us: 
+
+```
+sphere_aabb: (
+    Vec2(
+        5.106697,
+        5.106697,
+    ),
+    Vec2(
+        19.886864,
+        19.886864,
+    ),
+)
+```
+
+...which is it!
+
+So now we've got the correct projection 👍. 
 
 ## Thu Oct 17, 2024
 
