@@ -164,6 +164,7 @@ h3:hover .heading-link {
 .nav-links {
     list-style: none;
     font-size: smaller;
+    font-family: sans-serif;
     display: inline-flex;
     margin-bottom: 0.75em;
 }

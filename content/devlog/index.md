@@ -28,7 +28,7 @@ Pay no attention to the man behind the curtain.
 </div>
 -->
 
-## Fri Oct 18, 2024 & Sat Oct 19, 2024
+## Fri Oct 18, 2024 & Sat Oct 19, 2024 & Sun Oct 20, 2024
 
 ### Pre-debugging occlusion culling results
 
@@ -116,7 +116,7 @@ Then we'll extract the depth buffer and the hierarchical z-buffer
 
 Everything looks in order. Now we can start running the shader on the CPU...
 
-### HZB debugging on the CPU, gathering buffers
+### HZB cull shader debugging on the CPU, gathering buffers
 
 This is the type of the function that computes culling: 
 
@@ -162,6 +162,8 @@ read those from the GPU in my test.
 This is why I love using [`rust-gpu`](https://github.com/Rust-GPU/rust-gpu). I just don't know how 
 I would do this kind of debugging in GLSL or WGSL, etc.
 
+### HZB cull shader debugging on the CPU, naming and dispatch
+
 [Here's the source of the cull shader](https://github.com/schell/renderling/blob/d06d5f3058cc86fbdbe539b1450451d49ebe9d9f/crates/renderling/src/cull.rs#L23)
 so you can follow along.
 
@@ -189,6 +191,8 @@ id: Id<renderling::stage::Renderlet>(6058), name: purple_cube
 ```
 
 Now we can match renderlet id to the name.
+
+### HZB cull shader debugging on the CPU, printing all the things
 
 Ok, I've added a ton of print statements to the shader function. Let's run it.
 
@@ -251,7 +255,8 @@ index out of bounds: the len is 21863 but the index is 4294967295
 
 It still panic'd, but the screen space center of the top-left yellow cube looks correct.
 
-But the radius seems wrong. The cube is definitely more than 2 pixels in width. Let's open the frame in preview (macOS):
+But the radius seems wrong. The cube is definitely more than 2 pixels in width. 
+Let's open the frame in preview (macOS):
 
 <div class="image">
     <label>Yellow cubes frame, zoomed</label>
@@ -260,11 +265,13 @@ But the radius seems wrong. The cube is definitely more than 2 pixels in width. 
 
 Yeah, 14px. 
 
-So I see what's going on here. I'm not correctly projecting the sphere onto the "screen plane".
+So I see what's going on here. 
+I'm not correctly projecting the sphere onto the "screen plane".
 
 ...
 
-After a good while of poking around I came up with a function on `BoundingSphere` to project into pixel-space: 
+After a good while of poking around I came up with a function on `BoundingSphere` 
+to project into pixel-space: 
 
 ```rust 
     pub fn project_onto_viewport(&self, viewproj: Mat4, viewport: Vec2) -> (Vec2, Vec2) {
@@ -302,9 +309,270 @@ sphere_aabb: (
 )
 ```
 
-...which is it!
+...which is correct!
 
 So now we've got the correct projection 👍. 
+
+### HZB cull shader debugging on the CPU, projecting the bounds as an AABB+depth
+
+All that leaves for us to figure out - is the depth of the "front" of the 
+bounding sphere.
+
+In this shader we already have the camera, which contains the frustum.
+We can use the frustum to determine the normals "into camera" and "out 
+from camera" - they're simply the first three components (`xyz`) of the 
+frustum planes. We can use those to figure out the locations of the "front"
+and "back" of the sphere in our sphere projection function.
+
+...
+
+So, after adding that into the projection function, said function returns 
+an AABB, where xy components are in pixels and z is in NDC (depth).
+
+Now I _think_ things are good-to-go! We get this output from our shader: 
+
+```
+gid: 0
+renderlet: Id<renderling::stage::Renderlet>(1054)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        5.106697,
+        5.106697,
+        0.99745977,
+    ),
+    max: Vec3(
+        19.886864,
+        19.886864,
+        0.9978464,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 20.902311
+selected mip level: 4 8x8
+center: [12.49678, 12.49678]
+mip (x, y): (0, 0)
+depth_in_hzb: 1
+depth_of_sphere: 0.99745977
+```
+
+I've printed out the znear and zfar of the camera's frustum just to be 
+certain.
+
+Let's run this for the rest of the draw calls...
+
+```
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] name: yellow_cube_top_left
+gid: 0
+renderlet: Id<renderling::stage::Renderlet>(1054)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        5.106697,
+        5.106697,
+        0.99745977,
+    ),
+    max: Vec3(
+        19.886864,
+        19.886864,
+        0.9978464,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 20.902311
+selected mip level: 4 8x8
+center: [12.49678, 12.49678]
+mip (x, y): (0, 0)
+depth_in_hzb: 1
+depth_of_sphere: 0.99745977
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] 
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] name: yellow_cube_top_right
+gid: 1
+renderlet: Id<renderling::stage::Renderlet>(2018)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        108.11314,
+        5.106697,
+        0.99745977,
+    ),
+    max: Vec3(
+        122.8933,
+        19.886864,
+        0.9978464,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 20.902311
+selected mip level: 4 8x8
+center: [115.50322, 12.49678]
+mip (x, y): (7, 0)
+depth_in_hzb: 1
+depth_of_sphere: 0.99745977
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] 
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] name: yellow_cube_bottom_right
+gid: 2
+renderlet: Id<renderling::stage::Renderlet>(2982)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        108.11314,
+        108.11314,
+        0.99745977,
+    ),
+    max: Vec3(
+        122.8933,
+        122.8933,
+        0.9978464,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 20.902311
+selected mip level: 4 8x8
+center: [115.50322, 115.50322]
+mip (x, y): (7, 7)
+depth_in_hzb: 0.99471664
+depth_of_sphere: 0.99745977
+CULLED
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] 
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] name: yellow_cube_bottom_left
+gid: 3
+renderlet: Id<renderling::stage::Renderlet>(3946)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        5.106697,
+        108.11314,
+        0.99745977,
+    ),
+    max: Vec3(
+        19.886864,
+        122.8933,
+        0.9978464,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 20.902311
+selected mip level: 4 8x8
+center: [12.49678, 115.50322]
+mip (x, y): (0, 7)
+depth_in_hzb: 0.99471664
+depth_of_sphere: 0.99745977
+CULLED
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] 
+[2024-10-19T19:45:34Z INFO  renderling::cull::cpu::test] name: floor
+gid: 4
+renderlet: Id<renderling::stage::Renderlet>(4130)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        -388.54834,
+        -349.92093,
+        0.9998975,
+    ),
+    max: Vec3(
+        516.54834,
+        555.1758,
+        1.002975,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 1280
+selected mip level: 10 0x0
+center: [64, 102.627426]
+mip (x, y): (0, 0)
+thread 'cull::cpu::test::occlusion_culling_debugging' panicked at /Users/schell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crabslab-0.6.1/src/lib.rs:38:6:
+index out of bounds: the len is 21863 but the index is 4294967295
+```
+
+Much better! You can see that the bottom yellow cubes are being culled correctly.
+
+### HZB cull shader debugging on the CPU, selecting the correct mip level
+
+But computing culling on `floor` still causes a panic. This is because the 
+object itself is bigger than the viewport. Also of note is that its forward 
+depth is `> 1`!
+
+So we need some special handling there.
+
+We should bound the `mip_level`:
+
+```
+        let mip_level = (size_in_pixels.log2().ceil() as u32).min(hzb_desc.mip.len() as u32);
+```
+
+After that, every draw call passes. So that fixes the panic.
+
+### 
+
+But let's look at the green cube's print out: 
+
+```
+[2024-10-19T20:11:16Z INFO  renderling::cull::cpu::test] name: green_cube
+gid: 5
+renderlet: Id<renderling::stage::Renderlet>(5094)
+renderlet is inside frustum
+znear: [0, 0, -1, 9.949975]
+ zfar: [-0, -0, 1, 90.00072]
+sphere_aabb: Aabb {
+    min: Vec3(
+        36.28719,
+        36.28719,
+        0.9946129,
+    ),
+    max: Vec3(
+        91.712814,
+        91.712814,
+        0.9968867,
+    ),
+}
+screen max dimension: 128
+renderlet size in pixels: 55.425625
+selected mip level: 6 2x2
+center: [64, 64]
+mip (x, y): (1, 1)
+depth_in_hzb: 1
+depth_of_sphere: 0.9946129
+```
+
+The green cube is behind the purple cube, so it _should_ be culled, but it's 
+picking the last mip (level/index 6), which because of the `max` downsampling
+contains all `1`s, so no culling occurs.
+
+We could change the `mip_level` calculation to use `floor` instead of `ceil`, 
+which then selects `mip_level = 5` and samples at `(2, 2)`. 
+
+This **does** result in the object being culled, but if we look at mip 5 at `(2, 2)` 
+we can see that it doesn't really match up with the AABB of the object:
+
+<div class="image">
+    <label>Mip 5 @ (2,2)</label>
+    <img 
+        class="pixelated" 
+        src="https://renderling.xyz/uploads/1729372086/Screenshot_2024-10-20_at_10.07.04AM.png" 
+        width="100" 
+    />
+</div>
+
+Now, I'm not sure if this is acceptable. Conceptually it seems like we should be 
+sampling at one level deeper to cover the AABB, but other implementations I've 
+looked at seem to use `floor`, and this choice works in this test case, so I think 
+I'll just go with it, against my intuition about the concept. I can always change 
+it later if it gives weird results.
+
+And that's the weekend! I'll post those results later.
 
 ## Thu Oct 17, 2024
 
