@@ -515,8 +515,6 @@ We should bound the `mip_level`:
 
 After that, every draw call passes. So that fixes the panic.
 
-### 
-
 But let's look at the green cube's print out: 
 
 ```
