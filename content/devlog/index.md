@@ -49,9 +49,9 @@ So today doesn't have much of an update.
 I fixed an issue where the MSAA sample count wasn't being updated, which was causing the 
 occlusion culling depth pyramid (aka the "HZB") to be invalidated each frame.
 
-But even after all that debugging and bug fixing, there's still something fundamentally 
-wrong with the algorithm. The Objects' visibility are still unstable like in the video I 
-posted below. 
+But even after all [the debugging and bug fixing](https://renderling.xyz/devlog/index.html#fri_oct_18_2024__sat_oct_19_2024__sun_oct_20_2024), 
+there's still something fundamentally wrong with the algorithm. 
+The Objects' visibility are still unstable like in the video I posted below. 
 
 I think maybe I need to expand the bounding spheres of the objects a bit, but I don't 
 want to just thrash around.
