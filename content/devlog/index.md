@@ -1,7 +1,7 @@
 ---
 title: devlog
 ---
-_Stream of consiousness, live-blogged development notes. Updated often._
+_Stream of consciousness, live-blogged development notes. Updated often._
 
 <!-- 
 
@@ -28,6 +28,38 @@ Pay no attention to the man behind the curtain.
 </div>
 -->
 
+## Sat Oct 26, 2024
+
+### Occlusion culling and avoiding burnout
+
+I'm just coming back to this after an intense day job work week in which I didn't 
+touch renderling at all.  
+
+I'm quite focused on my burnout level, and I really don't want to cross the threshold 
+for too long, if at all. 
+
+I've burned out on side projects before, and so I like to think that I 
+can feel the burnout coming. Essentially, when I don't feel like hacking on a project 
+I have to back off and not force myself. I have to forget all the blogs I've read 
+that insist "grit and persistence" are the surest means to success. Even if that's true, 
+my body is telling me to take a break, so I have to heed that warning.
+
+So today doesn't have much of an update. 
+
+I fixed an issue where the MSAA sample count wasn't being updated, which was causing the 
+occlusion culling depth pyramid (aka the "HZB") to be invalidated each frame.
+
+But even after all that debugging and bug fixing, there's still something fundamentally 
+wrong with the algorithm. The Objects' visibility are still unstable like in the video I 
+posted below. 
+
+I think maybe I need to expand the bounding spheres of the objects a bit, but I don't 
+want to just thrash around.
+
+Tomorrow or later today (or whenever I feel rejuvenated) I'll add a layer of debug rendering 
+so I can see what's going on...
+
+
 ## Fri Oct 18, 2024 & Sat Oct 19, 2024 & Sun Oct 20, 2024
 
 ### Pre-debugging occlusion culling results
@@ -39,10 +71,10 @@ Sometimes it's hard to write about failure, so I'll let the video do the talking
   First attempt at running occlusion culling on Sponza in Renderling.
 </video>
 
-As you can see the framerate is worse! It's at ~6FPS now. 
+As you can see the frame rate is worse! It's at ~6FPS now. 
 
 I _could_ just dive right in at this point, trying to figure out why it's so slow, but it's also obviously incorrect in that 
-its culling the wrong things.
+it's culling the wrong things.
 
 So I'll take some time to pick apart my occlusion culling shader and verify its different steps first.
 
