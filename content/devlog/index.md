@@ -8,7 +8,7 @@ _Stream of consciousness, live-blogged development notes. Updated often._
 My private stuff used for editing. 
 Pay no attention to the man behind the curtain.
 
-👍🤞🍖🚧🔗🤦🙇
+👍🤞🍖🚧🔗🤦🙇☕
 
 ...⏱️
 
@@ -27,6 +27,177 @@ Pay no attention to the man behind the curtain.
     </div>
 </div>
 -->
+
+## Sat Nov 2, 2024 & Sun Nov 3, 2024
+
+### More burnout avoidance while tackling occlusion culling
+
+I've taken a small hiatus this past week, only poking around a little by
+writing a debugging overlay shader that displays bounding volumes, and then
+trying it out on different models to check their bounds.
+
+<div class="images-horizontal">
+<div class="image"><label>Avocado</label><img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1730486038/Screenshot_2024-10-31_at_6.47.56AM.png" /></div>
+<div class="image"><label>Box</label><img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1730486038/Screenshot_2024-10-31_at_6.52.54AM.png" /></div>
+<div class="image"><label>Barramundi Fish</label><img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1730486038/Screenshot_2024-10-31_at_6.53.25AM.png" /></div>
+<div class="image"><label>Fox</label><img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1730486038/Screenshot_2024-10-31_at_6.54.04AM.png" /></div>
+<div class="image"><label>Animated Box</label><img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1730486038/Screenshot_2024-10-31_at_6.54.32AM.png" /></div>
+</div>
+
+As you can see, only two have visible bounds, which means the rest either have
+a boundary that surpasses the NDC cube, none at all, or something else is going
+on.
+
+You can also see that the framerate is really low! 
+
+When profiling in Xcode using the metal frame-capture machinery, the profiling
+tells me that the debug overlay fragment shader is responsible for **98%** of
+the frame time.
+
+It's not totally _surprising_, though, given that it loops over every draw
+call, reading that call's `Renderlet` and then projecting it and possibly coloring
+the fragment based on its proximity to the bounding sphere.
+
+But I guess it _is surprising_ given that most of these models only have **one** or 
+**two** draw calls. So that loop is not very long.
+
+Now I'm reading about shader optimization from 
+<https://developer.apple.com/documentation/xcode/optimizing-gpu-performance/>
+to see what I can do to gain some insight. I can see from my frame capture
+that the "occupancy" is low in the debug overlay shader. I _think_ that means 
+that the difference invocations of the shader are hitting different branches.
+
+### Deeper into shader profiling with Xcode on occlusion culling
+
+Following <https://developer.apple.com/documentation/xcode/optimizing-gpu-performance/#Optimize-shaders-with-per-line-shader-profiling-statistics>
+I can see my shader with weights attached! Pretty cool. 
+
+I mean, it's not my Rust code, but it's easier to read that SPIR-V 👍.
+
+I can see there's an inner function that's taking ~**60%-90%** of the time
+slice. This is how `naga` constructs its shaders. It always makes an inner
+function and then calls that from the main. 
+
+Inside that function are the cost centers I'm interested in. There's a number
+of them, the bigger ones from 5%-12%. 
+
+<div class="image"><label>if less than</label><img src="https://renderling.xyz/uploads/1730490190/Screenshot_2024-11-02_at_8.20.34AM.png" /></div>
+<div class="image"><label>query operator</label><img src="https://renderling.xyz/uploads/1730490190/Screenshot_2024-11-02_at_8.23.58AM.png" /></div>
+
+In the second case it's actually pretty hard to see what the conditional is
+about. I really wish I had a source map to get back to my Rust code...
+
+### Kinda thrashing but guided by profiling on occlusion culling
+
+I'm thrashing a bit, but removing two of the conditionals in the debug overlay
+fragment shader got the cost down to 50%. I'll remove as many more conditionals
+as I can, and I'll use
+[`Slab::read_unchecked`](https://docs.rs/crabslab/0.6.1/crabslab/trait.Slab.html#tymethod.read_unchecked)
+on the slab items that I **know** will always be populated and I'll see what
+happens...
+
+...on a side note, my Rust shader compilation times are at around
+`46seconds`... ...it's hurting a bit. I need
+<https://github.com/Rust-GPU/rust-gpu/pull/21> to land to speed up 
+these dev cycles...
+
+### `Slab::read_unchecked` to the rescue, occlusion culling
+
+That really sped it up! Changing a few calls to `read_unchecked` changed
+the shader execution time `-68%`. The example app is now usable! ☕☕☕lol.
+
+But can we go further? Even though the total frame time went from `120ms` to
+`38ms`, that's not fast enough for real-time. We need it to get down to
+`16ms`.
+
+...
+
+These Xcode profiling tools are pretty cool. But I can't help but want GPU
+flamegraphs. I wonder how difficult it would be to transform Metal flamegraphs
+into SPIR-V into Rust...
+
+...I'm not going to think very hard about that!
+
+...⏱️
+
+So, more profiling. 
+
+I can see that the last cost center in my debug overlay fragment shader is this line: 
+
+```c++
+float _e685 = uint(_e680) < 8 ? local_1.inner[_e680][0u] : DefaultConstructible();
+```
+
+where 
+
+```c++
+struct DefaultConstructible {
+    template<typename T>
+    operator T() && {
+        return T {};
+    }
+};
+```
+
+Climbing up the tree of all those variables and their types (`_e680`, `local_1`) is pretty 
+difficult, and my intuition says that it's a big read from the slab... ...so I'll thrash
+a bit and hazard a guess that it's from this line in my shader: 
+
+```rust
+    let PbrConfig {
+        atlas_size: _,
+        resolution: viewport_size,
+        debug_channel: _,
+        has_lighting: _,
+        has_skinning: _,
+        has_compute_culling: _,
+        light_array: _,
+    } = slab.read_unchecked(Id::new(0));
+```
+
+Which upon inspection, I see that we're doing this `read_unchecked` on a pretty big struct 
+and then ignoring all the fields except `resolution`, which I can replace with some pointer 
+math, and only read the one field.
+
+The sad bit is that `crabslab` used to generate offset identifiers for each field of a struct
+automatically in the `SlabItem` derive macro, but I removed that because of compilation times. 
+It didn't add a _ton_, but I was trying to reduce compilation times by any means necessary.
+
+### On occlusion culling and reading as little as possible
+
+Before replacing the big `PbrConfig` read with a smaller read of just the
+`resolution: viewport_size`, the frame time was about `35ms`...
+
+...and after it looks to be ~`31ms`, so that's a possibly significant reduction,
+about `11%`. Let's see what happens if I go further. I can write a macro that would make 
+this a lot easier...
+
+...fortunately I have a lot of this work in git, I just have to resurrect it.
+
+...⏱️
+
+So now I've replaced the `PbrConfig` read and also the `Renderlet` read with a few smaller 
+reads.
+
+...aaaaaand Xcode crashed. I reflexively didn't look at the crash report, it happens often
+enough 😭.
+
+The changes brought down the frame time to ~`33ms`. Really not much.
+
+The cost centers look the same, pretty much.
+
+I'm going to thrash a little more and change the type of loop from a `for _ in 0.._` to `loop`,
+though I'm starting to think that the bulk of the cost is in calculating the
+projected bounding sphere of the renderlet. This will be my last optimization
+attempt before moving on. I think another optimization down the road may be to
+do 2-pass occlusion culling where the first pass calculates a visibility buffer
+that includes this information.
+
+So that didn't end up with any gains.
+
+I did, however, stumble into [an odd bug where different inline annotations
+seem to change the results of the debug overlay
+shader](https://github.com/Rust-GPU/rust-gpu/issues/45). 
 
 ## Sat Oct 26, 2024
 
@@ -58,7 +229,6 @@ want to just thrash around.
 
 Tomorrow or later today (or whenever I feel rejuvenated) I'll add a layer of debug rendering 
 so I can see what's going on...
-
 
 ## Fri Oct 18, 2024 & Sat Oct 19, 2024 & Sun Oct 20, 2024
 
