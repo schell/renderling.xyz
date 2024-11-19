@@ -12,7 +12,7 @@ Pay no attention to the man behind the curtain.
 
 ...⏱️
 
-😭😈😉
+😭😈😉😊
 
 <video controls width="100%">
   <source src="" type="video/mp4" />
@@ -27,6 +27,40 @@ Pay no attention to the man behind the curtain.
     </div>
 </div>
 -->
+
+## Wed Nov 20, 2024
+
+### I have become a Rust-GPU maintainer
+
+[I'm now a maintainer of the Rust-GPU compiler](https://rust-gpu.github.io/blog/2024/11/06/new-maintainers)!
+
+Ergonomics, stability, developer experience and integration with `wgpu` will be my focus on this project.
+
+### Temporarily setting aside occlusion culling
+
+I'm putting occlusion culling aside while I finish up my NLnet grant work.
+I've applied for a grant for next year and we'll see how that goes 🤞.
+
+For the remainder of the year I'll be working on the last bit of atomics work and shadow mapping.
+If I have time I'll put some work into improving documentation and creating a sample app.
+
+### Renderling growth 2024
+
+Wow! Renderling has grown a lot this year! 
+
+Measuring by the number of stars on the github repo we've grown by 219%! 
+
+<div class="image">
+    <label>Renderling stars over time, 2022 - 2024</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1732040675/star-history-20241120.png" 
+        alt="renderling star growth" />
+</div>
+
+That's a hockey stick if I ever saw one 😊.
+
+☕☕☕
 
 ## Sat Nov 2, 2024 & Sun Nov 3, 2024
 

@@ -13,7 +13,7 @@ The project, currently in the alpha stage, aims for rapid loading of GLTF files 
 animated scenes with many lighting effects. Development emphasises performance, safety, observability, 
 and the use of modern rendering techniques like forward+ rendering and physically based shading.
 
-![renderling image based lighting test](/img/screenshot_1.png "image based lighting test")
+![renderling image based lighting test](https://renderling.xyz/img/screenshot_1.png "image based lighting test")
 
 # Sponsors 
 
@@ -31,4 +31,4 @@ Learn more about NLnet's sponsorship at renderling's [NLnet project page](https:
 
 This project is sponsored by a monthly donation from Second Half Games.
 
-[<img src="img/second-half-logo.svg" alt="Second Half Games" width="20%"/>](https://secondhalf.games/)
+[<img src="https://renderling.xyz/img/second-half-logo.svg" alt="Second Half Games" width="20%"/>](https://secondhalf.games/)
