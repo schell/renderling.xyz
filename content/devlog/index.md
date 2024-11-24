@@ -28,6 +28,110 @@ Pay no attention to the man behind the curtain.
 </div>
 -->
 
+## Sun Nov 24, 2024
+
+### Back to atomics work part 2 - NLnet updates
+
+I put up a PR that provides support for `OpAtomicCompareExchange`.
+See [yesterday's notes](#back_to_atomics_work__nlnet_updates) for more info.
+
+It's a workable solution, but it predeclares a couple types for every module that comes through the SPIR-V frontend.
+_I_ think that's fine, but it's not the most elegant solution.
+A more elegant solution would be to add more type-upgrade machinery, but I think that could get out of hand pretty quickly.
+
+### Next up - shadow mapping!
+
+Next on the docket is shadow mapping. 
+I'll be using [learnopengl's shadow mapping tutorial](https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping) for the initial implementation.
+
+## Sat Nov 23, 2024
+
+### The ecosystem is heating up - renderling mentions around the web
+
+Until now I've been the only one talking about Renderling, but this week that changed!
+
+Below the user **Animats** talks about Renderling on HN and Reddit, and generally says nice things about the project.
+
+* > Bevy, Rend3, and Renderling, the next level up, all use WGPU. It's so convenient. 
+  
+  [User Animats, on Hacker news - comment on article "What's Next for WebGPU"](https://news.ycombinator.com/item?id=42210607)
+
+* > I've been looking at Renderling, a new renderer. See my notes...
+
+  [User Animats, on Reddit r/rust_gamedev - post "The My First Renderer problem "](https://www.reddit.com/r/rust_gamedev/comments/1gw8lhx/the_my_first_renderer_problem/)
+
+* > 
+  [User Animats, on Reddit r/vulkan - post "Approaches to bindless for Rust"](https://www.reddit.com/r/vulkan/comments/1gs4zay/approaches_to_bindless_for_rust/)
+
+### Other developments - Nvidia
+
+I also have a scheduled meeting with someone at Nvidia. We'll be talking about how the Rust community uses the GPU. Roughly.
+
+### Back to atomics work - NLnet updates
+
+I'm back working on the last round of atomic support in the naga frontend.
+
+See my WIP PR for atomic compare exchange at <https://github.com/gfx-rs/wgpu/pull/6590>.
+
+Initially I thought the problem was going to take some new type-upgrade machinery, similar 
+to the existing machinery.
+But now I think the problem might be a bit more like this texture sampling issue <https://github.com/gfx-rs/wgpu/issues/4551>, 
+in that WGSL and SPIR-V differ in their parameters and return results.
+
+I fixed that ticket by adding a step inline to provide the downstream code with what it expected in SPIR-V.
+
+I'm hoping I can do the same thing with `OpAtomicCompareExchange`.
+
+#### notes/deep dive on supporting OpAtomicCompareExchange
+
+* [SPIR-V spec](https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#OpAtomicCompareExchange)
+* [WGSL spec](https://gpuweb.github.io/gpuweb/wgsl/#atomic-compare-exchange-weak)
+  - note that the spec is for `atomicCompareExchangeWeak`, but SPIR-V also has [`OpAtomicCompareExchangeWeak`](https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#OpAtomicCompareExchangeWeak)
+    and that spec says:
+
+    > Has the same semantics as OpAtomicCompareExchange 
+
+    So I think it's fine and I won't worry about it. 
+* [spirv-std crate's atomic_compare_exchange function](https://docs.rs/spirv-std/0.9.0/spirv_std/arch/fn.atomic_compare_exchange.html)
+
+So - Rust-GPU and SPIR-V expect the return value of this op to be the same as the underlying atomic's value. 
+
+WGSL, however, expects this to be a struct like this: 
+
+```wgsl 
+struct __atomic_compare_exchange_result<T> {
+  old_value : T,   // old value stored in the atomic
+  exchanged : bool // true if the exchange was done
+}
+```
+
+...and then the WGSL spec goes on to say: 
+
+> Note: A value cannot be explicitly declared with the type __atomic_compare_exchange_result, but a value may infer the type.
+
+So we don't have to define this result type, I don't think. Instead, we should be able to access it with the dot operator.
+
+It would be nice to find an example of WGSL's `atomicCompareExchangeWeak` being used in the wild...
+
+[Let's do a github search](https://github.com/search?q=atomicCompareExchangeWeak+language%3Awgsl&type=code&repo=&langOverride=&start_value=1).
+
+That helps!
+
+It looks like these examples all access the struct values using the dot operator.
+
+Ok - on to mapping between the two calls.
+
+WGSL and SPIR-V all take the same parameters (in a slightly different order), so we're good there.
+
+It's really just that WGSL returns whether or not the value was updated. This _could_ be determined at the call site by 
+comparing the result with the comparator (based on the specs - if they are equal, the atomic was updated), 
+so I'm guessing WGSL does this as an optimization to avoid a costly comparison?
+
+Anyway, I think the only thing we need to do is use the dot operator on the result, inline. So indeed this *_is_* just 
+like the texture sampling issue I linked above. I might actually ship this today!
+
+
+
 ## Wed Nov 20, 2024
 
 ### I have become a Rust-GPU maintainer
