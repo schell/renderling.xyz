@@ -32,7 +32,7 @@ Pay no attention to the man behind the curtain.
 
 ### Back to atomics work part 2 - NLnet updates
 
-I put up a PR that provides support for `OpAtomicCompareExchange`.
+[I put up a PR that provides support for `OpAtomicCompareExchange`](https://github.com/gfx-rs/wgpu/pull/6590).
 See [yesterday's notes](#back_to_atomics_work__nlnet_updates) for more info.
 
 It's a workable solution, but it predeclares a couple types for every module that comes through the SPIR-V frontend.
