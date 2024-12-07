@@ -27,6 +27,111 @@ Pay no attention to the man behind the curtain.
     </div>
 </div>
 -->
+## Sun Dec 8, 2024
+
+### Folks trying out renderling on discord - renderling mentions around the web
+
+#### Reddit
+
+User Animats mentioned us on the [r/rust_gamedev subreddit](https://www.reddit.com/r/rust_gamedev/comments/1h7rlum/rust_rendering_stacks_i_know_about_are_there_more/):
+
+> Renderling->WGPU
+> 
+> https://renderling.xyz/
+> 
+> Rendering is a new renderer.
+> 
+> Pro:
+> 
+>     Does more in the GPU than some others.
+> 
+>     Supports many targets.
+> 
+>     Has some financial support from the European Union.
+> 
+>     World illuminated by an HDR skybox image.
+> 
+> Con:
+> 
+>     Very new. No user community.
+> 
+>     No bindless mode.
+> 
+>     Does not support general asset creation/destruction.
+> 
+>     No punctual lights yet.
+> 
+> Summary:
+> 
+> Technically interesting but not ready for use. Worth following progress. 
+
+They get a lot correct, but a few misunderstandings.
+
+>     No bindless mode.
+
+Well, renderling is _mostly_ bindless apart from not being able to upload endless textures.
+We're limited to one giant texture array, then we only bind that one texture and sample from sub-textures
+stored on the slab. So at least for normal PBR rendering we're "bindless". Of course this doesn't include 
+situations like rendering shadow maps or updating IBL probes or generating mip-maps, etc.
+Those all take their own textures that are separate from the atlas.
+
+>     No punctual lights yet.
+
+We definitely _do_ support punctual lights, with the caveat that you have to hook them up yourself.
+In fact I'm currently implenting shadow mapping for directional and spot lights.
+
+I should make this more apparent.
+
+I should also make using analytical lighting easier.
+
+>     Does not support general asset creation/destruction.
+
+I'm not sure what this means.
+
+If you "create" an asset by using `Stage` to create `Hybrid` values on the CPU+GPU, you can drop those 
+values at any time to "destroy" them. An asset will be made up of a bunch of these values and so dropping
+them will "destroy" the asset automatically.
+
+Of course - I should make this much more explicit in the documentation.
+
+> Technically interesting but not ready for use. Worth following progress. 
+
+Yup! And thank you! 🙇
+
+#### Discord
+
+User ValorZard [mentioned us on Discord, where they are running the example glTF viewer](https://discord.com/channels/676678179678715904/676685797524766720/1314826931119722569).
+
+That has sparked a deep dive into CI to better support Windows.
+
+### Shadow mapping progress 2
+
+I've made more progress on shadow mapping, but still nothing exiting to post.
+
+### NLnet updates - `wgpu` atomics and re-application for 2025
+
+I've reapplied to NLnet for 2025. 🤞. 
+
+Jim Blandy has been reviewing my [PR to support `OpAtomicCompareExchange`](https://github.com/gfx-rs/wgpu/pull/6590) and 
+I'm working on his suggestions.
+
+## Sat Dec 7, 2024
+
+### Shadow mapping progress 1
+
+I fixed a bug where cameras loaded from glTF files were taking the wrong node transforms. 
+It was a one-liner caused by using the "camera index" to get the node transform instead of the "node index".
+
+I have the initial setup of shadow mapping running. Nothing significant yet.
+
+## Wed Nov 27, 2024
+
+### Shadow mapping kickoff ⚽
+
+I've read the [shadow mapping tutorials at learnopengl](https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping) a few times now.
+I really love that site, it's such a great resource.
+
+The work for shadow mapping will kick-off this week as I get time in the morning.
 
 ## Sun Nov 24, 2024
 
