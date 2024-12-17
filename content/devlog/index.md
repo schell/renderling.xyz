@@ -35,6 +35,17 @@ All the work adding support for atomics in the SPIR-V frontend of `naga` in `wgp
 
 <https://github.com/gfx-rs/wgpu/issues/4489>
 
+### Ongoing shadow mapping work
+
+I'm still working on shadow mapping. 
+
+Nothing too exciting. 
+
+No big debugging sessions.
+
+I _am_ thinking I'll do a recap and walkthrough of the feature once it's finished, which I'll link here.
+I think that will be easier to follow than my usual stream-of-consciousness live-blogging.
+
 ## Sun Dec 8, 2024
 
 ### Folks trying out renderling on discord - renderling mentions around the web
