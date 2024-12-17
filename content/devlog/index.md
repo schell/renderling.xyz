@@ -27,6 +27,14 @@ Pay no attention to the man behind the curtain.
     </div>
 </div>
 -->
+## Wed Dec 18, 2024
+
+### nlnet update - SPIR-V Atomics in `wgpu` have landed! 🚀
+
+All the work adding support for atomics in the SPIR-V frontend of `naga` in `wgpu` has been finished! 
+
+<https://github.com/gfx-rs/wgpu/issues/4489>
+
 ## Sun Dec 8, 2024
 
 ### Folks trying out renderling on discord - renderling mentions around the web
@@ -106,7 +114,7 @@ That has sparked a deep dive into CI to better support Windows.
 
 ### Shadow mapping progress 2
 
-I've made more progress on shadow mapping, but still nothing exiting to post.
+I've made more progress on shadow mapping, but still nothing exciting to post.
 
 ### NLnet updates - `wgpu` atomics and re-application for 2025
 
