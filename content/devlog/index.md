@@ -26,7 +26,220 @@ Pay no attention to the man behind the curtain.
         <img class="pixelated" width="100" src="" />
     </div>
 </div>
+
+<div class="image">
+    <label>Label</label>
+    <img
+        width="750vw"
+        src=""
+        alt="" />
+</div>
 -->
+## Mon 23 Dc, 2024
+
+### Shadow mapping debugging session 1
+
+I'm working on shadow mapping, hoping to finish it up before the end of the year so I can claim 
+another milestone on my grant project. 
+If I can manage it, it would mean I hit 6/7 of the milestones - only missing light tiling, which
+I will carry over into the new year (with funding or not). 
+
+Currently, I've got a separate depth texture used as the shadow map, I've calculated the light transform
+that shows the scene from the light's point of view, and I'm rendering to the shadow map.  
+The problem is that the shadow map appears completely black. 
+This is a classic example of how things go wrong in a graphics project, lol.
+I have a feeling this is because depth in NDC is not linear - the resolution decreases the further from 
+the camera you are. 
+
+...⏱️
+
+Hrm. Even after linearization and normalization, nothing.
+
+The depth texture is all zero. Maybe it's being cleared?
+
+...⏱️
+
+Ok, so it looks like some of the historical tests that assert depth are broken. 
+So somewhere along the line of these changes I broke the depth buffer.
+
+Time for a git bisect.
+
+`git bisect` says it was commit [`19c6db194b7ce8afa129b9d88fbe3c1542e5b3f0`](https://github.com/schell/renderling/pull/145/commits/19c6db194b7ce8afa129b9d88fbe3c1542e5b3f0),
+which is a giant checkpoint commit. I often do checkpoints in WIPs because I'm frantically coding 
+in my free time and get interrupted and lose context on what I was working on. This devlog
+is an attempt to allay that problem.
+
+It could be the change here <https://github.com/schell/renderling/pull/145/commits/19c6db194b7ce8afa129b9d88fbe3c1542e5b3f0#diff-07be3c3837d7379336a0625534f3c01c4a8c7870d14037b351555aeed2e97670L683-R689>.
+
+...⏱️
+
+Well, that was _one_ problem, but another problem is that the depth of the light transform's frustum is
+coming out very small.
+
+...⏱️
+
+After the fixing the mistake above, if I don't linearize the depth, the depth texture is fine.
+So for the sake of finishing this milestone I'm going to log a warning and make a TODO to fix depth linearization
+and move on.
+
+Now - I've been doing this in a regular `Stage` rendering in order to verify the light transform. 
+That's done, so now I can "update" the shadow map and I should see the same depth texture.
+But my shadow map's depth texture is blank. 
+There's probably something wrong with the pipeline setup, or with the shadow map's vertex shader.
+
+I'll start by debugging the vertex shader.
+
+Here is the function's signature: 
+
+```rust 
+/// Shadow mapping vertex shader.
+#[spirv(vertex)]
+#[allow(clippy::too_many_arguments)]
+pub fn shadow_mapping_vertex(
+    // Points at a `Renderlet`
+    #[spirv(instance_index)] renderlet_id: Id<Renderlet>,
+    // Which vertex within the renderlet are we rendering
+    #[spirv(vertex_index)] vertex_index: u32,
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 0)] slab: &[u32],
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 1)] light_id: &Id<Light>,
+
+    #[spirv(position)] out_clip_pos: &mut Vec4,
+) {...}
+```
+
+So first I'll get the slab and I'll run the vertex shader on the CPU to see if we get any NaN values 
+or something of that ilk:
+
+```rust
+        let slab = futures_lite::future::block_on(stage.read(&ctx, None, ..)).unwrap();
+        let mut clip_positions = vec![];
+        for hybrid in doc.renderlets.values().flatten() {
+            let renderlet = hybrid.get();
+            for index in 0..renderlet.get_vertex_count() {
+                let mut out_clip_pos = Vec4::ZERO;
+                crate::light::shadow_mapping_vertex(
+                    hybrid.id(),
+                    index,
+                    &slab,
+                    &gltf_light.light.id(),
+                    &mut out_clip_pos,
+                );
+                clip_positions.push(out_clip_pos);
+            }
+        }
+        log::info!("clip_positions: {clip_positions:#?}");
+```
+
+Hrm. No NaNs, I see a lot of values like this: 
+
+```
+        Vec4(
+            0.0072851786,
+            -0.0029473465,
+            6.3410006,
+            1.0,
+        ),
+        Vec4(
+            -0.17068025,
+            -0.21936357,
+            9.806452,
+            1.0,
+        ),
+        Vec4(
+            0.17068014,
+            -0.48623937,
+            5.5299783,
+            1.0,
+        ),
+        Vec4(
+            0.17068014,
+            0.21936369,
+            3.5116858,
+            1.0,
+        ),
+        Vec4(
+            -0.17068025,
+            -0.21936357,
+            9.806452,
+            1.0,
+        ),
+        Vec4(
+            0.17068014,
+            0.21936369,
+            3.5116858,
+            1.0,
+        ),
+        Vec4(
+            -0.17068025,
+            0.4862395,
+            7.78816,
+            1.0,
+        ),
+```
+
+Curious though, as these values don't seem to be in clip space?
+I wonder how many vertices _are_ in clip space?
+
+I'll do: 
+
+```rust 
+    let ndc = out_clip_pos.xyz() / out_clip_pos.w;
+    if ndc.distance(Vec3::ZERO) <= 1.0 {
+        clip_positions.push(out_clip_pos);
+    }
+```
+
+Huh! Zero positions are in clip space. So that's a problem.
+
+... 
+
+I'm thinking this is probably because in my verification of the light transform I'm only 
+transforming the input vertices by the light transformation, whereas in the shadow mapping vertex 
+shader I'm transforming the input vertices into world space and then transforming that again by 
+the light transformation. So I'm simply not done with the build-out of this vertex shader. This is 
+the cost of losing context between development sessions.
+
+It turns out I simply had not used the same function for determining the light transform in my shader.
+
+...
+
+Ok, it also turns out that for the step where I verify the light transformation, I was changing all the 
+renderlet's camera ids to a new one based on the light's POV - but I forgot to change them back! 
+So many bugs on top of each other.
+Ok, now that I have that sorted I can see _something_ in my depth, but it's hardly _anything_:
+
+<div class="image">
+    <label>A sliver of depth</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1734990577/shadow_mapping_sanity_depth_sliver.png"
+        alt="debugging shadow mapping - a sliver of scenery" />
+</div>
+
+It looks like the transformations are correct, and I can't find an obvious discrepancy between 
+the shadow mapping vertex shader and the normal vertex shader. I'll take a look at the pipeline 
+set up and see if there's anything obvious there that I missed. I think as a last resort I could 
+use a pass-through fragment shader to try to "see more".
+
+The fact that I can see this sliver, though, makes me think there's still a problem with clip
+space. Somehow most of the scene is getting clipped in the shadow mapping vertex.
+
+I'll have to spend another day debugging this...
+
+## 100 github stars!
+
+The project hit 100 github stars.
+
+Here's the current graph:
+
+<div class="image">
+    <label>Renderling stars over time, 2022 - 2024</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1734897429/star-history-20241223.png"
+        alt="renderling star growth" />
+</div>
+
 ## Wed Dec 18, 2024
 
 ### nlnet update - SPIR-V Atomics in `wgpu` have landed! 🚀
