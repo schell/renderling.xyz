@@ -35,7 +35,7 @@ Pay no attention to the man behind the curtain.
         alt="" />
 </div>
 -->
-## Mon 23 Dc, 2024
+## Mon 23 Dec, 2024
 
 ### Shadow mapping debugging session 1
 
@@ -45,7 +45,21 @@ If I can manage it, it would mean I hit 6/7 of the milestones - only missing lig
 I will carry over into the new year (with funding or not). 
 
 Currently, I've got a separate depth texture used as the shadow map, I've calculated the light transform
-that shows the scene from the light's point of view, and I'm rendering to the shadow map.  
+that shows the scene from the light's point of view, and I'm rendering with my usual rendering pathway 
+but using the light transform as the camera to verify that transformation. This is what I see:  
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Shadow mapping, light POV</label>
+        <img class="pixelated" width="400vw" src="https://renderling.xyz/uploads/1734993788/shadow_mapping_sanity_light_pov.png" />
+    </div>
+
+    <div class="image">
+        <label>Shadow mapping, light POV, depth</label>
+        <img class="pixelated" width="400vw" src="https://renderling.xyz/uploads/1734993788/shadow_mapping_sanity_light_pov_depth.png" />
+    </div>
+</div>
+
 The problem is that the shadow map appears completely black. 
 This is a classic example of how things go wrong in a graphics project, lol.
 I have a feeling this is because depth in NDC is not linear - the resolution decreases the further from 
