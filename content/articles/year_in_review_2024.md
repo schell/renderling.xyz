@@ -195,6 +195,10 @@ It's very much made in a style that works for my workflow, and I'm often adding 
 
 On my docket for 2025 are more features, documentation and examples.
 
+I'd also love to work with an artist to get some good renderings to show off.
+
+I guess I could always use some off-the-shelf assets, though.
+
 Here's my feature short-list:
 
 * shadow mapping 
@@ -203,6 +207,28 @@ Here's my feature short-list:
 * analytical light tiling 
 * a pinch of raymarching
 * screen-space ambient occlusion
+
+## What went right and what went wrong
+
+Just about everything I mentioned up to this point went right. I got a lot of features 
+shipped in what I think is a pretty short amount of time. 
+
+But one glaring difficulty I had was with occlusion culling. This wasn't part of my 
+nlnet grant but I dedicated a good chunk of time to it. I felt like I was always just 
+a couple hours away from finishing, but the rabbit hole got deeper and deeper. I think 
+sinking this much time bumped a few other milestones out of reach for me in 2024 - namely
+shadow mapping and light tiling. Next year I'll make it one of my milestones, if I win 
+another grant. Then I can really focus on it without worry.
+
+You can read about occlusion culling in the devlog 
+[here](https://renderling.xyz/devlog/index.html#sat_nov_2_2024__sun_nov_3_2024).
+
+Another problem is that packing in all these features has fractured the API a bit. The 
+project doesn't feel very "well planned" to me... ...because it isn't! I've been working 
+on just getting things to work and haven't put any polish on it. 
+The APIs need a bit of work around the edges to ensure the pieces line up well. 
+
+All in all, though, I'm very happy with this project :)
 
 ## And that's a wrap!
 
