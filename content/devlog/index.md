@@ -35,6 +35,58 @@ Pay no attention to the man behind the curtain.
         alt="" />
 </div>
 -->
+## Fri 27 Dec, 2024
+
+### Shadow mapping debugging session 3
+
+Xcode debugging doesn't seem to reveal anything interesting.
+
+Now I'll bind a render attachment to the shadow map update and see what happens.
+
+## Thu 26 Dec, 2024
+
+I hope you all are having a great holiday break!
+
+### Shadow mapping debugging session 2
+
+Welcome to another installment of debugging the shadow mapping shader.
+
+I'm going to collect and compare the world position as calculated from the
+vertex shader and from the shadow mapping shader. 
+
+...⏱️
+
+Ok, those are all the same! 
+Well, that's good, I guess.
+
+This means the bug is after calculating world position. 
+I'll just go along and assert some things.
+
+The light's id is correct.
+
+All the renderlet's `camera_id` fields are set to the correct camera.
+
+And the light we're using is the one we expect to use.
+
+And the light's parent transform is what we expect.
+
+The cameras used to calculate `shadow_mapping_projection_and_view`, which is
+the light transform - are what we expect.
+
+The light transforms themselves are also what we expect.
+
+In the test case we're taking the `light_projection` and `light_view` as
+calculated by `DirectionalLight::shadow_mapping_projection_and_view`.
+We've already asserted that the results are what we expect.
+
+The calculated world positions for each vertex are equal.
+
+All the calculated values, including the resulting view+projection matrices are the same...
+
+...
+
+I'll wire this into an app and then use Xcode debugging tools... ...oof.
+
 ## Mon 23 Dec, 2024
 
 ### Shadow mapping debugging session 1

@@ -12,7 +12,7 @@ use snafu::ResultExt;
 const SECTION_LINK: &str = "🔗";
 
 pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
-    log::debug!("html node:");
+    log::trace!("html node:");
     match node {
         html_parser::Node::Text(s) => {
             log::trace!("  text: '{s}'");
@@ -27,7 +27,7 @@ pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
             children,
             source_span: _,
         }) => {
-            log::debug!("  element: {name}");
+            log::trace!("  element: {name}");
             let mut view = children
                 .into_iter()
                 .fold(ViewBuilder::element(name), |view, child| {
@@ -45,7 +45,7 @@ pub fn make_html_view(node: html_parser::Node) -> Option<ViewBuilder> {
                 attributes.insert("class".into(), Some(classes));
             }
             for (k, v) in attributes.into_iter() {
-                log::debug!("  attribute: ({k}, {v:?})");
+                log::trace!("  attribute: ({k}, {v:?})");
                 if let Some(v) = v {
                     view = view.with_single_attrib_stream(k, v);
                 } else {
@@ -214,7 +214,7 @@ impl AstRenderer {
                 }
             }
             mdast::Node::LinkReference(link_ref) => {
-                log::info!("{link_ref:#?}");
+                log::trace!("{link_ref:#?}");
                 let children: Vec<_> = link_ref.children.into_iter().map(|c| self.make_md_view(c)).collect();
                 // We'll get the definition later in the parsing process
                 let input = FanInput::<Definition>::default();
@@ -222,7 +222,7 @@ impl AstRenderer {
                 rsx! {
                     a(
                         href = input.stream().map(|def| {
-                            log::info!("got def: {}", def.url);
+                            log::trace!("got def: {}", def.url);
                             def.url
                         }),
                         title = input.stream().map(|def| def.title.unwrap_or_default())
@@ -380,7 +380,7 @@ impl AstRenderer {
             }
             mdast::Node::Definition(def) => {
                 if let Some(input) = self.link_refs.get(&def.identifier) {
-                    log::info!("sending {} {}", def.identifier, def.url);
+                    log::trace!("sending {} {}", def.identifier, def.url);
                     input.try_send(def).unwrap();
                 }
                 rsx! { slot(){} }
@@ -437,7 +437,7 @@ pub fn interpolate_markdown(
     let meta: Option<ContentMeta> = if let Some(frontmatter) = get_frontmatter(&mut node) {
         Some(serde_yaml::from_str(&frontmatter.value).context(crate::YamlSnafu)?)
     } else {
-        log::debug!("no meta");
+        log::trace!("no meta");
         None
     };
     let mut renderer = AstRenderer::default();

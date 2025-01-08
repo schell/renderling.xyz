@@ -58,7 +58,6 @@ pub struct Site {
 impl Site {
     /// Create a new site object that will do the rendering.
     pub fn new(url_root: impl AsRef<str>) -> Result<Self, Error> {
-        log::debug!("creating new Site with url_root '{}'", url_root.as_ref());
         Ok(Self {
             url_root: http::Uri::try_from(url_root.as_ref()).context(InvalidUriSnafu)?,
         })
@@ -103,6 +102,9 @@ impl Site {
                 div(class="nav-right") {
                     div(class="nav-top") {}
                     ul(class="nav-links") {
+                        li() {
+                            a(href = self.site_path("articles/index.html")?){{"articles"}}
+                        }
                         li() {
                             a(href = self.site_path("devlog/index.html")?){{"devlog"}}
                         }
