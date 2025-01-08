@@ -180,6 +180,17 @@ There were a lot of refactors and bug fixes, so I'm only going to mention the bi
   of [Thomas Buckley-Houston](https://github.com/tombh). We essentially mashed our compilation 
   tools together to come up with `cargo-gpu`. Check it out!
 
+## Website
+
+Last but not least I have to mention that this entire bespoke website was set up this year, 
+and I wrote 4300 lines in the devlog! 
+That's a lot of debugging. 
+But I do tend to make lots of newlines...
+
+Here's the [renderling.xyz code](https://github.com/schell/renderling.xyz) if you care to 
+take a look. 
+It's very much made in a style that works for my workflow, and I'm often adding to it.
+
 ## Looking into 2025
 
 On my docket for 2025 are more features, documentation and examples.
