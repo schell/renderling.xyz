@@ -20,7 +20,13 @@ Pay no attention to the man behind the curtain.
 </video>
 
 
+NOTE: THERE MUST NOT BE EMPTY LINES
+
 <div class="images-horizontal">
+    <div class="image">
+        <label>Label</label>
+        <img class="pixelated" width="100" src="" />
+    </div>
     <div class="image">
         <label>Label</label>
         <img class="pixelated" width="100" src="" />
@@ -35,6 +41,104 @@ Pay no attention to the man behind the curtain.
         alt="" />
 </div>
 -->
+
+## Sat 18 Jan, 2025
+
+Back to shadow mapping.
+
+The [aformentioned `craballoc` part-out session](#parted_out_slaballocator) 
+sparked some bug fixes to scheduling and improvements to the 
+CPU/GPU synchronization API. 
+This in turn, I think, fixed the shadow mapping problem I was seeing before, 
+where the shadow map's depth texture only showed a sliver of data.
+
+It seems we have perfect data on the GPU and can move on:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>The scene</label>
+        <small><em>Rendered without shading for simplicity</em></small>
+        <img class="pixelated" width="300vw" src="https://renderling.xyz/uploads/1737141717/shadow_mapping_sanity_scene_before.png" />
+    </div>
+    <div class="image">
+        <label>The scene, from the lights POV</label>
+        <small><em>Ortho projection, this light is directional</em></small>
+        <img class="pixelated" width="300vw" src="https://renderling.xyz/uploads/1737141717/shadow_mapping_sanity_light_pov.png" />
+    </div>
+    <div class="image">
+        <label>Shadow mapping depth buffer</label>
+        <small><em>Success!</em></small>
+        <img class="pixelated" width="300vw" src="https://renderling.xyz/uploads/1737141717/shadow_mapping_sanity_depth.png" />
+    </div>    
+</div>
+
+So now that we have the shadow mapping depth values, we should be able to use it in the PBR shader.
+
+### How to bind the shadow map?
+
+The most common method to bind the shadow map to the PBR shader is to assume 
+there's only one, and bind the depth texture as a sampling source.
+
+But this limits us to one shadow source. That's not what renderling is about.
+
+It would be nice to bind an array of shadow map depth textures, and then index
+into it, but WebGPU doesn't support arrays of textures.
+
+So I have to think about copying the depth buffer to a storage buffer
+(possibly just for lights) which I could then "sample" from, since WebGPU
+doesn't provide arrays of textures to bind to.
+
+So I have to choose:
+
+* set the number of shadow maps statically at compile time with a descriptor set 
+  and binding.
+* run shading once per shadow map (I don't know how that would work)
+* use a texture array of shadow map depths and each shadow map is the same size
+* use a compute pass to copy the depth to a storage buffer and index into it to sample 
+
+With a storage buffer for lights we could store the shadow map's depth
+buffer at any size, and reference it from the slab.
+
+But we would lose sampling conveniences.
+
+...
+
+For now I'm just going to bind one shadow map statically. 
+I can worry about this later after I've proven the rest of the method.
+
+## Sun 12 Jan, 2025
+
+I wrote a [2024 wrapped article](/articles/year_in_review_2024.html). Check it out!
+
+### Parted out `SlabAllocator`
+
+I also parted out the `SlabAllocator` from renderling into its own crate, now called 
+[`craballoc`](https://crates.io/craballoc). I'm now using it for other GPU projects.
+
+### LA fires
+
+I also worked on a short article on the LA fires, as I'm from Pasadena and have friends and 
+family living in Altadena. I'm not sure if I'll publish it, or if I do I might not publish it 
+here. It might make more sense to host it at my personal site [zyghost.com](https://zyghost.com).
+
+Either way, my heart goes out to everyone there. We left California because of these fire
+events and although I think it was the "right" decision for _our_ family, it's not so easy
+for others to take that leap.
+
+### Bug fixes 
+
+I'm currently babysitting a bug fix through CI: 
+
+* [fix: only generate linkage if CARGO_WORKSPACE_DIR is available](https://github.com/schell/renderling/pull/154)
+
+### nlnet contract updates
+
+I re-read my contract with NLNet and it looks like I actually have until 
+May 10th, 2025 to complete my work!
+
+This means I can likely complete shadow mapping and at least start tackling
+light tiling and be paid for it!
+
 ## Fri 27 Dec, 2024
 
 ### Shadow mapping debugging session 3
