@@ -56,9 +56,11 @@ I think I could split Renderling's main bindgroups into (roughly):
 4. ...
 
 And now that I think of it, I _could_ use an `Atlas` to store shadow mapping texture data.
-This would allow sampling from actual textures. Those textures would be stored in a 
-texture array, which would remove the need to store them in storage buffers, which are in 
-short supply, and which would require a separate compute step!
+This would allow sampling from actual textures, as opposed to the current situation where 
+if I want more than one shadow map I'd have to copy the depth texture to a storage buffer. 
+When using `Atlas`, the textures would be stored in a 
+texture array, which means we could have more than one, and at different sizes - and which 
+would negate the separate compute step!
 
 One complication I see is that point light shadow maps use cube maps, and sampling from our 
 atlas doesn't yet support cube map sampling, so I'll have to write that. 
