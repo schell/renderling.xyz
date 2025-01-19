@@ -42,7 +42,32 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
-## Sat 18 Jan, 2025
+## Mon Jan 20, 2025
+
+I'm starting to think I should separate the buffers by concern. 
+With `wgpu`'s "downlevel default" resource limits we're limited to 4 bind groups
+per shader stage.
+
+I think I could split Renderling's main bindgroups into (roughly):
+
+1. Geometry slab (vertex, index, bounding volumes etc)
+2. Material slab and atlas (textures descriptors from the atlas, material descriptors)
+3. Lighting slab (lights, shadow maps)
+4. ...
+
+And now that I think of it, I _could_ use an `Atlas` to store shadow mapping texture data.
+This would allow sampling from actual textures. Those textures would be stored in a 
+texture array, which would remove the need to store them in storage buffers, which are in 
+short supply, and which would require a separate compute step!
+
+One complication I see is that point light shadow maps use cube maps, and sampling from our 
+atlas doesn't yet support cube map sampling, so I'll have to write that. 
+
+But actually - if I wrote support for cube map sampling from the `Atlas`, I could store the 
+skybox and IBL data in the same way! This would really save on texture bindings and clean 
+up the shaders.
+
+## Sat Jan 18, 2025
 
 Back to shadow mapping.
 
