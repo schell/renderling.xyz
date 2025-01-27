@@ -42,6 +42,292 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Mon Jan 27, 2025
+
+### Fixing shadow mapping acne
+
+I left off last night being able to render some shadows, finally:
+
+<div class="image">
+    <label>Shadows. Ugly, but working</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1737934743/shadow_mapping_sanity_stage_render.png"
+        alt="ugly shadows" />
+</div>
+
+...and as you can see, there's some pretty bad "shadow acne".
+
+
+**Shadow acne** is a Moiré-like pattern that appears when the angle between the light source 
+and the surface is small, and that is exasperated by a small shadow map size. The smaller 
+the size of the shadow map, the more likely to see acne.
+
+There's a pretty easy and well known fix, which is to include a bias that is proportional to the angle.
+
+...
+
+After adding some configurable bias, the acne goes away:
+
+<div class="image">
+    <label>Shadows. Prettier, but still off.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738006340/shadow_mapping_sanity_stage_render.png"
+        alt="nicer shadows" />
+</div>
+
+## Sun Jan 26, 2025
+
+### The shadow mapping saga continues 2
+
+Yesterday I left off knowing that the PBR fragment shader's shadow calculations 
+seem fine, so today I'm going to look at the `wgpu` linkage to determine why the 
+shadow is not displaying.
+
+I'm waiting for a facepalm moment and expecting that I'll find a buffer that has 
+been invalidated or something.
+
+...
+
+I can't see that anything is off-kilter.
+
+I'm going to nuke the shaders and try again.
+
+...
+
+Nothing.
+
+Frustrating!
+
+I guess I'll integrate shadow maps into the example app, capture a GPU frame in Xcode
+and cross my fingers that I notice something.
+
+...
+
+Well, that is _some_ kind of fruitful. I can see that the shadow map depth texture is empty.
+That is - it's all `1.0`, everywhere.
+
+The only place it gets cleared is in the `ShadowMap::update` function.
+
+...
+
+I was able to capture a GPU frame programmatically using this function: 
+
+```rust 
+    pub fn capture_gpu_frame<T>(ctx: &Context, f: impl FnOnce() -> T) -> T {
+        let m = metal::CaptureManager::shared();
+        let desc = metal::CaptureDescriptor::new();
+
+        desc.set_destination(metal::MTLCaptureDestination::GpuTraceDocument);
+        desc.set_output_url(workspace_dir().join("test_output").join("capture.gputrace"));
+        unsafe {
+            ctx.get_device()
+                .as_hal::<wgpu_core::api::Metal, _, ()>(|maybe_metal_device| {
+                    if let Some(metal_device) = maybe_metal_device {
+                        desc.set_capture_device(
+                            metal_device.raw_device().try_lock().unwrap().as_ref(),
+                        );
+                    } else {
+                        panic!("not a capturable device")
+                    }
+                })
+        };
+        m.start_capture(&desc).unwrap();
+        let t = f();
+        m.stop_capture();
+        t
+    }
+```
+
+And with the gputrace I can clearly see that the shadow map is being created correctly and it 
+has the value I expect at the point I expect.
+
+This programmatic capture is a game changer!
+
+<div class="image">
+    <label>Programmatically caught gpu trace showing the shadow map depth texture</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1737919701/Screenshot_2025-01-27_at_8.27.51AM.png"
+        alt="shadow mapping depth texture" />
+</div>
+
+Since the shadow map depth texture is fine, it could be one of two things:
+
+1. _sampling_ the texture is somehow borked
+2. the calculation of finding the uv coordinates used to sample is borked
+
+To disprove `2` I'll rewrite the fragment shader to write these coords as the color.
+It should show _roughly_ the fragment's distance from the light source, where darker 
+means closer.
+
+Hrm. It's all black, with no shading at all. 
+This could mean that the fragment position in light clip-space is being miscalculated.
+
+...
+
+I think I've tracked it down to this line: 
+
+```rust 
+    let light_space_transform = light_slab.read_unchecked(lighting_desc.shadow_map_light_transform);
+```
+
+It seems that line is causing the shader to crash. 
+
+This _can_ happen, as the name of that function suggests, `Slab::read_unchecked` doesn't check the 
+given `Id` to see if it's `Id::NONE`, which is `u32::MAX`. So trying to read with that index would
+predictably crash.
+
+So if `lighting_desc.shadow_map_light_transform` _is_ `Id::NONE`, that means it hasn't been updated
+since updating the shadow map.
+
+...
+
+With the new capture functionality I should be able to read the value of the `Id`.
+
+...aaaaand yup! I can see there are **3** `light-slab` buffers and two of them are only 4 bytes!
+Those 4 bytes correspond to the `Id::NONE` value written as the pointer to the shadow mapping 
+light transform.
+
+Now I just need to figure out why there are so many light slabs here.
+
+...OOF! 🤦 
+Looks like `Stage` creates its own `Lighting` object, which contains the `lighting-slab`, then in 
+`render_with` (a temporary function just for fleshing out this feature) binds _that slab_, not 
+the one used by the external `ShadowMap`.
+
+### Finally, rendered shadows
+
+<div class="image">
+    <label>Shadows. Ugly, but working</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1737934743/shadow_mapping_sanity_stage_render.png"
+        alt="ugly shadows" />
+</div>
+
+Let's stop here for now.
+
+## Sat Jan 25, 2025
+
+### The shadow mapping saga continues
+
+I've hooked up shadow mapping end to end. 
+Everything is connected. 
+The shadow map looks good, so why isn't anything happening in my PBR shader?
+
+Well it's because my test has lighting turned _off_. lol 🤦. 
+This is why I keep the facepalm emoji close at hand.
+
+...
+
+Ok - even after that it looks like my analytical lighting is borked.
+The `scene_cube_directional` test, which tests directional lighting, is failing.
+I'll have to fix that test before continuing.
+
+...
+
+Ok - it was because my shader was doing something stupid. I had changed the shader 
+for debugging purposes to calculate the color as `shadow * everything_else`, and 
+since `shadow` is `0.0` when there is _no shadow_ everything was coming up dark.
+
+After updating the shader (returning it to normal, _without_ shadows) it works as expected.
+
+...
+
+So now let's look at the scene with analytical lighting to ensure the directional light is working.
+
+
+<div class="image">
+    <label>The lighting looks like the moon</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1737748378/shadow_mapping_sanity_stage_render.png"
+        alt="shadow mapping directional light is working" />
+</div>
+
+It's working.
+
+...
+
+Fixing the lighting calculation shows that the shadow has no effect, meaning it's returning `0.0` everywhere.
+
+No shadow.
+
+So I'll run the calculation on the CPU over each fragment position and look at the generated images.
+
+...
+
+That's tough, because I'd have to save the world positions of each fragment to a GBuffer and read it. 
+Instead, I've placed another object in the scene which should be in the shadow of the block. 
+I know its position and so I can calculate the shadow at that position and it *should* come out to `1.0`.
+
+
+<div class="image">
+    <label>Added the green sphere behind the red block</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1737750615/shadow_mapping_sanity_stage_render.png"
+        alt="shadow mapping, green object will be in shadow soon" />
+</div>
+
+Ok, I can see that the conversion of the fragment position in light space to the shadow mapping 
+sampling coordinates is incorrect. 
+This code, coming from learnopengl.com is assuming the OpenGL projection matrix which assumes 
+a depth range of `-1.0` to `1.0` and it also assumes that the texture space origin is the lower 
+left corner.
+
+After correcting for that, the sampling coords in pixels become `406.20013, 363.07574`, which seems 
+right on the money if you look at the depth image.
+
+But now it looks like the closest depth at that point (the sample) is coming up `1.0, 1.0, 1.0, 1.0`,
+which would be at the very back of clip space, which is wrong, it should be coming up somewhere in the 
+middle - so `0.5`.
+
+So I think my CPU sampling is off.
+
+Yup! It is. I've now improved CPU sampling a bit.
+
+And now the test passes that assertion - turns out it was indeed the transformation of the frag
+position in light space into the sampling coordinate.
+
+...
+
+But I'm still not seeing a shadow.
+
+That could mean that there's something wrong further up in the shader. 
+It could also mean that the bindings are not set up correctly.
+
+...
+
+I hadn't updated the PBR fragment shader to read the shadow mapping light transform from the 
+descriptor.
+We'll see if that helps (it should).
+
+...
+
+That didn't seem to do it. 
+There must be more items on the bug stack.
+
+...
+
+So I'm now trying to find values to run the fragment shader with, and it's really making me 
+feel like the fragment shader should be writing to a g-buffer. 
+That would make this debugging a lot easier. 
+Of course, it's *not easier* to write that g-buffer code _and_ do the debugging.
+But that's another thing I should put on my list...
+
+...
+
+After getting the vertex info from the point on the top of the green sphere and running the 
+fragment shader with that, it looks like the value being returned from `shadow_calculation`
+is `1.0`, which is what I expect. 
+That point is _indeed_ in shadow.
+
+So then that leaves CPU side things, I think.
+I'll take a look at the `wgpu` linkage.
+
 ## Mon Jan 20, 2025
 
 I'm starting to think I should separate the buffers by concern. 
