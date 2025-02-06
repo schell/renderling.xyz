@@ -14,6 +14,8 @@ Pay no attention to the man behind the curtain.
 
 😭😈😉😊
 
+🇳🇿 🏝️
+
 <video controls width="100%">
   <source src="" type="video/mp4" />
   Backup text.
@@ -41,6 +43,117 @@ NOTE: THERE MUST NOT BE EMPTY LINES
         alt="" />
 </div>
 -->
+
+## Thur Feb 6, 2025
+
+It's Waitangi day 🇳🇿 🏝️!
+
+### `craballoc` now has `HybridWriteGuard`
+
+I added [`HybridWriteGuard`](https://docs.rs/craballoc/latest/craballoc/value/struct.HybridWriteGuard.html) to 
+[`craballoc`](https://crates.io/craballoc).
+It provides an alternative way of modifying values that might be more familiar to people.
+
+### Continuing the multiple shadow map update
+
+I'm still working on supporting multiple shadow maps per `Renderlet` in the forward shader. 
+The approach is to store the shadow maps together in a texture atlas, and to store their 
+descriptors on the lighting slab.
+
+Continuing from yesterday are things to remember to circle back to:
+
+1. Ensure lights _and_ shadow maps are stored on the light slab.
+   - Use the `AnyliticalLightBundle` struct
+2. Store and invalidate the lighting bindgroup
+   - It's being recreated each frame
+3. Support configuring the `Atlas`'s inner texture format.
+   - Shadow maps are 32-bit depth
+
+...
+
+It looks like I can't copy to Depth32Float textures...
+
+> Copying to textures with format Depth32Float and aspect All is forbidden
+
+[Related issue](https://github.com/gfx-rs/wgpu/issues/5456).
+
+[Related WebGPU spec on depth formats](https://www.w3.org/TR/webgpu/#depth-formats).
+
+But from the spec it looks like I can bind another texture type as the depth, though, 
+so I can try that.
+
+Actually it seems that it might be easier to use a separate depth texture for the shadow update,
+then copy that to the atlas separately.
+
+...
+
+UGH
+
+> Source format (Depth32Float) and destination format (R32Float) are not copy-compatible (they may only differ in srgb-ness)
+
+Ok, so it looks like I can't even copy the depth texture.
+
+I feel like I ran into this during occlusion culling as well. Maybe not, but similar.
+
+...
+
+Looks like someone made a nice `TextureBlitter` utility in `wgpu` for this. 
+I'll see if I can use that.
+
+...
+
+Turns out I can't use the built-in `TextureBlitter`, because I need to blit to a sub-section of the target texture,
+so I'll have to write my own blitter.
+
+## Wed Feb 5, 2025
+
+Things to remember when adding support for multiple shadow maps:
+
+1. Ensure lights _and_ shadow maps are stored on the light slab.
+2. Store and invalidate the lighting bindgroup
+
+## Tues Jan 27, 2025
+
+### Fixing shadow mapping peter panning
+
+
+Yesterday I worked on addressing the shadow acne in Renderling's shadow mapping feature.
+
+Today I'll be addressing "peter panning", which is when the shadow of an object doesn't 
+seem to line up with the object itself - called as such because of how Peter Pan's shadow 
+tends to misbehave in the Disney movie.
+
+<div class="image">
+    <label>Shadows. Prettier, but still off.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738006340/shadow_mapping_sanity_stage_render.png"
+        alt="nicer shadows" />
+</div>
+
+This should be relatively easy to fix by using front-face culling during the shadow map 
+update. 
+We'll see.
+
+...
+
+Ok! First thing - I didn't realize that the red cuboid in the scene was actually **floating above
+the plane**. 
+So there really _wasn't_ any peter panning going on. 
+But I fixed it anyway.
+
+Now at least for this scene, the bias isn't needed. 
+I've set the default bias to be `0.0`.
+
+I also added some emissive cylinders to show the light direction:
+
+<div class="image">
+    <label>Shadows. Much prettier. Still rough on the edges.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738017205/shadow_mapping_sanity_stage_render.png"
+        alt="even nicer shadows, but a bit rough on the edges" />
+</div>
 
 ## Mon Jan 27, 2025
 
