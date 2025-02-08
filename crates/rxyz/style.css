@@ -22,6 +22,10 @@ nav h1 {
   image-rendering: crisp-edges;
 }
 
+.small {
+    font-size: smaller;
+}
+
 nav h1 img {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -70,6 +74,12 @@ main p {
     margin: 0.5em;
     padding: 0.5em;
     background-color: lightgray;
+    border-radius: 4px;
+}
+
+.image label {
+    color: #6c6666;
+    border-bottom: 1px #fff0f0 dashed;
 }
 
 .code-snippet { 

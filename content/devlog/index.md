@@ -44,7 +44,250 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
-## Thur Feb 6, 2025
+## Sat 8 Feb, 2025
+
+### Finishing up shadow mapping with multiple shadow maps
+
+I have shadow mapping with multiple shadow maps compiling.
+I don't have it working, though. 
+
+I'm going to debug using GPU traces.
+
+<div class="image">
+    <label>Multiple shadow map GPU trace</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738954591/Screenshot_2025-02-08_at_7.55.35AM.png"
+        alt="multiple shadow map gpu trace" />
+</div>
+
+From the GPU trace file it looks like generating the shadow map depth texture is correct, but blitting 
+it to the shadow map atlas isn't working.
+
+The blitter includes some kind-of funky math for figuring out what clip coords to emit in the vertex 
+shader in order to blit to the correct subsection of the atlas. 
+I bet that's what's going on.
+
+To make sure, I'll change the shader to blit to the entire texture...
+
+
+<div class="image">
+    <label>Multiple shadow map GPU trace, some blitting to the shadow map atlas</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738956316/Screenshot_2025-02-08_at_8.23.50AM.png"
+        alt="multiple shadow map gpu trace 2" />
+</div>
+
+You can already see that we're not blitting the whole frame:
+
+<div class="image">
+    <label>Indeed, we're only blitting one triangle</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738956390/Screenshot_2025-02-08_at_8.26.19AM.png"
+        alt="multiple shadow map gpu trace showing only one half frame of blitting" />
+</div>
+
+But hey - this programmatic GPU tracing is **really helpful**.
+
+...
+
+Well I found (one of) the culprit(s) inside the atlas blitter: 
+
+```rust 
+        pass.draw(0..3, 0..1);
+```
+
+So it's not drawing a full quad, _and_ it's not sending over the id of the `AtlasBlittingDescriptor` as 
+the instance.
+After changing those I'll check the math in the shader. 
+
+...
+
+It's now drawing the full frame.
+Now I'll enable drawing to the subsection of the atlas.
+
+...
+
+So we're back to a fully black frame.
+I'll run it on the CPU and see what's up.
+
+...
+
+Ha! That's it. Here's the print:
+
+```
+atlas_blitting_desc_id: Id<renderling::atlas::AtlasBlittingDescriptor>(39)
+atlas_blitting_desc: AtlasBlittingDescriptor { atlas_texture_id: Id<renderling::atlas::AtlasTexture>(null), atlas_desc_id: Id<renderling::atlas::AtlasDescriptor>(null) }
+thread 'light::cpu::test::shadow_mapping_sanity' panicked at /Users/schell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crabslab-0.6.3/src/lib.rs:39:6:
+index out of bounds: the len is 63 but the index is 4294967295    
+```
+
+All those `(null)` means that I simply didn't write those pointers to the slab...
+
+...
+
+Alright, after updating the slab correctly before each blit, I now see some funky coords.
+
+Here's my unit test: 
+
+```rust 
+            // Inspect the blitting vertex
+            #[derive(Default, Debug)]
+            struct AtlasVertexOutput {
+                out_uv: Vec2,
+                out_clip_pos: Vec4,
+            }
+            let mut output = vec![];
+            for i in 0..6 {
+                let mut out = AtlasVertexOutput::default();
+                crate::atlas::atlas_blit_vertex(
+                    i,
+                    shadows.blitting_op.desc.id(),
+                    &light_slab,
+                    &mut out.out_uv,
+                    &mut out.out_clip_pos,
+                );
+                output.push(out);
+            }
+            panic!(
+                "clip_pos: {:#?}",
+                output
+                    .into_iter()
+                    .map(|out| out.out_clip_pos)
+                    .collect::<Vec<_>>()
+            );
+```
+
+And that outputs the following print:
+
+```
+clip_pos: [
+    Vec4(
+        -1.0,
+        -1.0,
+        0.5,
+        1.0,
+    ),
+    Vec4(
+        0.5625,
+        -1.0,
+        0.5,
+        1.0,
+    ),
+    Vec4(
+        0.5625,
+        -1.0,
+        0.5,
+        1.0,
+    ),
+    Vec4(
+        0.5625,
+        -1.0,
+        0.5,
+        1.0,
+    ),
+    Vec4(
+        -1.0,
+        -1.0,
+        0.5,
+        1.0,
+    ),
+    Vec4(
+        -1.0,
+        -1.0,
+        0.5,
+        1.0,
+    ),
+]    
+```
+
+Which should be "[bottom left, bottom right, top right, top right, top left, bottom left]", but 
+it's obviously degenerate.
+
+This is the `AtlasTexture` in question (the one we're blitting _into_):
+
+```
+AtlasTexture { 
+    offset_px: UVec2(0, 0), 
+    size_px: UVec2(800, 800), 
+    layer_index: 0, 
+    frame_index: 0, 
+    modes: TextureModes { s: ClampToEdge, t: ClampToEdge } 
+}
+```
+
+And this is the atlas descriptor:
+
+```
+AtlasDescriptor { size: UVec3(1024, 1024, 4) }
+```
+
+I can pop these into a smaller unit test.
+
+...
+
+Turns out the conversion from clip space to texture coords was wrong.
+
+I had this:
+
+```rust
+let input_uv = (clip_pos + Vec2::splat(1.0)) * Vec2::new(0.5, -0.5);
+```
+
+When what I meant was this:
+
+```rust
+let input_uv = (clip_pos * Vec2::new(1.0, -1.0) + Vec2::splat(1.0)) * Vec2::splat(0.5);
+```
+
+I just didn't realize I needed to flip Y _first_.
+
+But wait, there's more! 
+<div class="small">These bugs are always stacked on top of each other.</div>
+
+It also turns out that the conversion from texture coords back to clip space was wrong!
+
+I had:
+
+```rust
+uv * Vec2::new(2.0, 2.0) - Vec2::splat(1.0)
+
+```
+
+When what I wanted was this: 
+
+```rust 
+(uv * Vec2::new(2.0, 2.0) - Vec2::splat(1.0)) * Vec2::new(1.0, -1.0)
+```
+
+So really I guess this is the same bug but in two places. 
+In both cases I had the "flip Y" thing wrong in one way or another.
+
+<div class="small">Pesky details.</div>
+
+...
+
+**WOOOOT!**
+
+That worked.
+Now it looks like the shadow map atlas is populated:
+
+
+<div class="image">
+    <label>Shadow map depth correctly rendered into a subsection of a layer of an `Atlas`</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1738966974/Screenshot_2025-02-08_at_11.22.43AM.png"
+        alt="a shadow map depth image rendered into the layer of an atlas" />
+</div>        
+
+...
+
+Now, shadows are still not being rendered, but at least I know this setup is correct.
+
+## Thur 6 Feb, 2025
 
 It's Waitangi day 🇳🇿 🏝️!
 
