@@ -44,6 +44,220 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sun 9 Feb, 2025
+
+### Multiple shadow maps, hooking it all up
+
+I left off yesterday without shadows being rendered in the main renderer path.
+
+I think this is because the shadow mapping is using the new "lighting slab" and 
+expects everything related to lights and shadows to live there, whereas the 
+stage/PRB shaders still think all that data is on the "geometry slab" (as I'm 
+now calling it).
+
+...
+
+Ok - after running a few GPU traces on the main render function I can see that 
+I missed a couple more writes to the slab. 
+
+After adding the necessary `Id`s, etc., it looks like I might have one last batch
+of coordinate transformations to fix.
+
+...
+
+I fixed reading atlas images according to the atlas's underlying texture format.
+
+I guess that means I've also (for the most part) finished support for different
+texture formats in different `Atlas`s.
+
+Previously the `Atlas`'s format had to be `Rgba8`.
+
+...
+
+Last thing to check are those sampling coordinates...
+
+...
+
+Ok, it looks like something really spooky happened. 
+The stage/geometry slab is getting overwritten immediately.
+I'm thinking that maybe I passed the geometry slab to something that is expecting 
+the light slab...
+
+...
+
+Nope! It was easier than that. 
+
+The `Atlas` now writes a descriptor of itself for shaders to access, but that means 
+the PBR descriptor must be written first, or it won't occur at index `0`. 
+
+The `Atlas` was being created _before_ the descriptor was getting written.
+
+...
+
+Et viola!
+
+<div class="image">
+    <label>...shadows!</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739140835/stage_render.png"
+        alt="a scene with rudimentary shadow mapping" />
+</div>
+
+They still don't look _great_, but they are definitely _functional_.
+
+### Taking a closer look at just one object
+
+If we remove the other objects in the scene and only look at the red cuboid on the 
+white plane, we can see that the shadow is very far away:
+
+
+
+<div class="image">
+    <label>Just the red cuboid, and its shadow</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739149816/scene_after.png"
+        alt="a scene showing a red cuboid on a white plane with an odd shadow" />
+</div>
+
+It feels like the shadow is disconnected - which we call "peter panning".
+
+But _is it actually peter panning?_ 
+Or is this a product of having a relatively low-resolution shadow map?
+
+I could imagine that since the light space transform projects the scene pretty 
+far away from the camera, we're lacking the resolution near the edges of the shadow. 
+
+Or it could be the bias.
+
+Let's rule out the bias.
+
+...
+
+<div class="image">
+    <label>Just the red cuboid, now with a connecting shadow</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739150435/scene_after.png"
+        alt="the same scene showing a red cuboid on a white plane, but the shadow connects, mostly" />
+</div>
+
+Huh, that's a lot better.
+
+Above I set the `bias_min` and `bias_max` to `0.0`.
+
+But you can still see that there's some "artifacting", and some odd tearing on the side of the cuboid.
+
+My guess is this is related to the resolution.
+
+Yeah, the [learnopengl](https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping) article on 
+shadow mapping talks about this in the PCF section:
+
+<div class="image">
+    <label>Jaggy shadows, from learnopengl</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739150856/shadow_mapping_zoom_pcf.png"
+        alt="an example of jagged shadows on a wooden floor" />
+</div>
+
+> Because the depth map has a fixed resolution, the depth frequently usually
+spans more than one fragment per texel. As a result, multiple fragments sample
+the same depth value from the depth map and come to the same shadow
+conclusions, which produces these jagged blocky edges. 
+
+> You can reduce these blocky shadows by increasing the depth map resolution, 
+or by trying to fit the light frustum as closely to the scene as possible. 
+
+Yeah, I figured as much.
+
+But it goes on to explain PCF:
+
+> Another (partial) solution to these jagged edges is called PCF, or
+percentage-closer filtering, which is a term that hosts many different
+filtering functions that produce softer shadows, making them appear less blocky
+or hard. The idea is to sample more than once from the depth map, each time
+with slightly different texture coordinates. For each individual sample we
+check whether it is in shadow or not. All the sub-results are then combined and
+averaged and we get a nice soft looking shadow. 
+
+So let's see how easy that is. 
+Seems like it might be a shader-only change, which I like.
+
+...
+
+Eh. It's kinda better.
+
+<div class="image">
+    <label>Some jaggies are better, some jaggies are worse.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739153752/scene_after.png"
+        alt="a scene showing a red cuboid on a white plane, with an ok shadow" />
+</div>
+
+But! Those artifacts on the side of the cuboid are **worse** now.
+
+I think maybe we need to choose a better frustum.
+
+...
+
+Choosing a tighter depth for the light space projection improves things quite a bit,
+as well as fixing a couple little finicky bugs in the shader, and also playing with 
+the values for `min_bias` and `max_bias`:
+
+<div class="image">
+    <label>Less jaggy shadows, getting pretty close</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739156287/scene_after.png"
+        alt="a scene showing a red cuboid on a white plane, with a pretty good shadow" />
+</div>
+
+But check it out - you can see the borders of the shadow map now - it presents as a big 
+jaggy line on the bottom left corner, and our plane is cut off by the ends of the shadow map 
+to the left. This is because that area is beyond the far plane of the light space transform's 
+frustum.
+
+The fix for this should be easy - if the input clip coords of the fragment position in 
+light space is **greater than `1.0`** (which denotes it's outside of light space), we return 
+`0.0` for the shadow:
+
+<div class="image">
+    <label>Better borders. Only one jaggy to go.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739156924/scene_after.png"
+        alt="a scene showing a red cuboid on a white plane, with a pretty good shadow, with better borders" />
+</div>
+
+That's much better! We're getting close to shipping this.
+
+There's still that big jaggy in the lower left, though.
+
+I'm guessing this is another border problem. We should probably check the other dimensions.
+
+<div class="image">
+    <label>Better borders. No more jaggies.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739157630/scene_after.png"
+        alt="a scene showing a red cuboid on a white plane, with quite a nice shadow" />
+</div>
+
+### Lastly, let's use multiple shadow maps
+
+Here's the moment of truth! 
+Let's set up a scene with more lights, that way we can see multiple shadow maps in action!
+
+...
+
+
+Aaaaaand. It's not working. The lighting is there, but the shadows are not.
+
+Whelp! That's a wrap for now.
+
 ## Sat 8 Feb, 2025
 
 ### Finishing up shadow mapping with multiple shadow maps
