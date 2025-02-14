@@ -44,6 +44,30 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sat 15 Feb, 2025
+
+### Glorious multi-shadow mapping
+
+<div class="image">
+    <label>Cuboid with multiple shadows coming from one red light and one blue light</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739563392/scene_red_and_blue.png"
+        alt="a cuboid with multiple shadows coming from one red light and one blue light" />
+</div>
+
+There it is! It looks great! 
+It's such a simple scene, but it's the culmination of so much work.
+
+What's amazing is that I didn't change **anything in Renderling** since last week. 
+
+I stumbled across this rendering when modifying **the test**, which means the library code  
+under test is for the most part correct.
+
+My guess is that there's something up with synchronization, because the change I made to the 
+test rendered one frame _without shadow mapping_, and then another _with shadow mapping_, 
+and the rendering _with shadow mapping_ is what you see above.
+
 ## Sun 9 Feb, 2025
 
 ### Multiple shadow maps, hooking it all up
