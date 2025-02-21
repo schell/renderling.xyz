@@ -44,6 +44,24 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sat 22 Feb, 2025
+
+### Glorious multi-shadow mapping for spot lights
+
+<div class="image">
+    <label>Suzanne and a cone. Nicely lit (with shadows) by two spot lights.</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1740164073/frame.png"
+        alt="a scene with a cone and suzanne the blender monkey, with two spot lights showing nice shadows" />
+</div>
+
+The only thing I needed to change (as far as shadow mapping) to support spot lights was to allow the library 
+user to provide a `z_near` and `z_far` for the light space projection. 
+
+I _also_ had to fix spot lights' outgoing radiance calculations, as they were buggy to begin with, but now 
+they're great!
+
 ## Sat 15 Feb, 2025
 
 ### Glorious multi-shadow mapping
@@ -67,6 +85,61 @@ under test is for the most part correct.
 My guess is that there's something up with synchronization, because the change I made to the 
 test rendered one frame _without shadow mapping_, and then another _with shadow mapping_, 
 and the rendering _with shadow mapping_ is what you see above.
+
+### Debugging shadow mapping synchronization issues
+
+Interestingly, it seems that merely rendering one frame of the scene first **doesn't** fix the 
+issue. 
+Instead, we must render one frame _before creating the shadow maps_. 
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Multiple light source scene before creating shadow maps</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1739567362/before.png" />
+    </div> 
+    <div class="image">
+        <label>Multiple light source scene after creating shadow maps</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1739567362/after.png" />
+    </div>
+</div>
+
+If we render two frames _after creating the shadow maps_ we see the same results as _not creating any shadow maps_.
+That suggests that there's something special about the `Stage::render` function when run without shadow maps.
+
+...
+
+This actually might be incredibly simple, and hence why I've missed it.
+
+1. The geometry slab is 64 bytes after the shadow map update, before `Stage::render`.
+2. The geometry slab is 8 Kib after calling `Stage::render`.
+
+...I think this is a simple case of not synchronizing the geometry slab buffer.
+It probably has no geometry in it when the shadow maps are updated.
+
+🤦
+
+That's it!
+
+Easy.
+
+So this uncovers an issue with the current version of [`craballoc`](https://docs.rs/craballoc/0.1.9/craballoc/) 
+(which manages the slabs), where there's no way to tell if the slab has any queued updates.
+I'll change that now and then use that to ensure that the geometry slab gets committed before updating any 
+shadow maps.
+
+...
+
+And now it looks like everything is hunky dory: 
+
+<div class="image">
+    <label>A simple scene with shadow mapping</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1739574758/stage_render.png"
+        alt="a simple scene with shadow mapping" />
+</div>
+
+😊
 
 ## Sun 9 Feb, 2025
 
