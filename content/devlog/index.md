@@ -38,11 +38,80 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 <div class="image">
     <label>Label</label>
     <img
-        width="750vw"
         src=""
         alt="" />
 </div>
 -->
+
+## Sun 23 Feb, 2025
+
+### Point light shadow mapping update
+
+I've updated the shadow mapping code to include point light parsing out of GLTF files,
+which I had commented out while working on directional and spot lights.
+
+Now point light shadow maps are being created, which are essentially six separate shadow 
+maps, collected into a cube map.
+
+Here's an example of the six separate perspectives that make up the cube map:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Light POV 0</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1740254536/light_0_pov_0.png" />
+    </div>
+    <div class="image">
+        <label>Light POV 1</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1740254536/light_0_pov_1.png" />
+    </div>
+    <div class="image">
+        <label>Light POV 2</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1740254536/light_0_pov_2.png" />
+    </div>
+    <div class="image">
+        <label>Light POV 3</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1740254536/light_0_pov_3.png" />
+    </div>
+    <div class="image">
+        <label>Light POV 4</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1740254536/light_0_pov_4.png" />
+    </div>
+    <div class="image">
+        <label>Light POV 5</label>
+        <img class="pixelated" width="100" src="https://renderling.xyz/uploads/1740254536/light_0_pov_5.png" />
+    </div>
+</div>
+
+These are then blitted into the shadow map atlas so they can be bound in the PBR shader together for 
+multi-shadow-map shading:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Index 0</label>
+        <img class="pixelated" width="250vw" src="https://renderling.xyz/uploads/1740254972/Index_0.png" />
+    </div>
+    <div class="image">
+        <label>Index 1</label>
+        <img class="pixelated" width="250vw" src="https://renderling.xyz/uploads/1740254972/Index_1.png" />
+    </div>
+    <div class="image">
+        <label>Index 2</label>
+        <img class="pixelated" width="250vw" src="https://renderling.xyz/uploads/1740254972/Index_2.png" />
+    </div>
+    <div class="image">
+        <label>Index 3</label>
+        <img class="pixelated" width="250vw" src="https://renderling.xyz/uploads/1740254972/Index_3.png" />
+    </div>
+</div>
+
+I have a feeling there's a lot of repacking happening in the shadow map atlas...
+... but that's for another time :) 
+
+The next step is to support sampling the cube maps as they are stored in the atlas. 
+
+Lucky for me we have a reference implementation in the GPU itself.
+
+So this should be a matter of writing a series of unit tests.
 
 ## Sat 22 Feb, 2025
 
@@ -51,7 +120,6 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 <div class="image">
     <label>Suzanne and a cone. Nicely lit (with shadows) by two spot lights.</label>
     <img
-        width="750vw"
         src="https://renderling.xyz/uploads/1740164073/frame.png"
         alt="a scene with a cone and suzanne the blender monkey, with two spot lights showing nice shadows" />
 </div>
@@ -61,6 +129,62 @@ user to provide a `z_near` and `z_far` for the light space projection.
 
 I _also_ had to fix spot lights' outgoing radiance calculations, as they were buggy to begin with, but now 
 they're great!
+
+### Now for the last bit of shadow mapping work, support for point lights
+
+This will probably be the most complicated part, aside from all the architecture work it took to get 
+to this point. 
+
+Point lights are special in that they cast light in all directions, which means to shadow map them 
+we need to render depth to a cube map.
+
+Here is our test scene as rendered in Blender with the EEVEE renderer:
+
+<div class="image">
+    <label>A scene with 9 red cubes lit by 4 point lights, rendered by blender's EEVEE</label>
+    <img
+        src="https://renderling.xyz/uploads/1740169448/shadow_mapping_points_blender.png"
+        alt="a scene with 9 red cubes lit by 4 point lights, rendered by blender's EEVEE" />
+</div>
+
+And without any changes to Renderling, here's that same scene in Renderling: 
+
+<div class="image">
+    <label>A scene with 9 red cubes lit by 4 point lights, rendered by Renderling, without support for point light shadow maps</label>
+    <img
+        src="https://renderling.xyz/uploads/1740169625/frame.png"
+        alt="a scene with 9 red cubes lit by 4 point lights, rendered by Renderling without support for point light shadow maps" />
+</div>
+
+Obviously the intensity is blown out. 
+I still haven't settled on a unit for lighting. 
+I'm roughly using candelas at the moment, but I need to focus on this at some point.
+
+If I adjust the intensity of point lights coming from GLTF files the same way I do for spot lights we get this rendering:
+
+<div class="image">
+    <label>A scene with 9 red cubes lit by 4 point lights, rendered by Renderling, without support for point light shadow maps, adjusted</label>
+    <img
+        src="https://renderling.xyz/uploads/1740170062/frame.png"
+        alt="a scene with 9 red cubes lit by 4 point lights, rendered by Renderling without support for point light shadow maps, adjusted" />
+</div>
+
+That seems to make the intensity too low. But also, it looks like the point lights are lighting the base incorrectly.
+
+Oh! It's because the base doesn't have a material, so it's defaulting to unlit.
+
+I'll also adjust the intensity adjustment to be the same as directional lighting - that will make it more intense but 
+let's just see how that looks:
+
+<div class="image">
+    <label>A scene with 9 red cubes lit by 4 point lights, rendered by Renderling, without support for point light shadow maps, better with materials</label>
+    <img
+        src="https://renderling.xyz/uploads/1740171028/frame.png"
+        alt="a scene with 9 red cubes lit by 4 point lights, rendered by Renderling without support for point light shadow maps, better with materials" />
+</div>
+
+Huh! Better.
+I'll roll with that for now.
 
 ## Sat 15 Feb, 2025
 
