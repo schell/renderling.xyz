@@ -43,6 +43,358 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sun 9 Mar, 2025
+
+### Shadow map wrap up! 
+
+[Shadow mapping is done!](https://github.com/schell/renderling/pull/158).
+
+I'm putting the finishing touches on that PR at the moment.
+
+It looks _really_ hairy, but it's not as big a change as it looks. GitHub's diff is 
+exploded by the WGSL files. GitHub's UI doesn't seem to be respecting the `.gitattributes`
+of my project, which specifies that `*.wgsl binary`. There are a couple tricks to force 
+GitHub to decide that certain files are generated (which my WGSL files are). But those 
+tricks (namely to use `*.wgsl linguist-generated=true`) aren't working for me. I've had 
+a months long support ticket about it where they have me add and remove the attribute 
+over and over, hoping for a different result. Oh well.
+
+Back to the shadow mapping...
+
+Here's the result!
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Renderling's point light shadow mapping</label>
+        <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1741460817/final.png" />
+    </div>
+    <div class="image">
+        <label>Blender's ray-tracing of the same scene</label>
+        <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1740169448/shadow_mapping_points_blender.png" />
+    </div>
+</div>
+
+The obvious difference being that Blender adds a lot of ambient color to the scene. 
+But the shadows are nearly identical!
+
+I'm happy with the outcome.
+
+#### Sampling from cubemaps in Rust code
+
+The code for sampling from cubemaps in Rust code turned out to be not that complicated!
+The idea is that you first find which major axis the sampling vector is most aligned with
+and then you normalize the vector a bit and make sure the other components are pointing 
+in the correct direction.
+
+The tricky part for my work was realizing that **inside the cubemap its matrices are left-handed**.
+
+The other tricky stuff was about _constructing_ the cubemaps. 
+
+## Sun 2 Mar, 2025
+
+### Hand rolled cubemap sampling
+
+To support point light shadow maps I'm having to build out support for sampling from cubemaps stored 
+in an atlas.
+
+I've lifted out the stage rendering operation into its own struct so that it can be run from the `Stage`
+as well as from a new struct, `SceneCubemap`.
+
+The next step is to write the cubemap into the atlas and then compare/assert that sampling from the atlas 
+returns results equal to traditional cubemap sampling in a shader.
+
+The setup for that is a little hairy, as I'll have to write a shader to sample from the cubemap and then 
+read that from a buffer onto the CPU.
+
+One cool side-effect of having the ability to do cubemap sampling from the atlas is that the skybox and 
+IBL lighting can all come from the atlas, making the entire system more "bindless". It also puts the 
+library user in control of how much memory they're using for all textures, which will be great for 
+constrained devices like the raspberry pi.
+
+### Onto the cubemap sampling
+
+So, without much further ado, here are the shaders that we'll be working with to ensure that 
+our hand-rolled cubemap sampling works in a way that's comparable to the GPU's own sampling: 
+
+```rust 
+/// Vertex shader for testing cubemap sampling.
+#[spirv(vertex)]
+pub fn cubemap_sampling_test_vertex(
+    #[spirv(vertex_index)] vertex_index: u32,
+    #[spirv(instance_index)] uv_id: Id<Vec3>,
+    #[spirv(storage_buffer, descriptor_set = 0, binding = 0)] slab: &[u32],
+    out_uv: &mut Vec3,
+    #[spirv(position)] out_clip_coords: &mut Vec4,
+) {
+    let vertex_index = vertex_index as usize % 6;
+    *out_clip_coords = crate::math::CLIP_SPACE_COORD_QUAD_CCW[vertex_index];
+    *out_uv = slab.read_unchecked(uv_id);
+}
+
+/// Vertex shader for testing cubemap sampling.
+#[spirv(fragment)]
+pub fn cubemap_sampling_test_fragment(
+    #[spirv(descriptor_set = 0, binding = 1)] cubemap: &spirv_std::image::Cubemap,
+    #[spirv(descriptor_set = 0, binding = 2)] sampler: &spirv_std::Sampler,
+    in_uv: Vec3,
+    frag_color: &mut Vec4,
+) {
+    *frag_color = cubemap.sample(*sampler, in_uv);
+}
+```
+
+This will render a quad that samples from **one UV coordinate**. I'll use this to 
+ensure:
+
+1. Native GPU cubemap sampling works as I expect it to.
+2. The hand-rolled cubemap sampling works as I expect it to.
+
+...and here is our cubemap as seen from a GPU trace:
+
+<div class="image">
+    <label>The color cube, as a cubemap</label>
+    <img
+        src="https://renderling.xyz/uploads/1740878869/Screenshot_2025-03-02_at_2.26.02PM.png"
+        alt="the color cube, as a cubemap, seen in an xcode GPU trace file" />
+</div>
+
+...eh, that doesn't seem right. The sides of the cube should all blend together and look like 
+an unfolded box.
+
+Looks like the internal representation of a cubemap is maybe more... ...specific than I thought.
+
+Let's look at the cubemap that I use for a skybox:
+
+<div class="image">
+    <label>The skybox's cubemap, GPU tracing</label>
+    <img
+        src="https://renderling.xyz/uploads/1740889838/Screenshot_2025-03-02_at_5.28.27PM.png"
+        alt="GPU tracing showing a skybox's cubemap" />
+</div>
+
+Ah, yeah. Here you can see that the sides just flow from one to another. So I think my matrices 
+are out of whack. I bet we have to render upside down, too, to get the textures to flip.
+
+<div class="image">
+    <label>Fixed the color cube's cubemap</label>
+    <img
+        src="https://renderling.xyz/uploads/1740889838/Screenshot_2025-03-02_at_5.28.46PM.png"
+        alt="the color cube, as a cubemap, fixed" />
+</div>
+
+This will probably affect the coordinates used to sample. I don't think I can expect that sampling 
+with `(1.0, -1.0, -1.0)` will produce red.
+
+Actually - I'm going to try flipping the color's Y coords just to see, because it seems like the white point 
+should be in the upper right instead of the lower right...
+
+<div class="image">
+    <label>Fixed the color cube's cubemap, even more</label>
+    <img
+        src="https://renderling.xyz/uploads/1740902721/Screenshot_2025-03-02_at_9.04.59PM.png"
+        alt="the color cube, as a cubemap, fixed, again" />
+</div>
+
+There we go! Now sampling **does** come out as expected.
+
+### Debugging the CPU cubemap sampling algo
+
+The sampling algorithm is going to perform these steps: 
+
+1. **Determine the face:**
+   - Compare the absolute values of the x, y, and z components of the input `coord`.
+   - The component with the largest absolute value determines the primary direction.
+
+2. **Select the face and calculate 2D coordinates:**
+   - For each possible face (±X, ±Y, ±Z), after determining the face, project the vector onto the plane of that face to get u, v coordinates.
+   - These normalized coordinates are then converted to pixel coordinates for sampling from the image.
+
+3. **Fetch the texel value from the determined face using bilinear interpolation for smooth results.**
+
+4. **Return the final color:** With proper scaling and orientation adjustments.
+
+
+With an initial implementation of the sampling algorithm I've printed out the input uv coord, the GPU
+sample value, the CPU sample value and then also the face index and the 2d uv coords that were determined
+by the algo: 
+
+```
+  uv: [1, 0, 0],
+ gpu: [1, 0.49803922, 0.49803922, 1]
+ cpu: [0.5019608, 0.5019608, 0, 1]
+from: +X(0) [0.5, 0.5]
+
+  uv: [-1, 0, 0],
+ gpu: [0, 0.49803922, 0.5019608, 1]
+ cpu: [0.49803922, 0.5019608, 1, 1]
+from: -X(1) [0.5, 0.5]
+
+  uv: [0, 1, 0],
+ gpu: [0.5019608, 1, 0.5019608, 1]
+ cpu: [0.49803922, 1, 0.49803922, 1]
+from: +Y(3) [0.5, 0.5]
+
+  uv: [0, -1, 0],
+ gpu: [0.5019608, 0, 0.49803922, 1]
+ cpu: [0.49803922, 0, 0.5019608, 1]
+from: -Y(2) [0.5, 0.5]
+
+  uv: [0, 0, 1],
+ gpu: [0.5019608, 0.49803922, 1, 1]
+ cpu: [0, 0.5019608, 0.49803922, 1]
+from: +Z(4) [0.5, 0.5]
+
+  uv: [0, 0, -1],
+ gpu: [0.49803922, 0.49803922, 0, 1]
+ cpu: [1, 0.5019608, 0.5019608, 1]
+from: -Z(5) [0.5, 0.5]  
+```
+
+So, it's already _kinda_ correct. You can see that it gets the face index correct for the input 
+coords. It also seems that the computed 2d uv coords are correct... ...that leaves the sampling 
+itself, or the images as copied out of the cubemap.
+
+Let's look at the images as read out of our GPU cubemap:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>+X</label>
+        <img class="pixelated" width="256" src="https://renderling.xyz/uploads/1740951619/face_X.png" />
+    </div>
+    <div class="image">
+        <label>-X</label>
+        <img class="pixelated" width="256" src="https://renderling.xyz/uploads/1740951275/face_-X.png" />
+    </div>
+    <div class="image">
+        <label>+Y</label>
+        <img class="pixelated" width="256" src="https://renderling.xyz/uploads/1740951619/face_Y.png" />
+    </div>
+    <div class="image">
+        <label>-Y</label>
+        <img class="pixelated" width="256" src="https://renderling.xyz/uploads/1740951275/face_-Y.png" />
+    </div>
+    <div class="image">
+        <label>+Z</label>
+        <img class="pixelated" width="256" src="https://renderling.xyz/uploads/1740951619/face_Z.png" />
+    </div>
+    <div class="image">
+        <label>-Z</label>
+        <img class="pixelated" width="256" src="https://renderling.xyz/uploads/1740951275/face_-Z.png" />
+    </div>
+</div>
+
+Hrm. Well it looks like they're correct in that they definitely represent the sides of the cubemap.
+I can tell by comparing them to the cubemap screenshot above.
+
+Let's just take the first case into question:
+
+```
+  uv: [1, 0, 0],
+ gpu: [1, 0.49803922, 0.49803922, 1]
+ cpu: [0.5019608, 0.5019608, 0, 1]
+from: +X(0) [0.5, 0.5]    
+```
+
+It's getting the index correct, and the location. If we sample from the +X image at `(0.5, 0.5)`, which is 
+`(127.5, 127.5)` in pixels, we _should_ get something like `(1.0, 0.5, 0.5, 1.0)`. So then why is it returning
+`(0.5019608, 0.5019608, 0, 1)`?
+
+...
+
+Oh. 🤦. When constructing the CPU cubemap after reading the images from the GPU, I used this:
+
+```rust
+let cpu_cubemap = [
+    images.pop().unwrap(),
+    images.pop().unwrap(),
+    images.pop().unwrap(),
+    images.pop().unwrap(),
+    images.pop().unwrap(),
+    images.pop().unwrap(),
+];
+```
+
+...instead of this: 
+
+```rust
+let cpu_cubemap = [
+    images.remove(0),
+    images.remove(0),
+    images.remove(0),
+    images.remove(0),
+    images.remove(0),
+    images.remove(0),
+];
+```
+
+Ok. So after fixing that blunder, things are working out. Now I've set a threshold for an acceptable 
+distance between the GPU and CPU sample values and will start working on interpolation and multisampling.
+
+But also - what happens when you pass in `Vec3::ZERO` as the uv coords? I bet it interpolates between
+corners or something.
+
+...
+
+Ok, maybe I shouldn't work on multisampling just yet. It isn't completely necessary to finish shadow 
+mapping. I can always circle back later.
+
+...
+
+Eh, multisampling wasn't that hard. Now I have all the cardinal directions sampled: 
+
+```
+__uv: [1, 0, 0],
+_gpu: [1, 0.49803922, 0.49803922, 1]
+_cpu: [1, 0.49803922, 0.49803922, 1]
+mcpu: [1, 0.49882355, 0.49882355, 1]
+from: +X(0) [0.5, 0.5]
+
+__uv: [-1, 0, 0],
+_gpu: [0, 0.49803922, 0.5019608, 1]
+_cpu: [0, 0.49803922, 0.5019608, 1]
+mcpu: [0, 0.49882355, 0.5011765, 1]
+from: -X(1) [0.5, 0.5]
+
+__uv: [0, 1, 0],
+_gpu: [0.5019608, 1, 0.5019608, 1]
+_cpu: [0.5019608, 1, 0.5019608, 1]
+mcpu: [0.5011765, 1, 0.5011765, 1]
+from: +Y(2) [0.5, 0.5]
+
+__uv: [0, -1, 0],
+_gpu: [0.5019608, 0, 0.49803922, 1]
+_cpu: [0.5019608, 0, 0.49803922, 1]
+mcpu: [0.5011765, 0, 0.49882355, 1]
+from: -Y(3) [0.5, 0.5]
+
+__uv: [0, 0, 1],
+_gpu: [0.5019608, 0.49803922, 1, 1]
+_cpu: [0.5019608, 0.49803922, 1, 1]
+mcpu: [0.5011765, 0.49882355, 1, 1]
+from: +Z(4) [0.5, 0.5]
+
+__uv: [0, 0, -1],
+_gpu: [0.49803922, 0.49803922, 0, 1]
+_cpu: [0.49803922, 0.49803922, 0, 1]
+mcpu: [0.49882355, 0.49882355, 0, 1]
+from: -Z(5) [0.5, 0.5]
+```
+
+It's interesting, though, that the multisample `mcpu` value seems to be further from the GPU value.
+
+Let's add the corners in...
+
+Huh! Event with the corners, sampling in a cone around the direction vector and averaging comes out 
+worse. No need for it, then!
+
+Oh! And it turns out that if you sample a cubemap with `Vec3::ZERO`, it just uses `Vec3::X` instead.
+
+After thinking about it, that makes sense.
+
+So now we have our sampling algorithm written on the CPU!
+
+Now we can adapt it to sampling images off the slab.
+
 ## Sun 23 Feb, 2025
 
 ### Point light shadow mapping update
@@ -112,6 +464,32 @@ The next step is to support sampling the cube maps as they are stored in the atl
 Lucky for me we have a reference implementation in the GPU itself.
 
 So this should be a matter of writing a series of unit tests.
+
+#### Hand rolling cube-map sampling
+
+I'm going to start by creating a cubemap with known, colored corners: 
+
+<div class="image" style="width: 256px">
+    <label>Probably my favorite 3d shape, the colored unit cube</label>
+    <img 
+        src="https://renderling.xyz/uploads/1740264692/cube.png"
+        alt="the unit cube, colored with its own sacial coordinates"
+        />
+</div>
+
+This cubemap is nice because it's conceptually simple, and we should be able to verify
+that our sampling is correct without having to think too hard. 
+
+For example, sampling at `(1.0, 1.0, 1.0)` should return white, whereas sampling at 
+`(-1.0, -1.0, -1.0)` should return black.
+
+Furthermore, sampling at `(1.0, -1.0, -1.0)`, `(-1.0, 1.0, -1.0)` and `(-1.0, -1.0, 1.0)`, should 
+return red, green and blue, respectively. 
+
+So this will not only allow us to verify the hand-rolled cubemap sampling we'll be writing, but it
+will also help us verify that the cubemap itself is put together correctly.
+
+Let's construct the cubemap...
 
 ## Sat 22 Feb, 2025
 
