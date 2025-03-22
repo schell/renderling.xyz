@@ -43,6 +43,17 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sat 22 Mar, 2025
+
+It's my partner Briana's birthday! Happy birthday, babe.
+
+### Light tiling
+
+I'm starting on light tiling.
+I've decided to live blog it in one fell swoop, and link it from here.
+
+</articles/live/light_tiling.html>
+
 ## Sun 9 Mar, 2025
 
 ### Shadow map wrap up! 

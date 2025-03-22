@@ -19,3 +19,4 @@ site
 local.yaml
 staging.yaml
 production.yaml
+.aider*
