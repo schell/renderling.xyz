@@ -11,7 +11,8 @@ This will be the capstone on Renderling's "Forward+" approach to rendering.
 The state of the art was introduced by Takahiro Harada, Jay McKee, and Jason Yang in their paper
 ["Forward+: Bringing Deferred Lighting to the Next Level"](https://takahiroharada.wordpress.com/wp-content/uploads/2015/04/forward_plus.pdf)...
 ...in 2012!
-At the time of this writing, that's 13 years ago. Time flies!
+At the time of this writing, that's 13 years ago. Time flies like an arrow!
+...and fruit flies like a banana.
 
 When I read that paper I saw this screenshot, and was really impressed:
 
