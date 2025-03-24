@@ -14,3 +14,5 @@ A recap of progress and news from 2024.
 ## [devlog](/devlog/index.html)
 
 This is the on-going development log.
+
+## [Quotations, adages, idioms and "rules"](/articles/adages.html)
