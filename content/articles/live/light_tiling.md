@@ -347,3 +347,5 @@ Essentially this is the same problem I ran into with
 
 Today I made sure that the tile computing shader resets the mins and the maxes for each
 tile before it compares depths.
+
+It always surprises me how much verification I need before getting to the meat of a problem.
