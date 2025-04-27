@@ -243,3 +243,107 @@ Next I'm going to run the depth pre-pass and confirm that the tiling slab
 contains the correct values by exporting the min and max values as images.
 
 For that I'm going to need a scene.
+
+# Setting the scene - Thu 10 Apr 2025
+
+I've created a simple scene of a moon-lit house on a plateau in the middle of the ocean.
+
+<div class="image">
+    <label>Moon-lit house, for testing light tiling</label>
+    <img
+        src="https://renderling.xyz/uploads/1744224134/off.png"
+        alt="a simple scene of a moon-lit house on a plateau in the middle of the ocean" />
+</div>
+
+The moon is in front of the camera, so we get a little bit of reflection off the still water,
+and the moon is casting a shadow on the front of the house.
+
+This should help us see the lights that we'll be adding programmatically.
+
+## Blender notes on adding custom properties - Tue 15 Apr 2025
+
+In order to add lots of lights programmatically, and pseudo-randomly,
+I'd like to place a few AABBs around the scene from which the lights
+will spawn. To do this we need to add these AABBs as objects in the
+GLTF file, generated from our Blender scene. Here's a quick discussion on
+how to use the `extras` property on GLTF nodes
+<https://github.com/omigroup/gltf-extensions/discussions/26>. 
+
+## Resetting the scene - Sat 26 Apr, 2025
+
+So I have a nice test case going, with a new simplified scene. Sorry for switching it up on you,
+but the previous scene had some degenerate meshes. That's what I get for buying meshes instead of
+making them myself...
+
+So, here's the scene, in a couple forms, and as you can see, I'm programmatically adding 1024
+point lights of varying size and colors.
+
+<div class="image">
+    <label>Scene without any lighting</label>
+    <img
+        src="https://renderling.xyz/uploads/1745638402/1-no-lighting.png"
+        alt="a small scene with a couple shapes, including Suzanne, no lighting" />
+</div>
+
+<div class="image">
+    <label>Scene with lighting and shadows, no extra spotlights</label>
+    <img
+        src="https://renderling.xyz/uploads/1745638402/2-before-lights.png"
+        alt="a small scene with a couple shapes, including Suzanne, with lighting" />
+</div>
+
+<div class="image">
+    <label>Scene with lighting and shadows, plus spotlights and meshes for the point lights</label>
+    <img
+        src="https://renderling.xyz/uploads/1745638402/3-after-lights.png"
+        alt="a small scene with a couple shapes, including Suzanne, with lighting and extra point lights" />
+</div>
+
+<div class="image">
+    <label>Scene with lighting and shadows, plus spotlights, without meshes for the point lights</label>
+    <img
+        src="https://renderling.xyz/uploads/1745638402/4-after-lights-no-meshes.png"
+        alt="a small scene with a couple shapes, including Suzanne, with lighting and extra point lights, but no meshes for the lights" />
+</div>
+
+And here is a graph of the frame timings of rendering this scene with a variable number of lights.
+The time for rendering with only one light is pretty bad, we'll have to debug that later, but this gives
+us a good baseline for our tiling.
+
+<div class="image">
+    <label>Scene frame timings</label>
+    <img
+        src="https://renderling.xyz/uploads/1745638402/frame-time.png"
+        alt="frame timing graph of rendering the scene with different numbers of lights" />
+</div>
+
+You can see that performance is directly, linearly proportional to the number of lights in the scene.
+
+...
+
+About the poor performance with even only the default light - after looking at a GPU trace it looks like the main fragment shader is simply getting too large.
+I'm doing too many arithmetic operations.
+I think I can probably part some of this out, but not now.
+
+...
+
+So back to the tiling - I'll set up and integrate the shader I wrote before, which records the min
+and max depth per tile.
+
+This part takes a while. I wish I had some way of auto-generating this boilerplate.
+
+...
+
+Ok - I've hit a snag. Not so much a blocker but a bummer in that I need two copies of the compute shader
+that computes the min and max depth of the light tiles.
+This is because it reads from the depth texture, but that depth texture may or may not be multisampled.
+The multisampled-ness of a depth texture is determined at compile time, which means I need two different
+shaders.
+
+Essentially this is the same problem I ran into with
+[occlusion culling](https://renderling.xyz/devlog/index.html#about_those_hurdles)...
+
+## Ensuring mins and maxes are reset - Sun 27 Apr, 2025
+
+Today I made sure that the tile computing shader resets the mins and the maxes for each
+tile before it compares depths.

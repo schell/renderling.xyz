@@ -1,7 +1,7 @@
 ---
 title: devlog
 ---
-_Stream of consciousness, live-blogged development notes. Updated often._
+_Scream of consciousness, live-blogged development notes. Updated often._
 
 <!-- 
 
@@ -43,6 +43,31 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sat 26 Apr, 2025
+
+[More light tiling work continues](/articles/live/light_tiling.html).
+
+## Thu 10 Apr, 2025
+
+Renderling has been selected for round 2 of 2025 NLNet funding!
+
+This means that we're in the running for funding.
+I'll be putting together some details together about what the next year of development will look like.
+
+Most likely there will be significant contributions to both `Rust-GPU` and `wgpu`.
+
+I would also really like to get some ray marched shadows going, and finish up the occlusion culling.
+
+Stay tuned!
+
+### Light tiling updates from March
+
+I've made some progress on the last big milestone of 2024 NLNet funding, light tiling.
+
+You can read about it at the dedicated light tiling article:
+
+[/articles/live/light_tiling.html](/articles/live/light_tiling.html)
+
 ## Sat 22 Mar, 2025
 
 It's my partner Briana's birthday! Happy birthday, babe.
@@ -52,7 +77,7 @@ It's my partner Briana's birthday! Happy birthday, babe.
 I'm starting on light tiling.
 I've decided to live blog it in one fell swoop, and link it from here.
 
-</articles/live/light_tiling.html>
+[/articles/live/light_tiling.html](/articles/live/light_tiling.html)
 
 ## Sun 9 Mar, 2025
 

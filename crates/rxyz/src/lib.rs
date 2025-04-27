@@ -111,6 +111,15 @@ impl Site {
                         li() {
                             a(href = "https://github.com/schell/renderling") {{"github"}}
                         }
+                        li() {
+                            iframe(
+                                src="https://github.com/sponsors/schell/button",
+                                title="Sponsor schell",
+                                height="32",
+                                width="114",
+                                style="border: 0; border-radius: 6px;"
+                            ){}
+                        }
                     }
                 }
             }
@@ -135,7 +144,17 @@ impl Site {
                     {self.nav()?}
                     main(class=main_classes) {{content}}
                     footer() {
-                        p(){{":)"}}
+                        p(){
+                            "This project is authored and maintained by Schell Scivally."
+                            "Please consider supporting this project by sponsoring it on GitHub 🙏"
+                        }
+                        iframe(
+                            src="https://github.com/sponsors/schell/card",
+                            title="Sponsor schell, author of Renderling",
+                            height="225",
+                            width="600",
+                            style="border: 0;"
+                        ){}
                     }
                 }
             }
