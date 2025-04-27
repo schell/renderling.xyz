@@ -286,21 +286,21 @@ point lights of varying size and colors.
 </div>
 
 <div class="image">
-    <label>Scene with lighting and shadows, no extra spotlights</label>
+    <label>Scene with lighting and shadows, no extra point lights</label>
     <img
         src="https://renderling.xyz/uploads/1745638402/2-before-lights.png"
         alt="a small scene with a couple shapes, including Suzanne, with lighting" />
 </div>
 
 <div class="image">
-    <label>Scene with lighting and shadows, plus spotlights and meshes for the point lights</label>
+    <label>Scene with lighting and shadows, plus point lights and meshes for the point lights</label>
     <img
         src="https://renderling.xyz/uploads/1745638402/3-after-lights.png"
         alt="a small scene with a couple shapes, including Suzanne, with lighting and extra point lights" />
 </div>
 
 <div class="image">
-    <label>Scene with lighting and shadows, plus spotlights, without meshes for the point lights</label>
+    <label>Scene with lighting and shadows, plus point lights, without meshes for the point lights</label>
     <img
         src="https://renderling.xyz/uploads/1745638402/4-after-lights-no-meshes.png"
         alt="a small scene with a couple shapes, including Suzanne, with lighting and extra point lights, but no meshes for the lights" />
@@ -349,3 +349,23 @@ Today I made sure that the tile computing shader resets the mins and the maxes f
 tile before it compares depths.
 
 It always surprises me how much verification I need before getting to the meat of a problem.
+
+Today I got tripped up by the dimensions of the depth min and max arrays, and fixed it by
+writing out the images of those arrays after clearing them with a shader. Turns out I was
+calculating the size incorrectly as
+
+```rust
+depth_buffer_size / 16 + 1
+```
+
+...which added an extra column of tiles when the `depth_buffer_size` was evenly divisible by `16`.
+The solution was to use (essentially):
+
+```rust
+(depth_buffer_size.into_f32s() / 16.0).ceil()
+```
+
+...that way when `depth_buffer_size` is evenly divisible by the tile size, no extra column is added,
+which would mess up our later calculations.
+
+Of course I had to **see** this in an image before I could tell what the bug was.
