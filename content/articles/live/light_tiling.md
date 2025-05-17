@@ -457,4 +457,17 @@ Stay tuned.
 
 ## Continuing on - Sun 18 May
 
+While investigating why some light node's transforms have `NaN` values, I discovered that the transforms are
+somehow not being applied correctly.
 
+...
+
+Ok, first thing here, [I found and fixed an issue where the main renderlet bind group was not being
+properly invalidated](https://github.com/schell/renderling/pull/166/commits/8730f76dd679dd7c6105b181b2cb2151a4b4ac79#diff-7eb217a8e32eb647c8f5758a3b1f555aade82e629b4f35b4b6f5fe0679709a11L203).
+
+This is one of the 2 hardest problems in computing:
+1. cache invalidation
+2. naming things
+3. off-by-one errors
+
+Now that that is fixed, I can continue debugging the transform NaNs.
