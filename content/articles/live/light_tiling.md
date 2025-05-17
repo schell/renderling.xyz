@@ -369,3 +369,88 @@ The solution was to use (essentially):
 which would mess up our later calculations.
 
 Of course I had to **see** this in an image before I could tell what the bug was.
+
+## Ensuring lights' frustums are calculated correctly - Sat 10 May, 2025
+
+I'm down to the wire on my grant project!
+
+I got a bit derailed this past week due to the fact that my partner and I are buying a house 🏡
+here in New Zealand.
+
+Today is the last day to finish this to hit the milestone...
+...let's see how far I can get!
+
+I left off at the part where we're running the shader that calculates frustums for each light tile and
+gathers the lights that affect it. I have code that I _think_ should work, but the resulting images I'm
+reading out of the calculated tiles are obviously incorrect, so I'm going to try to check the algo on the
+CPU.
+
+The difficulty here is that in SPIRV we can access the `tiling_slab: &mut [u32]` atomically without wrapping
+it with anything (the atomic ops just take "pointers"), but on CPU we must pass an array of (something like)
+`AtomicU32`. I'm not sure how to model this interaction to test it on the CPU.
+
+I think I'll do the dumbest thing and use something like an `IsAtomicSlab` trait. At this point I don't care
+about what's completely correct as I'm under a very tight time constraint.
+
+...
+
+I _think_ this is made easier by the fact that I don't really (at this point) have to test the atomic operation
+of the algorithm, just the calculations inside it. So I don't have to run anything in parallel on the CPU.
+Instead, I just have to be able to run the function on similar data to see where the error is - even if it's being
+run synchronously.
+
+...
+
+Ok, turns out I'm not even that far yet. Let's back up and sanity check that I'm calculating the various indices
+correctly, as this code is very index-heavy. 
+
+So - for each fragment we calculate its position in the tile, then figure out which light it should check against
+the frustum:
+
+<div class="image">
+    <label>Color shows lighting array index with 20 lights, represented by 20 colors</label>
+    <img
+        class="pixelated"
+        width="1000vw"
+        src="https://renderling.xyz/uploads/1746830599/step.png"
+        alt="indices into the lighting array" />
+</div>
+
+But what about when there are more lights than there are indices in the tile?
+We also have to check that a given fragment (invocation) visits more than one index in order to check all
+lights:
+
+<div class="image">
+    <label>Shade shows number of lights visited by each invocation, lighter is more visits, tile size outlined, 1100 lights</label>
+    <img
+        class="pixelated"
+        src="https://renderling.xyz/uploads/1746832361/Screenshot_2025-05-10_at_11.12.16AM.png"
+        alt="indices into the lighting array" />
+</div>
+
+Ok, so I think the step width of the loop is correct.
+We can see that the first fragments in the tile do one more lighting calculation than the rest.
+
+Next I think we _will_ need atomic ops.
+
+I'll go and set up the scene, read out all the slabs and then perform the shader on the CPU.
+
+...
+
+Ok, I have the depth image, the slabs, and I've mapped the atomic ops to synchronous ones on CPU.
+Let's run the code on the CPU and then look at the resulting tiles...
+
+...it looks like one of the light's node transforms has NaN values. Oof. Debugging time.
+
+## End of my grant - Sun 11 May
+
+Well, I've come to end of my nlnet grant period. 
+I'm probably about half-finished on light tiling, if you include the time it would take to
+work the proof of concept into the existing API.
+
+I **will** keep working on it, and I'll see if I can get "partial credit" for the work thus far.
+
+Hopefully Renderling is selected for another year of funding and I can finish up light tiling before
+that starts. If not, I'll finish it up regardless :)
+
+Stay tuned.
