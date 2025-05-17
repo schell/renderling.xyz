@@ -43,6 +43,25 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sun 18 May, 2025
+
+My partner and I bought a house! Quite a distraction.
+
+[Light tiling work continues](/articles/live/light_tiling.html#continuing_on__sun_18_may)
+
+## Sun 11 May, 2025
+
+Today ends my [NLNet](https://nlnet.nl/) grant.
+
+It was really cool to be a part of their program, and it has changed the way I feel about OSS.
+
+If you ever have a project you think may help people, I **highly** recommend applying to one of
+their grant programs.
+
+## Sat 10 May, 2025
+
+[Light tiling - calculating frustums, verifying indices, etc](articles/live/light_tiling.html#continuing_on__sun_18_may)
+
 ## Sat 26 Apr, 2025
 
 [More light tiling work continues](/articles/live/light_tiling.html).
