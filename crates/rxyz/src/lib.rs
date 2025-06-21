@@ -1,5 +1,6 @@
 //! Rxyz is the template portion of renderling.xyz.
-use mogwai_dom::{core::view::ViewBuilder, rsx, view::SsrDom};
+use md::Node;
+use mogwai::{prelude::*, ssr::Ssr};
 use snafu::prelude::*;
 
 mod md;
@@ -21,10 +22,8 @@ pub enum Error {
     #[snafu(display("{source}"))]
     Http { source: http::Error },
 
-    #[snafu(display("Rendering error: {source}"))]
-    Render {
-        source: mogwai_dom::core::view::Error,
-    },
+    #[snafu(display("Rendering error"))]
+    Render,
 }
 
 fn uri_builder_from(uri: &http::uri::Uri) -> http::uri::Builder {
@@ -90,12 +89,14 @@ impl Site {
         Ok(site_path)
     }
 
-    fn nav(&self) -> Result<ViewBuilder, Error> {
-        Ok(rsx! {
-            nav {
+    fn nav<V: View>(&self) -> Result<V::Element, Error> {
+        rsx! {
+            let nav = nav {
                 h1() {
                     a(href = self.site_path("/")?, class="logo-link") {
-                        img(src = self.site_path("/img/logo.png")?) {"renderling"}
+                        img(src = self.site_path("/img/logo.png")?) {
+                            "renderling"
+                        }
                     }
                 }
                 div(class="nav-middle") {}
@@ -103,13 +104,19 @@ impl Site {
                     div(class="nav-top") {}
                     ul(class="nav-links") {
                         li() {
-                            a(href = self.site_path("articles/index.html")?){{"articles"}}
+                            a(href = self.site_path("articles/index.html")?){
+                                "articles"
+                            }
                         }
                         li() {
-                            a(href = self.site_path("devlog/index.html")?){{"devlog"}}
+                            a(href = self.site_path("devlog/index.html")?){
+                                "devlog"
+                            }
                         }
                         li() {
-                            a(href = "https://github.com/schell/renderling") {{"github"}}
+                            a(href = "https://github.com/schell/renderling") {
+                                "github"
+                            }
                         }
                         li() {
                             iframe(
@@ -123,26 +130,34 @@ impl Site {
                     }
                 }
             }
-        })
+        }
+
+        Ok(nav)
     }
 
-    fn render_page(
+    fn page<V: View>(
         &self,
         title: impl AsRef<str>,
-        content: ViewBuilder,
+        content: Vec<Node<V>>,
         main_classes: &str,
-    ) -> Result<String, Error> {
-        let page = rsx! {
-            html(lang = "en") {
-                head {
+    ) -> Result<V::Element, Error> {
+        rsx! {
+            let page = html(lang = "en") {
+                head() {
                     meta(charset = "UTF-8"){}
                     link(rel="icon", href = self.site_path("favicon.ico")?){}
-                    title {{title.as_ref()}}
-                    style {{self.css()}}
+                    title() {
+                        {title.as_ref().into_text::<V>()}
+                    }
+                    style() {
+                        {self.css().into_text::<V>()}
+                    }
                 }
-                body {
-                    {self.nav()?}
-                    main(class=main_classes) {{content}}
+                body() {
+                    {self.nav::<V>()?}
+                    main(class=main_classes) {
+                        {content}
+                    }
                     footer() {
                         p(){
                             "This project is authored and maintained by Schell Scivally."
@@ -158,11 +173,12 @@ impl Site {
                     }
                 }
             }
-        };
-        let dom = SsrDom::try_from(page).context(RenderSnafu)?;
-        // This executes any changes to inputs/outputs in the builder.
-        while dom.executor.try_tick() {}
-        let s = futures_lite::future::block_on(dom.html_string());
+        }
+        Ok(page)
+    }
+
+    fn render_page(&self, page: <mogwai::ssr::Ssr as View>::Element) -> Result<String, Error> {
+        let s = page.html_string();
         Ok(prefix_doctype(s))
     }
 
@@ -173,10 +189,8 @@ impl Site {
         extra_classes: &str,
     ) -> Result<String, Error> {
         let imd = md::interpolate_markdown(content)?;
-        self.render_page(
-            imd.title.unwrap_or("Untitled".to_string()),
-            imd.view,
-            extra_classes,
-        )
+        let title = imd.title.unwrap_or("Untitled".to_string());
+        let page = self.page::<Ssr>(title, imd.view, extra_classes)?;
+        self.render_page(page)
     }
 }

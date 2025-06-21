@@ -83,19 +83,17 @@ main p {
     border-bottom: 1px #fff0f0 dashed;
 }
 
-.code-snippet { 
-  border-radius: 1em;
-  padding: 0.5em; 
-  background-color: #efefef;
-  overflow-x: auto;
-} 
-
-main slot p code {
-    padding: 0;
-    outline: none;
-    background-color: #efefef;
-    font-size: 0.9em;
+.code-wrapper {
+    padding: 0.5em; 
+    border-radius: 1em;
+    background-color: #282a36;
 }
+
+.code-snippet { 
+    padding: 0;
+    margin: 0;
+    overflow-x: auto;
+} 
 
 main h2 {
   padding-top: 0.5em;

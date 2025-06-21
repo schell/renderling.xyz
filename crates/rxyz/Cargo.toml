@@ -9,7 +9,7 @@ html_parser = "^0.7"
 http = "1.1.0"
 log = {workspace=true}
 markdown = "1.0.0-alpha.21"
-mogwai-dom = "^0.2"
+mogwai = "0.7"
 serde = {workspace=true}
 serde_yaml = {workspace=true}
 snafu = {workspace=true}
