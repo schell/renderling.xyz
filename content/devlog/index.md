@@ -43,6 +43,16 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Mon 7 July, 2025
+
+Wow! What a long break.
+
+I've switched jobs and moved house (still in New Zealand).
+
+Also, Renderling got picked up for another year of funding, and got an extension on the last milestone for last year's funding!
+
+I'll write more about all of that later. Thank you!
+
 ## Sun 18 May, 2025
 
 My partner and I bought a house! Quite a distraction.
