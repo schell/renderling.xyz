@@ -3,6 +3,46 @@ title: Light Tiling, Live!
 ---
 _Following along with Renderling's initial implementation of light tiling_
 
+<!-- 
+
+My private stuff used for editing. 
+Pay no attention to the man behind the curtain.
+
+👍🤞🍖🚧🔗🤦🙇☕
+
+...⏱️
+
+😭😈😉😊
+
+🇳🇿 🏝️
+
+<video controls width="100%">
+  <source src="" type="video/mp4" />
+  Backup text.
+</video>
+
+
+NOTE: THERE MUST NOT BE EMPTY LINES
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Label</label>
+        <img class="pixelated" width="100" src="" />
+    </div>
+    <div class="image">
+        <label>Label</label>
+        <img class="pixelated" width="100" src="" />
+    </div>
+</div>
+
+<div class="image">
+    <label>Label</label>
+    <img
+        src=""
+        alt="" />
+</div>
+-->
+
 # Introduction to light tiling - Sat 22 Mar 2025
 
 I'm finally starting out on the feature that I created Renderling for - light tiling.
@@ -471,3 +511,92 @@ This is one of the 2 hardest problems in computing:
 3. off-by-one errors
 
 Now that that is fixed, I can continue debugging the transform NaNs.
+
+## Point and spotlight discrepancies - Fri 11 June
+
+I wrote a new test that shows some geometry lit by three lights. Directional, point and spot, respectively.
+
+Each light is placed at `(1, 1, 1)`, about `1` above the upper right corner of the geometry.
+
+In the directional and spotlight cases, they each point at the origin.
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Directional</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752185721/directional.png" />
+    </div>
+    <div class="image">
+        <label>Point</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752185721/point.png" />
+    </div>
+    <div class="image">
+        <label>Spot</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752185721/spot.png" />
+    </div>
+</div>
+
+You can see above that the directional light looks fine.
+The point light, however, seems to be reflecting light incorrectly, as if the light direction were
+flipped. It's also not reflecting light on the horizontal walls of the scenery.
+Likewise, the spotlight's reflections don't show anything on the vertical walls of the scenery.
+
+My guess is that the direction vectors are not being calculated correctly.
+The place to look is in the `renderling::pbr::shade_fragment` function.
+
+In that function we loop over all the lights and accumulate the radiance.
+Inside that loop I can see this code for calculating the radiance of a point light:
+
+```rust
+        // determine the light ray and the radiance
+        let (radiance, shadow) = match light.light_type {
+            LightStyle::Point => {
+                let PointLightDescriptor {
+                    position,
+                    color,
+                    intensity,
+                } = light_slab.read(light.into_point_id());
+                // `position` is the light positios
+                let position = transform.transform_point3(position);
+                // `in_pos` is the fragment's surface position
+                let frag_to_light = in_pos - position; // - in_pos;
+```
+
+From the looks of that last line there, it seems there's been some confusion about the `frag_to_light` direction.
+
+If I flip that calculation to be `position - in_pos`, we get the point light rendering to look more like the
+spotlight rendering:
+
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Point</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752189853/point.png" />
+    </div>
+    <div class="image">
+        <label>Spot</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752189853/spot.png" />
+    </div>
+</div>
+
+I bet `frag_to_light` got flipped while I was thrashing on something. After we figure out the vertical
+reflection issue I'll run all the tests again and see what has broken.
+
+Now that I think about it, it's actually correct that no light should be shown on the vertical walls.
+Since the light is directly over the corner of the model, the rays would be collinear with the wall surface at best.
+I can move the light a little further out, like to `(1.1, 1.0, 1.1)` and then we should see a little
+light being shown on the walls.
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Point</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752190946/point.png" />
+    </div>
+    <div class="image">
+        <label>Spot</label>
+        <img class="pixelated" src="https://renderling.xyz/uploads/1752190946/spot.png" />
+    </div>
+</div>
+
+Phwew! Glad I thought of that. I could have spun my wheels on that for a while.
+
+Now we can get back to tiling.

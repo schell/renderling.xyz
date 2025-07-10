@@ -161,6 +161,7 @@ impl Site {
                     footer() {
                         p(){
                             "This project is authored and maintained by Schell Scivally."
+                            " "
                             "Please consider supporting this project by sponsoring it on GitHub 🙏"
                         }
                         iframe(
