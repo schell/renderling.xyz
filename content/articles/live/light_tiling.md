@@ -614,7 +614,7 @@ Now I'm back chasing down the transform NaN bug.
 
 It's pretty obvious what's happening here:
 
-1. I have 3 slabs (which are like arenas) where I allocate things on the GPU (and sync some of them on the GPU).
+1. I have 3 slabs (which are like arenas) where I allocate things on the GPU (and sync some of them on the CPU).
 2. Most transforms live on the "geometry" slab, which contains things like mesh vertex data.
 3. Light transforms live on the "lighting" slab, including their transforms.
 4. Light tiling was reading light transforms from the "geometry" slab.
