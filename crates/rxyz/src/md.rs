@@ -81,46 +81,60 @@ pub struct ContentMeta {
     pub title: String,
 }
 
-fn to_text(node: &mdast::Node) -> String {
+/// Converts a markdown node into a heading link.
+fn as_link_text(node: &mdast::Node) -> String {
     let mut s = String::new();
-        let nodes: &[mdast::Node] = match node {
-            mdast::Node::Root(_) => todo!(),
-            mdast::Node::Blockquote(bq) => &bq.children,
-            mdast::Node::FootnoteDefinition(fnd) => &fnd.children,
-            mdast::Node::List(list) => &list.children,
-            mdast::Node::Emphasis(e) => &e.children,
-            mdast::Node::MdxTextExpression(mdte) => {
-                s = mdte.value.clone();
-                &[]
-            }
-            mdast::Node::Link(Link { title, .. }) => if let Some(t) = title.as_ref() {
-                s = t.clone();
-                &[]
-            } else {
-                &[]
-            },
-            mdast::Node::Strong(s) => &s.children,
-            mdast::Node::Text(t) => {
-                s = t.value.clone();
-                &[]
-            }
-            mdast::Node::Code(c) => {
-                s = c.value.clone();
-                &[]
-            }
-            mdast::Node::Heading(h) => &h.children,
-            mdast::Node::Table(t) => &t.children,
-            _ => &[]
-        };
-        let s2 = nodes.iter().map(to_text).collect::<Vec<_>>().concat();
-        [s, s2].concat().chars().filter_map(|c| if c.is_alphanumeric() {
+    let nodes: &[mdast::Node] = match node {
+        mdast::Node::Root(_) => todo!(),
+        mdast::Node::Blockquote(bq) => &bq.children,
+        mdast::Node::FootnoteDefinition(fnd) => &fnd.children,
+        mdast::Node::List(list) => &list.children,
+        mdast::Node::Emphasis(e) => &e.children,
+        mdast::Node::MdxTextExpression(mdte) => {
+            s = mdte.value.clone();
+            &[]
+        }
+        mdast::Node::Link(Link { title, .. }) => if let Some(t) = title.as_ref() {
+            s = t.clone();
+            &[]
+        } else {
+            &[]
+        },
+        mdast::Node::Strong(s) => &s.children,
+        mdast::Node::Text(t) => {
+            s = t.value.clone();
+            &[]
+        }
+        mdast::Node::Code(c) => {
+            s = c.value.clone();
+            &[]
+        }
+        mdast::Node::Heading(h) => &h.children,
+        mdast::Node::Table(t) => &t.children,
+        _ => &[]
+    };
+    let s2 = nodes.iter().map(as_link_text).collect::<Vec<_>>().concat();
+    let mut last_char_is_hyphen = false;
+    [s, s2].concat().chars().filter_map(|c| {
+        if c.is_alphanumeric() {
+            last_char_is_hyphen = false;
             Some(c.to_lowercase().to_string())
-        } else if c == ' ' {
-            Some("_".to_owned())
+        } else if c.is_whitespace() && last_char_is_hyphen {
+            // last_char_is_hyphen is aready `true`
+            None
+        } else if c.is_whitespace() {
+            last_char_is_hyphen = true;
+            Some("-".to_owned())
+        } else if c == '-' && last_char_is_hyphen {
+            None
+        } else if c == '-' {
+            last_char_is_hyphen = true;
+            Some("-".to_owned())
         } else {
             None
-        }).collect::<Vec<_>>().concat()
-    }
+        }
+    }).collect::<Vec<_>>().concat()
+}
 
 #[derive(Default)]
 pub struct AstRenderer {
@@ -352,8 +366,8 @@ impl AstRenderer {
                 position: _,
                 depth,
             }) => {
-                let id = children.iter().map(to_text).collect::<Vec<_>>().concat();
-                let href = format!("#{}", id);
+                let id = children.iter().map(as_link_text).collect::<Vec<_>>().concat();
+                let href = format!("#{id}");
                 let children: Vec<_> = children.into_iter().map(|c| self.make_md_view(c)).collect();
                 let section_link = V::Text::new(SECTION_LINK);
                 match depth {

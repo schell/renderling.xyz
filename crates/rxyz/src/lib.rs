@@ -84,7 +84,7 @@ impl Site {
             path.as_ref().trim_matches('/')
         );
         let uri = uri.path_and_query(path).build().context(HttpSnafu)?;
-        let site_path = format!("{}", uri);
+        let site_path = format!("{uri}");
         log::debug!("site_path: {site_path}");
         Ok(site_path)
     }

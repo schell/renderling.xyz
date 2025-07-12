@@ -1,6 +1,7 @@
 ---
 title: Light Tiling, Live!
 ---
+
 _Following along with Renderling's initial implementation of light tiling_
 
 <!-- 
@@ -43,6 +44,8 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+
+
 # Introduction to light tiling - Sat 22 Mar 2025
 
 I'm finally starting out on the feature that I created Renderling for - light tiling.
@@ -63,7 +66,7 @@ When I read that paper I saw this screenshot, and was really impressed:
         alt="A screenshot from the AMD Leo demo using Forward+" />
 </div>
 
-You can still see that demo [here, on youtube](https://www.youtube.com/watch?v=C6TUVsmNUKI).
+You can still see that demo [here, on YouTube](https://www.youtube.com/watch?v=C6TUVsmNUKI).
 
 Anyway, on with the show.
 
@@ -96,9 +99,12 @@ illuminate any fragments outside that illumination area.
 I say "most" because directional lights do _not_ have a cone or sphere of illumination.
 But at the same time we don't usually have that many directional lights, so we can ignore those.
 
-So what we can do is divide the screen into small tiles, calculate which lights illuminate the tile,
-store them in a list and then traverse _that list_ for the fragments in the tile, greatly reducing the
-number of lights we need to visit per fragment.
+So what we can do is this:
+1. Divide the screen into small tiles
+2. Calculate which lights illuminate the tile and store them in a list
+3. Then in shading, traverse _that list_ for the fragments in the tile
+
+Doing so will greatly reducing the number of lights we need to visit per fragment.
 
 How all that gets done is different for each Forward+ renderer I've looked at, but they mostly share
 these three steps:
@@ -127,7 +133,7 @@ later this year. Maybe I should just include that here?
 
 I'm a little worried about losing MSAA when rendering, but I guess the depth
 pre-pass will render every object that passes frustum culling into the depth
-map, and then we'll use some occlusion culling to only "redraw" the meshlets
+map. Then we'll use some occlusion culling to only "redraw" the meshlets
 that are in the scene and visible. We'll also compute the light tiles. Then
 we'll do the redraw. During that redraw is when we'll do shading and MSAA will
 resolve. So I _think_ that's all fine.
@@ -141,7 +147,8 @@ Anyway - let's do the depth pre-pass.
 
 I think what I'll do in order to get cracking as soon as possible (in pursuit
 of [the 20/80 rule](/articles/adages.html#pareto_pricipal)), is just render
-twice, once as the depth pre-pass and then once again for shading, with the
+twice.
+Once as the depth pre-pass and then once again for shading, with the
 light culling in-between. 
 
 ...Huh. Now that I'm thinking of it, this also may be a good "spot" to put
@@ -512,7 +519,7 @@ This is one of the 2 hardest problems in computing:
 
 Now that that is fixed, I can continue debugging the transform NaNs.
 
-## Point and spotlight discrepancies - Fri 11 June
+## Point and spotlight discrepancies - Fri 11 July 2025
 
 I wrote a new test that shows some geometry lit by three lights. Directional, point and spot, respectively.
 
@@ -600,3 +607,43 @@ light being shown on the walls.
 Phwew! Glad I thought of that. I could have spun my wheels on that for a while.
 
 Now we can get back to tiling.
+
+## Back to tiling - Sat 12 July 2025
+
+Now I'm back chasing down the transform NaN bug.
+
+It's pretty obvious what's happening here:
+
+1. I have 3 slabs (which are like arenas) where I allocate things on the GPU (and sync some of them on the GPU).
+2. Most transforms live on the "geometry" slab, which contains things like mesh vertex data.
+3. Light transforms live on the "lighting" slab, including their transforms.
+4. Light tiling was reading light transforms from the "geometry" slab.
+
+Boom. That's that.
+
+But how am I going to solve this problem?
+I could just move the transform read from the "geometry" slab to the "lighting" slab and be done with it, but
+I _will_ run into more problems like this.
+It seems apparent to me that a slab should carry some compile-time data that it imparts to values that live on
+it.
+This way we know at compile time which values live on which slabs, and this error would not happen.
+Something like this:
+
+```rust
+struct SlabAllocator<T: SingleSlabOrigin = DefaultSingleSlabOrigin> {...}
+
+struct Hybrid<T: SlabItem, Origin: SingleSlabOrigin = DefaultSingleSlabOrigin> {...}
+```
+
+This might also make it possible to have values which live on more than one slab, by doing something like:
+
+```rust
+struct MultiOriginHybrid<T: SlabItem, O: MultiSlabOrigin = DefaultMultiSlabOrigin>{...}
+
+let geometry_slab: SlabAllocator<GeometryOrigin> = SlabAllocator::new(...);
+let lighting_slab: SlabAllocator<LightingOrigin> = SlabAllocator::new(...);
+let hybrid: Hybrid<u32, GeometryOrigin> = geometry_slab.new_value(666);
+let multi: MultiOriginHybrid<u32, (GeometryOrigin, LightingOrigin)> = hybrid.into_multi(&lighting_slab);
+```
+
+Well, I've made a note of it. I'm not going to pursue that yet. For now I'm just switching the read.

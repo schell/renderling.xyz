@@ -64,6 +64,10 @@ main p {
   padding: 0.5em;
 }
 
+main .toc {
+    float: right;
+}
+
 .images-horizontal {
     display: inline-flex;
     flex-wrap: wrap;
