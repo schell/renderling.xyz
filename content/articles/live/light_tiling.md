@@ -1,10 +1,13 @@
 ---
 title: Light Tiling, Live!
+toc: true
 ---
 
 _Following along with Renderling's initial implementation of light tiling_
 
 <!-- 
+
+TODO: Implement the table of contents
 
 My private stuff used for editing. 
 Pay no attention to the man behind the curtain.
@@ -608,7 +611,7 @@ Phwew! Glad I thought of that. I could have spun my wheels on that for a while.
 
 Now we can get back to tiling.
 
-## Back to tiling - Sat 12 July 2025
+## Chasing NaN - Sat 12 July 2025
 
 Now I'm back chasing down the transform NaN bug.
 
@@ -647,3 +650,18 @@ let multi: MultiOriginHybrid<u32, (GeometryOrigin, LightingOrigin)> = hybrid.int
 ```
 
 Well, I've made a note of it. I'm not going to pursue that yet. For now I'm just switching the read.
+
+## Back to tiling - Sun 13 July 2025
+
+Yesterday I found out that I was confused about where the light transforms would live.
+This is one problem with having many different slabs with similar data, it's hard to see which slab
+a value belongs to.
+
+Because of this I think that the API for creating an analytical light must change. Specifically I think
+it should **not** take a `NestedTransform` - because those are allocated on the geometry slab.
+
+I don't think it's reasonable to expect the library user to remember which slab to create a value on.
+It should be handled internally, or with types.
+
+For this reason I'll make it so `AnalyticalLightBundle` creates its own `NestedTransform` on the light
+slab which can be updated after creation.
