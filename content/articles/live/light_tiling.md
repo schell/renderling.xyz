@@ -665,3 +665,10 @@ It should be handled internally, or with types.
 
 For this reason I'll make it so `AnalyticalLightBundle` creates its own `NestedTransform` on the light
 slab which can be updated after creation.
+
+## Sun 20 July 2025
+
+My schedule is still pretty hectic after changing jobs and moving house.
+I haven't settled into a rhythm yet.
+
+I've added some helpers to `Camera` and the `renderling::math` module.
