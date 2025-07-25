@@ -43,6 +43,21 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 </div>
 -->
 
+## Sat 26 July, 2025
+
+[Light tiling progresses!](/articles/live/light_tiling.html#sat-26-july-2025).
+This work is getting really close, then I can move on to the project plan for next year.
+
+About that - like I mentioned last update, [NLnet is giving Renderling another year of
+funding](https://nlnet.nl/project/Renderling-Ecosystem/) (and increasing the budget)! I'm stoked.
+
+Next year's project will include contributions to [Rust GPU](https://rust-gpu.github.io/),
+[the gltf crate](https://crates.io/crates/gltf) and others.
+
+Also on the dockett is global illumination...
+
+And I'll be working with a contributor! You might know them! I'll talk more about that later.
+
 ## Mon 7 July, 2025
 
 Wow! What a long break.

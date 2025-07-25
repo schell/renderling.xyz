@@ -672,3 +672,158 @@ My schedule is still pretty hectic after changing jobs and moving house.
 I haven't settled into a rhythm yet.
 
 I've added some helpers to `Camera` and the `renderling::math` module.
+
+## Fri 25 July 2025
+
+I've added a number of improvements to `Camera` and `Frustum` to make the tests for light tiling easier
+to look at, mostly for linearizing and normalizing depth.
+
+The amount of sanity checking the camera transformations require really make me wish I had gone with an enum for
+`Camera` that could determine if the projection was orthographic or perspective.
+
+I might try that in the future.
+The main reason it's not like that is because it would require more slab reads in shaders.
+
+### Ensuring tiles are cleared
+
+The first stage of light tiling is clearing the tiles of the previous frame's data.
+I've written a test to ensure that this stage happens properly.
+
+The test involves first writing known data to the tiling slab.
+Here you can see a visualization of that data:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Number of lights illuminating the tile, as noise</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753403473/1-lights.png" />
+    </div>
+    <div class="image">
+        <label>Depth minimums, as x,y distance from the bottom right</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753403473/1-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums, as x,y distance from upper left</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753403473/1-maxs.png" />
+    </div>
+</div>
+
+Now we should be able to run the `clear_tiles` shader and see that the minimums are set to a max value,
+the maximums are set to a minimum value (`0`) and the number of lights set to `0`.
+
+Blaarg! It seems that calling the `clear_tiles` shader is zeroing-out the `LightTilingDescriptor`, which makes
+our tiles unreachable. This is likely due to faulty pointer math.
+
+Indeed, it turns out the slab was getting clobbered, so I simplified the case by breaking it out into its own
+shader, and now we get some proper clearing:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Number of lights illuminating the tile, cleared to `0`</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753405507/2-lights.png" />
+    </div>
+    <div class="image">
+        <label>Depth minimums, cleared to max</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753405507/2-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums, cleared to min</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753405507/2-maxs.png" />
+    </div>
+</div>
+
+The next step is ensuring the min and max depth are being calculated properly.
+
+### Ensuring min and max depth calculations
+
+For this I'm going to break out the min and max depth computation into its own shader.
+I did this for clearing tiles earlier, and it makes things much easier to verify.
+
+After that it looks like everything is copacetic, we can see the minimums and the maximums
+clearly, and the minimums look closer, as they should (depth 1.0 is on the far plane):
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>The scene</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753420111/1-scene.png" />
+    </div>
+    <div class="image">
+        <label>Depth minimums, the furthest parts of the visible scene</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753420111/2-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums, the closest parts of the visible scene</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753420111/2-maxs.png" />
+    </div>
+</div>
+
+Now we're ready to calculate the light lists.
+
+## Sat 26 July, 2025
+
+### Ensuring the light bins 
+
+The last shader in the tiling workflow is the one that calculates which lights affect each tile.
+
+It's easily the trickiest shader because it does two things:
+
+1. Calculate the AABB frustum in NDC coordinates of the tile according to the min and max depths computed
+   earlier.
+2. Iterate over each light...
+    - Calculate the AABB frustum of the light's illumination 
+    - Add the light to the bin if the two frustums intersect
+
+Both steps include math that is easy to get wrong and then step 2 has atomic ops which can be spooky.
+It also iterates over a subset of lights for each invocation in the tile, and that iteration could
+be broken.
+
+But at least I'm getting _some kind of result_.
+Here is that result, where the second image shows the number of lights in each tile's bin:
+
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>The scene</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753479030/1-scene.png" />
+    </div>
+    <div class="image">
+        <label>Length of each tile's light bin, normalized</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753479030/2-lights.png" />
+    </div>
+</div>
+
+I really should get one of those nifty widgets that has a slider to show the two images overlapping each other.
+
+<!--
+TODO: make one of those slider thingys
+-->
+
+As you can see, there _are different values_.
+
+That's good because we know the shader is doing _something_.
+
+But they're not the values we expect.
+
+There's only one directional light in this scene, so we should expect that every tile has one light in it.
+That would mean that every pixel in the second image should be white.
+
+I'm going to get some more debug info.
+
+**Oof**. I've got a bug to chase.
+
+It looks like each time the test is run I get a different set of bins:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Run 1, length of each tile's light bin, normalized</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753480081/2-lights-0.png" />
+    </div>
+    <div class="image">
+        <label>Run 2, length of each tile's light bin, normalized</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753480081/2-lights-1.png" />
+    </div>
+    <div class="image">
+        <label>Run 3, length of each tile's light bin, normalized</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753480081/2-lights-2.png" />
+    </div>
+</div>
+
