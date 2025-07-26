@@ -810,7 +810,7 @@ I'm going to get some more debug info.
 
 **Oof**. I've got a bug to chase.
 
-It looks like each time the test is run I get a different set of bins:
+It looks like each time the test runs I get a different set of bins:
 
 <div class="images-horizontal">
     <div class="image">
@@ -827,3 +827,228 @@ It looks like each time the test is run I get a different set of bins:
     </div>
 </div>
 
+So what could it be? What is introducing this non-determinism?
+
+I wouldn't be surprised if the algorithm has a bug, but since we're not in control of the order of invocations
+on the GPU, the bug results in a different "bin pattern" each time it's run. The atomic operation makes the order
+important, for lack of a better word, so I could see any error in one invocation compounding over the entire run.
+
+My first hunch is that iteration is broken in some way that lets multiple invocations within the same tile consider
+the same light, meaning one light might get added to the bin more than once. I mean, something like that _must_ be
+happening because we only have one light, and there are multiples stored in the image with gray in it.
+
+So the first thing to do is sanity check our iteration.
+
+I've created a helper to iterate over the lights:
+
+```rust
+/// Helper for determining the next light to check during an
+/// invocation of the light list computation.
+struct NextLightIndex {
+    current_step: usize,
+    stride: usize,
+    lights: Array<Id<Light>>,
+    global_id: UVec3,
+}
+
+impl Iterator for NextLightIndex {
+    type Item = Id<Id<Light>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next_index = self.next_index();
+        self.current_step += 1;
+        if next_index < self.lights.len() {
+            Some(self.lights.at(next_index))
+        } else {
+            None
+        }
+    }
+}
+
+impl NextLightIndex {
+    pub fn new(global_id: UVec3, analytical_lights_array: Array<Id<Light>>) -> Self {
+        let stride =
+            (LightTilingDescriptor::TILE_SIZE.x * LightTilingDescriptor::TILE_SIZE.y) as f32;
+        Self {
+            current_step: 0,
+            stride: stride as usize,
+            lights: analytical_lights_array,
+            global_id,
+        }
+    }
+
+    pub fn next_index(&self) -> usize {
+        // Determine the xy coord of this invocation within the _tile_
+        let frag_tile_xy = self.global_id.xy() % LightTilingDescriptor::TILE_SIZE;
+        // Determine the index of this invocation within the _tile_
+        let offset = frag_tile_xy.y * LightTilingDescriptor::TILE_SIZE.x + frag_tile_xy.x;
+        self.current_step * self.stride + offset as usize
+    }
+}
+```
+
+I've also written a sanity check:
+
+```rust
+    #[test]
+    fn next_light_sanity() {
+        {
+            let lights_array = Array::new(0, 1);
+            // When there's only one light we only need one invocation to check that one light
+            // (per tile)
+            let mut next_light = NextLightIndex::new(UVec3::new(0, 0, 0), lights_array);
+            assert_eq!(Some(0u32.into()), next_light.next());
+            assert_eq!(None, next_light.next());
+            // The next invocation won't check anything
+            let mut next_light = NextLightIndex::new(UVec3::new(1, 0, 0), lights_array);
+            assert_eq!(None, next_light.next());
+            // Neither will the next row
+            let mut next_light = NextLightIndex::new(UVec3::new(0, 1, 0), lights_array);
+            assert_eq!(None, next_light.next());
+        }
+        {
+            let lights_array = Array::new(0, 2);
+            // When there's two lights we need two invocations
+            let mut next_light = NextLightIndex::new(UVec3::new(0, 0, 0), lights_array);
+            assert_eq!(Some(0u32.into()), next_light.next());
+            assert_eq!(None, next_light.next());
+            // The next invocation checks the second light
+            let mut next_light = NextLightIndex::new(UVec3::new(1, 0, 0), lights_array);
+            assert_eq!(Some(1u32.into()), next_light.next());
+            assert_eq!(None, next_light.next());
+            // The next one doesn't check anything
+            let mut next_light = NextLightIndex::new(UVec3::new(2, 0, 0), lights_array);
+            assert_eq!(None, next_light.next());
+        }
+        {
+            // With 256 lights (16*16), each fragment in the tile checks exactly one light
+            let lights_array = Array::new(0, 16 * 16);
+            for y in 0..16 {
+                for x in 0..16 {
+                    let mut next_light = NextLightIndex::new(UVec3::new(x, y, 0), lights_array);
+                    let next_index = next_light.next_index();
+                    assert_eq!(Some(next_index.into()), next_light.next());
+                    assert_eq!(None, next_light.next());
+                }
+            }
+        }
+    }
+```
+
+And after playing around with the tests I'm pretty confident the problem isn't the iteration.
+
+So my next hunch is that it's something to do with the atomic ops...
+
+...Okay, so I think I found it (I found _something_).
+
+The code I had written for the last part of binning was this:
+
+```rust
+if should_add {
+    // If the light should be added to the bin, get the next available index in the bin,
+    // then write the id of the light into that index.
+    let next_index = tiling_slab.atomic_i_increment::<
+        { spirv_std::memory::Scope::Workgroup as u32 },
+        { spirv_std::memory::Semantics::WORKGROUP_MEMORY.bits() },
+    >(next_light_id);
+    if next_index as usize >= tile_lights_array.len() {
+        // We've already filled the bin, abort
+        break;
+    }
+    // Get the id that corresponds to the next available index in the bin
+    let binned_light_id = tile_lights_array.at(next_index as usize);
+    // Write to that location
+    tiling_slab.write(next_index.into(), &binned_light_id);
+}
+```
+
+Unfortunately this is where my slab implementation tripped me up.
+The last line is wrong:
+
+```rust
+    // Write to that location
+    tiling_slab.write(next_index.into(), &binned_light_id);
+```
+
+Here, `next_index` is being turned into an `Id` and then we're writing the `binned_light_id`
+into it.
+But that's wrong - `binned_light_id` is what we should be writing to, and `light_id` is the thing we want to write.
+So we were clobbering some data.
+
+Now with that fixed it looks like we're writing the correct data.
+
+### Zero volume frustum optimization 
+
+One thing I can tell right off the bat is that there are sections of the scene where there is no scenery.
+In those places the minimum depth matches the max depth, which essentially creates a frustum of zero volume.
+A frustum with zero volume can't be illuminated, and so we can safely skip the entire tile in this case.
+
+Here's an example of one of these tiles:
+
+```
+LightTile {
+    depth_min: 1.0,
+    depth_max: 1.0,
+    next_light_index: 1,
+    lights_array: Array<crabslab::id::Id<renderling::light::Light>>(8164, 32),
+}
+```
+
+The `next_light_index` should be `0` here, because **no lights can illuminate the space**.
+
+Also, this is consistent within the entire tile, so the binning shader should get a consistent bump
+in performance for early exiting in the case of a zero volume frustum.
+
+After that optimization we get a light-binning visualization like this:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>The scene</label>
+        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753479030/1-scene.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights illuminating a tile, normalized</label>
+        <img
+            src="https://renderling.xyz/uploads/1753494858/2-lights.png"
+            width="100%"
+            class="pixelated" />
+    </div>
+</div>
+
+That looks pretty good!
+It's what we would expect - there's one light binned on each tile where there is scenery.
+
+## Sun 27 July, 2025
+
+### Running it on our scene
+
+So now it's time to hook it up to our fancy thousands-of-lights scene.
+
+I'm going to rework it a bit to store all the tiling stuff on the lighting slab, as that is fairly small even
+with thousands of lights.
+During the build-out I've been maintaining a separate slab for tiling.
+I'm not sure why I did that to begin with.
+
+...
+
+Okay, done. But I can already see something funky.
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth minimums, normalized</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753558125/5-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums, normalized</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753558125/5-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights illuminating a tile, normalized</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753558125/5-lights.png" />
+    </div>
+</div>
+
+The minimums look like data from the number of lights, or something, and the number of lights are inverted from that.
+
+Definitely wrong.
+I'll try breaking out each tiling step (clearing, finding minimum/maximum, and binning) to see what's going on.
