@@ -720,16 +720,16 @@ shader, and now we get some proper clearing:
 
 <div class="images-horizontal">
     <div class="image">
-        <label>Number of lights illuminating the tile, cleared to `0`</label>
-        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-lights.png" />
-    </div>
-    <div class="image">
         <label>Depth minimums, cleared to max</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-mins.png" />
     </div>
     <div class="image">
         <label>Depth maximums, cleared to min</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights illuminating the tile, cleared to `0`</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-lights.png" />
     </div>
 </div>
 
@@ -1174,13 +1174,13 @@ Instead of:
 let x = (LightTilingDescriptor::TILE_SIZE.x / 16) + 1;
 ```
 
-It should be:
+It should be that `x` is width of the tile grid.
 
 ```rust
+// Something like...
 let x = tile_dimensions.x;
 ```
 
-Where `tile_dimensions` is the `(x,y)` coordinates of tiles in the grid.
 We need _exactly one invocation per tile_, and the size of the grid of tiles depends on the
 size of the depth texture as well as the size of each tile.
 
