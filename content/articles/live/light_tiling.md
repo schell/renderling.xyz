@@ -695,15 +695,15 @@ Here you can see a visualization of that data:
 <div class="images-horizontal">
     <div class="image">
         <label>Number of lights illuminating the tile, as noise</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753403473/1-lights.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753403473/1-lights.png" />
     </div>
     <div class="image">
         <label>Depth minimums, as x,y distance from the bottom right</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753403473/1-mins.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753403473/1-mins.png" />
     </div>
     <div class="image">
         <label>Depth maximums, as x,y distance from upper left</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753403473/1-maxs.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753403473/1-maxs.png" />
     </div>
 </div>
 
@@ -716,18 +716,20 @@ our tiles unreachable. This is likely due to faulty pointer math.
 Indeed, it turns out the slab was getting clobbered, so I simplified the case by breaking it out into its own
 shader, and now we get some proper clearing:
 
+### A working clear_tiles
+
 <div class="images-horizontal">
     <div class="image">
         <label>Number of lights illuminating the tile, cleared to `0`</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753405507/2-lights.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-lights.png" />
     </div>
     <div class="image">
         <label>Depth minimums, cleared to max</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753405507/2-mins.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-mins.png" />
     </div>
     <div class="image">
         <label>Depth maximums, cleared to min</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753405507/2-maxs.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753405507/2-maxs.png" />
     </div>
 </div>
 
@@ -744,15 +746,15 @@ clearly, and the minimums look closer, as they should (depth 1.0 is on the far p
 <div class="images-horizontal">
     <div class="image">
         <label>The scene</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753420111/1-scene.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753420111/1-scene.png" />
     </div>
     <div class="image">
         <label>Depth minimums, the furthest parts of the visible scene</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753420111/2-mins.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753420111/2-mins.png" />
     </div>
     <div class="image">
         <label>Depth maximums, the closest parts of the visible scene</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753420111/2-maxs.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753420111/2-maxs.png" />
     </div>
 </div>
 
@@ -783,11 +785,11 @@ Here is that result, where the second image shows the number of lights in each t
 <div class="images-horizontal">
     <div class="image">
         <label>The scene</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753479030/1-scene.png" />
+        <img class="pixelated" width="480vw" src="https://renderling.xyz/uploads/1753479030/1-scene.png" />
     </div>
     <div class="image">
         <label>Length of each tile's light bin, normalized</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753479030/2-lights.png" />
+        <img class="pixelated" width="480vw" src="https://renderling.xyz/uploads/1753479030/2-lights.png" />
     </div>
 </div>
 
@@ -815,15 +817,15 @@ It looks like each time the test runs I get a different set of bins:
 <div class="images-horizontal">
     <div class="image">
         <label>Run 1, length of each tile's light bin, normalized</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753480081/2-lights-0.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753480081/2-lights-0.png" />
     </div>
     <div class="image">
         <label>Run 2, length of each tile's light bin, normalized</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753480081/2-lights-1.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753480081/2-lights-1.png" />
     </div>
     <div class="image">
         <label>Run 3, length of each tile's light bin, normalized</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753480081/2-lights-2.png" />
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753480081/2-lights-2.png" />
     </div>
 </div>
 
@@ -1004,13 +1006,13 @@ After that optimization we get a light-binning visualization like this:
 <div class="images-horizontal">
     <div class="image">
         <label>The scene</label>
-        <img class="pixelated" width="100%" src="https://renderling.xyz/uploads/1753479030/1-scene.png" />
+        <img class="pixelated" width="450vw" src="https://renderling.xyz/uploads/1753479030/1-scene.png" />
     </div>
     <div class="image">
         <label>Number of lights illuminating a tile, normalized</label>
         <img
             src="https://renderling.xyz/uploads/1753494858/2-lights.png"
-            width="100%"
+            width="450vw"
             class="pixelated" />
     </div>
 </div>
@@ -1035,15 +1037,15 @@ Okay, done. But I can already see something funky.
 
 <div class="images-horizontal">
     <div class="image">
-        <label>Depth minimums, normalized</label>
+        <label>Depth minimums</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753558125/5-mins.png" />
     </div>
     <div class="image">
-        <label>Depth maximums, normalized</label>
+        <label>Depth maximums</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753558125/5-maxs.png" />
     </div>
     <div class="image">
-        <label>Number of lights illuminating a tile, normalized</label>
+        <label>Number of lights</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753558125/5-lights.png" />
     </div>
 </div>
@@ -1052,3 +1054,353 @@ The minimums look like data from the number of lights, or something, and the num
 
 Definitely wrong.
 I'll try breaking out each tiling step (clearing, finding minimum/maximum, and binning) to see what's going on.
+
+Okay, here are the results of each step.
+
+#### Clear tiles
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth minimums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559766/5-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559766/5-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559766/5-lights.png" />
+    </div>
+</div>
+
+#### Compute depth
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth minimums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559787/5-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559787/5-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559787/5-lights.png" />
+    </div>
+</div>
+
+#### Compute bins
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth minimums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559795/5-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559795/5-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753559795/5-lights.png" />
+    </div>
+</div>
+
+Clearly the first step isn't going well.
+[Remember what it should look like](#a-working-cleartiles).
+
+By reading out the visualizations before running `clear_tiles` I can see that it's all zeroed-out.
+So I don't think that's the problem.
+
+If it were a problem in the shader we would expect our previous tests to fail...
+
+...unless the shader is taking a different path...
+
+...or we're doing something wrong when _calling_ the shader.
+
+Let's pack in some known data for the tiles like we did to test `clear_tiles` and generate our visualizations.
+
+Bingo!
+
+#### After clearing pre-packed tiles
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth minimums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753561188/5-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753561188/5-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights</label>
+        <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753561188/5-lights.png" />
+    </div>
+</div>
+
+You can clearly see that the shader is only clearing a 32x32 pixel space.
+The problem is likely the shader invocation.
+
+The invocation itself is fairly simple:
+
+```rust
+    pub(crate) fn clear_tiles(
+        &self,
+        encoder: &mut wgpu::CommandEncoder,
+        bindgroup: &wgpu::BindGroup,
+    ) {
+        let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+            label: Some("light-tiling-clear-tiles"),
+            timestamp_writes: None,
+        });
+        compute_pass.set_pipeline(&self.clear_tiles_pipeline);
+        compute_pass.set_bind_group(0, bindgroup, &[]);
+
+        let x = (LightTilingDescriptor::TILE_SIZE.x / 16) + 1;
+        let y = (LightTilingDescriptor::TILE_SIZE.y / 16) + 1;
+        let z = 1;
+        compute_pass.dispatch_workgroups(x, y, z);
+    }
+```
+
+The calculations for the number workgroups is off.
+
+Instead of:
+
+```rust
+let x = (LightTilingDescriptor::TILE_SIZE.x / 16) + 1;
+```
+
+It should be:
+
+```rust
+let x = tile_dimensions.x;
+```
+
+Where `tile_dimensions` is the `(x,y)` coordinates of tiles in the grid.
+We need _exactly one invocation per tile_, and the size of the grid of tiles depends on the
+size of the depth texture as well as the size of each tile.
+
+It was just a coincidence that this code worked before.
+
+The fixed invocation looks like this:
+
+```rust
+    pub(crate) fn clear_tiles(
+        &self,
+        encoder: &mut wgpu::CommandEncoder,
+        bindgroup: &wgpu::BindGroup,
+        depth_texture_size: UVec2,
+    ) {
+        let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+            label: Some("light-tiling-clear-tiles"),
+            timestamp_writes: None,
+        });
+        compute_pass.set_pipeline(&self.clear_tiles_pipeline);
+        compute_pass.set_bind_group(0, bindgroup, &[]);
+
+        let dims_f32 = depth_texture_size.as_vec2() / LightTilingDescriptor::TILE_SIZE.as_vec2();
+        let workgroups = (dims_f32 / 16.0).ceil().as_uvec2();
+        let x = workgroups.x;
+        let y = workgroups.y;
+        let z = 1;
+        compute_pass.dispatch_workgroups(x, y, z);
+    }
+```
+
+The `16.0` constant there comes from the fact that each workgroup has dimensions `16x16x1`.
+This value is hard-coded in the shader.
+
+So after that fix we get something that looks great!
+
+#### Fixed the clearing
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Depth minimums</label>
+        <img class="pixelated" width="300vw" src="https://renderling.xyz/uploads/1753562389/5-mins.png" />
+    </div>
+    <div class="image">
+        <label>Depth maximums</label>
+        <img class="pixelated" width="300vw" src="https://renderling.xyz/uploads/1753562389/5-maxs.png" />
+    </div>
+    <div class="image">
+        <label>Number of lights</label>
+        <img class="pixelated" width="300vw" src="https://renderling.xyz/uploads/1753562389/5-lights.png" />
+    </div>
+</div>
+
+Let's not get too excited. This scene should have thousands of lights, which means the "Number of lights"
+visualization should have some gray area, but it looks binary.
+
+There's only one directional light, so maybe the binning algorithm isn't working for point lights?
+
+### Investigating binning with thousands of lights
+
+When I print out the tiles in the test, I can see that only the one directional light is getting binned.
+
+This leads me to believe it's probably the frustum math that I got wrong.
+So I'll create a new test with only one point light and write the AABBs back to the tiling slab to debug.
+
+This is what I get for a tile:
+
+```
+LightTile {
+    depth_min: 0.998255,
+    depth_max: 1.0,
+    next_light_index: 1,
+    lights_array: Array<crabslab::id::Id<renderling::light::Light>>(244, 2),
+    tile_coord: UVec2(
+        8,
+        6,
+    ),
+    ndc_aabb: Aabb {
+        min: Vec3(
+            0.0,
+            -0.25,
+            0.998255,
+        ),
+        max: Vec3(
+            0.125,
+            -0.125,
+            1.0,
+        ),
+    },
+    light_aabb: Aabb {
+        min: Vec3(
+            -1.253029,
+            -1.4855967,
+            -0.8014438,
+        ),
+        max: Vec3(
+            2.3443582,
+            2.1117904,
+            2.7959435,
+        ),
+    },
+}    
+```
+
+Right off the bat I can tell that `light_aabb` is incorrect.
+These AABBs are in normalized device coordinates, so they should always be within `[-1.0, 1.0]` on x and y,
+and within `[0.0, 1.0]` on z (depth).
+
+If I add a little more debug info to that struct I can see that the light's bounding sphere looks fine:
+
+```
+LightTile {
+    depth_min: 0.998255,
+    depth_max: 1.0,
+    next_light_index: 1,
+    lights_array: Array<crabslab::id::Id<renderling::light::Light>>(244, 2),
+    tile_coord: UVec2(
+        8,
+        6,
+    ),
+    ndc_aabb: Aabb {
+        min: Vec3(
+            0.0,
+            -0.25,
+            0.998255,
+        ),
+        max: Vec3(
+            0.125,
+            -0.125,
+            1.0,
+        ),
+    },
+    light_sphere: BoundingSphere {
+        center: Vec3(
+            1.1,
+            1.0,
+            1.1,
+        ),
+        radius: 4.472136,
+    },
+    light_sphere_ndc: BoundingSphere {
+        center: Vec3(
+            0.5456646,
+            0.3130969,
+            0.9972498,
+        ),
+        radius: 1.7986937,
+    },
+    light_aabb: Aabb {
+        min: Vec3(
+            -1.2530291,
+            -1.4855968,
+            -0.8014439,
+        ),
+        max: Vec3(
+            2.3443582,
+            2.1117907,
+            2.7959435,
+        ),
+    },
+}  
+```
+
+I can also see the sphere in NDC _seems_ okay, it's at least within the correct range.
+
+The most obviously wrong thing is the `light_aabb`, so I'll check the transformation of
+the light's sphere into an AABB.
+
+Actually I think that may be fine.
+This light just happens to have an AABB that's bigger than the view frustum.
+
+But it seems like this test is passing and the point light is getting binned, so now I'm
+wondering if I misunderstood the problem:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Scene</label>
+        <img class="pixelated" width="480vw" src="https://renderling.xyz/uploads/1753574944/1-scene.png" />
+    </div>
+    <div class="image">
+        <label>Bins</label>
+        <img class="pixelated" width="480vw" src="https://renderling.xyz/uploads/1753574944/2-lights.png" />
+    </div>
+</div>
+
+I did rework the way the tile's NDC AABB was calculated, so maybe that fixed it?
+
+...
+
+Indeed! Our thousands-of-lights scene is now, ostensibly, binning properly!
+
+
+<div class="image">
+    <label>Light bins on the thousands-of-lights scene</label>
+    <img class="pixelated" width="800vw" src="https://renderling.xyz/uploads/1753575188/5-lights.png" />
+</div>
+
+😊😊😊😊😊😊😊
+☕☕☕☕☕☕☕
+
+STOKED!
+
+### Frame timing
+
+The frame timing is looking good!
+
+<div class="image">
+    <label>Scene rendering time, tiling vs legacy</label>
+    <img class="pixelated" width="800vw" src="https://renderling.xyz/uploads/1753582688/frame-time.png" />
+</div>
+
+You can see that the time it takes to render one frame increases linearly with the number of lights if
+tiling is _not_ used.
+When tiling is _on_, apart from the one light case, it doesn't look like it changes at all.
+
+The rendered scene itself is ugly, though, so I'm not sure what happened there, I'll have to do one last
+debugging session:
+
+<div class="image">
+    <label>The scene rendered using light tiling, obviously buggy</label>
+    <img class="pixelated" width="800vw" src="https://renderling.xyz/uploads/1753581800/6-scene.png" />
+</div>
+
+It's getting so close now!
