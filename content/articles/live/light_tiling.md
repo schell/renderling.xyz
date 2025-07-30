@@ -1404,3 +1404,39 @@ debugging session:
 </div>
 
 It's getting so close now!
+
+## Wed 30 July, 2025
+
+### A little improvement
+
+I haven't have time during the week to work on Renderling, but this evening I had a realization in
+the shower...
+
+...the PBR shader's light accumulation iterates over every light in the
+lighting array, and the new tiling changes switch which array that is, if
+tiling is enabled it'll use the appropriate tile's light list, otherwise it
+will use the global list.
+But it expects the list to contain valid `Id`s.
+An `Id` in Renderling is essentially a "maybe pointer". It's like `Option<u32>`.
+The `Id<T>` points to the index on the slab where a `T` is stored.
+But it also might not, as it could also be `Id::NONE`, which is a special `Id` that
+points to nothing.
+
+Since the light lists are computed on the GPU, which **cannot alloc**, a tile's lights
+lists may contain a bunch of `Id::NONE` towards the end, unless tiling found that
+the max number of lights are illuminating the tile.
+
+So, long story short, the PBR shader needs to check that the `Id<Light>` that it iterates
+over during the radiance accumulation is valid.
+
+With a very small check of `if light_id.is_none() { continue; }`, the scene that gets rendered is now:
+
+<div class="image">
+    <label>The scene rendered using light tiling, obviously buggy</label>
+    <img class="pixelated" width="800vw" src="https://renderling.xyz/uploads/1753853095/6-scene.png" />
+</div>
+
+Ugh! I wish I had that nifty slider-image-comparison widget to show you what it _should_ look like.
+Suffice to say that it looks like it is strictly _missing_ lights.
+
+But it looks a lot better!
