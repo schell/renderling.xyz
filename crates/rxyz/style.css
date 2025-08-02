@@ -85,6 +85,7 @@ main .toc {
 .image label {
     color: #6c6666;
     border-bottom: 1px #fff0f0 dashed;
+    margin-bottom: 0.2em;
 }
 
 .code-wrapper {

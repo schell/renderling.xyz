@@ -41,7 +41,12 @@ NOTE: THERE MUST NOT BE EMPTY LINES
         src=""
         alt="" />
 </div>
+
 -->
+
+## Sat 2 August, 2025
+
+[Light tiling is so close!](/articles/live/light_tiling.html#saturday-2-august-2025)
 
 ## Sat 26 July, 2025
 
