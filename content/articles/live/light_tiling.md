@@ -1649,3 +1649,718 @@ details: PointLightDescriptor {
     intensity: 52.44305,
 }
 ```
+
+## Sunday 3 August, 2025
+
+As far as I can tell, that tile has plenty of lighting.
+And it seems at least that the directional light is being evaluated for all the tiles, that's interesting.
+
+Maybe this tile isn't being selected by this fragment?
+
+Hrm, it's selecting the correct tile.
+
+Let's look at another tile - one further away from the "blessed band".
+
+I'll choose this one, since it should be affected by lights in the -X, +Y, -Z quadrant:
+
+<div class="image">
+    <label>The next chosen tile, notice that there should be a large orange point light illuminating this tile</label>
+    <img class="pixelated" width="800vw" src="https://renderling.xyz/uploads/1754166914/Screenshot_2025-08-03_at_8.34.58AM.png" />
+</div>
+
+It has many more lights illuminating it:
+
+```
+tile: LightTile {
+    depth_min: 0.9395258,
+    depth_max: 0.94081247,
+    next_light_index: 29,
+    lights_array: Array<crabslab::id::Id<renderling::light::Light>>(449449, 32),
+}
+lights_ids: [
+    Id<renderling::light::Light>(27),
+    Id<renderling::light::Light>(2462),
+    Id<renderling::light::Light>(2484),
+    Id<renderling::light::Light>(2902),
+    Id<renderling::light::Light>(3232),
+    Id<renderling::light::Light>(2990),
+    Id<renderling::light::Light>(12428),
+    Id<renderling::light::Light>(4310),
+    Id<renderling::light::Light>(6136),
+    Id<renderling::light::Light>(7148),
+    Id<renderling::light::Light>(8028),
+    Id<renderling::light::Light>(9788),
+    Id<renderling::light::Light>(10668),
+    Id<renderling::light::Light>(18082),
+    Id<renderling::light::Light>(18214),
+    Id<renderling::light::Light>(13880),
+    Id<renderling::light::Light>(15310),
+    Id<renderling::light::Light>(16674),
+    Id<renderling::light::Light>(16938),
+    Id<renderling::light::Light>(14188),
+    Id<renderling::light::Light>(14738),
+    Id<renderling::light::Light>(17004),
+    Id<renderling::light::Light>(10228),
+    Id<renderling::light::Light>(19314),
+    Id<renderling::light::Light>(18720),
+    Id<renderling::light::Light>(18984),
+    Id<renderling::light::Light>(15970),
+    Id<renderling::light::Light>(15860),
+    Id<renderling::light::Light>(21778),
+    Id<renderling::light::Light>(null),
+    Id<renderling::light::Light>(null),
+    Id<renderling::light::Light>(null),
+]
+Id<renderling::light::Light>(27): Light {
+    light_type: Directional,
+    index: 19,
+    transform_id: Id<renderling::transform::Transform>(9),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(59),
+}
+details: DirectionalLightDescriptor {
+    direction: Vec3(
+        0.0,
+        0.0,
+        -1.0,
+    ),
+    color: Vec4(
+        0.5569815,
+        0.64621955,
+        1.0,
+        1.0,
+    ),
+    intensity: 2.0,
+}
+Id<renderling::light::Light>(2462): Light {
+    light_type: Point,
+    index: 2454,
+    transform_id: Id<renderling::transform::Transform>(2444),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -92.63359,
+        42.473137,
+        85.84752,
+    ),
+    color: Vec4(
+        0.8666822,
+        0.56193554,
+        0.008014433,
+        1.0,
+    ),
+    intensity: 93.190994,
+}
+Id<renderling::light::Light>(2484): Light {
+    light_type: Point,
+    index: 2476,
+    transform_id: Id<renderling::transform::Transform>(2466),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -81.83816,
+        39.18519,
+        88.81053,
+    ),
+    color: Vec4(
+        0.20394476,
+        0.62335926,
+        0.62762266,
+        1.0,
+    ),
+    intensity: 13.299932,
+}
+Id<renderling::light::Light>(2902): Light {
+    light_type: Point,
+    index: 2894,
+    transform_id: Id<renderling::transform::Transform>(2884),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -24.61863,
+        66.47632,
+        95.26399,
+    ),
+    color: Vec4(
+        0.7518719,
+        0.4373035,
+        0.90187305,
+        1.0,
+    ),
+    intensity: 57.083206,
+}
+Id<renderling::light::Light>(3232): Light {
+    light_type: Point,
+    index: 3224,
+    transform_id: Id<renderling::transform::Transform>(3214),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -77.335526,
+        42.237896,
+        79.17302,
+    ),
+    color: Vec4(
+        0.32873732,
+        0.46097255,
+        0.25026292,
+        1.0,
+    ),
+    intensity: 32.47139,
+}
+Id<renderling::light::Light>(2990): Light {
+    light_type: Point,
+    index: 2982,
+    transform_id: Id<renderling::transform::Transform>(2972),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -94.03255,
+        24.309181,
+        96.74237,
+    ),
+    color: Vec4(
+        0.62377965,
+        0.18438692,
+        0.4720049,
+        1.0,
+    ),
+    intensity: 79.36237,
+}
+Id<renderling::light::Light>(12428): Light {
+    light_type: Point,
+    index: 12420,
+    transform_id: Id<renderling::transform::Transform>(12410),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        4.4616394,
+        60.307003,
+        118.59419,
+    ),
+    color: Vec4(
+        0.12806311,
+        0.53484213,
+        0.21150446,
+        1.0,
+    ),
+    intensity: 32.674458,
+}
+Id<renderling::light::Light>(4310): Light {
+    light_type: Point,
+    index: 4302,
+    transform_id: Id<renderling::transform::Transform>(4292),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -65.93443,
+        52.837452,
+        89.24689,
+    ),
+    color: Vec4(
+        0.26129723,
+        0.20125352,
+        0.07756548,
+        1.0,
+    ),
+    intensity: 63.60116,
+}
+Id<renderling::light::Light>(6136): Light {
+    light_type: Point,
+    index: 6128,
+    transform_id: Id<renderling::transform::Transform>(6118),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -76.65203,
+        40.773567,
+        92.28496,
+    ),
+    color: Vec4(
+        0.3980166,
+        0.80558443,
+        0.568609,
+        1.0,
+    ),
+    intensity: 35.141464,
+}
+Id<renderling::light::Light>(7148): Light {
+    light_type: Point,
+    index: 7140,
+    transform_id: Id<renderling::transform::Transform>(7130),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -34.733917,
+        58.189674,
+        96.49277,
+    ),
+    color: Vec4(
+        0.8524464,
+        0.18924342,
+        0.09058161,
+        1.0,
+    ),
+    intensity: 27.794355,
+}
+Id<renderling::light::Light>(8028): Light {
+    light_type: Point,
+    index: 8020,
+    transform_id: Id<renderling::transform::Transform>(8010),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -90.89901,
+        35.59253,
+        98.67053,
+    ),
+    color: Vec4(
+        0.21548326,
+        0.2987796,
+        0.01059004,
+        1.0,
+    ),
+    intensity: 82.311455,
+}
+Id<renderling::light::Light>(9788): Light {
+    light_type: Point,
+    index: 9780,
+    transform_id: Id<renderling::transform::Transform>(9770),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -118.82065,
+        4.7073503,
+        64.45058,
+    ),
+    color: Vec4(
+        0.496927,
+        0.114739984,
+        0.45658094,
+        1.0,
+    ),
+    intensity: 72.02357,
+}
+Id<renderling::light::Light>(10668): Light {
+    light_type: Point,
+    index: 10660,
+    transform_id: Id<renderling::transform::Transform>(10650),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -29.81083,
+        54.179108,
+        106.95091,
+    ),
+    color: Vec4(
+        0.2608614,
+        0.25088722,
+        0.2754782,
+        1.0,
+    ),
+    intensity: 73.07852,
+}
+Id<renderling::light::Light>(18082): Light {
+    light_type: Point,
+    index: 18074,
+    transform_id: Id<renderling::transform::Transform>(18064),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -24.39624,
+        44.871983,
+        119.648895,
+    ),
+    color: Vec4(
+        0.58111584,
+        0.7989411,
+        0.17732547,
+        1.0,
+    ),
+    intensity: 81.52727,
+}
+Id<renderling::light::Light>(18214): Light {
+    light_type: Point,
+    index: 18206,
+    transform_id: Id<renderling::transform::Transform>(18196),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -90.108246,
+        28.47501,
+        101.11792,
+    ),
+    color: Vec4(
+        0.30298874,
+        0.022064472,
+        0.66243684,
+        1.0,
+    ),
+    intensity: 86.666176,
+}
+Id<renderling::light::Light>(13880): Light {
+    light_type: Point,
+    index: 13872,
+    transform_id: Id<renderling::transform::Transform>(13862),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -73.776535,
+        21.51609,
+        94.31854,
+    ),
+    color: Vec4(
+        0.26402467,
+        0.5380622,
+        0.8576432,
+        1.0,
+    ),
+    intensity: 61.12759,
+}
+Id<renderling::light::Light>(15310): Light {
+    light_type: Point,
+    index: 15302,
+    transform_id: Id<renderling::transform::Transform>(15292),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -88.47996,
+        37.740273,
+        81.930115,
+    ),
+    color: Vec4(
+        0.95636755,
+        0.23839176,
+        0.07199448,
+        1.0,
+    ),
+    intensity: 38.299305,
+}
+Id<renderling::light::Light>(16674): Light {
+    light_type: Point,
+    index: 16666,
+    transform_id: Id<renderling::transform::Transform>(16656),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -87.211006,
+        32.31549,
+        66.26398,
+    ),
+    color: Vec4(
+        0.9328823,
+        0.12743318,
+        0.42688933,
+        1.0,
+    ),
+    intensity: 55.027626,
+}
+Id<renderling::light::Light>(16938): Light {
+    light_type: Point,
+    index: 16930,
+    transform_id: Id<renderling::transform::Transform>(16920),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -24.065544,
+        68.6632,
+        104.902725,
+    ),
+    color: Vec4(
+        0.80462956,
+        0.4366882,
+        0.27665752,
+        1.0,
+    ),
+    intensity: 35.60955,
+}
+Id<renderling::light::Light>(14188): Light {
+    light_type: Point,
+    index: 14180,
+    transform_id: Id<renderling::transform::Transform>(14170),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -91.12869,
+        25.659275,
+        89.22908,
+    ),
+    color: Vec4(
+        0.120221116,
+        0.6146752,
+        0.3619943,
+        1.0,
+    ),
+    intensity: 99.014786,
+}
+Id<renderling::light::Light>(14738): Light {
+    light_type: Point,
+    index: 14730,
+    transform_id: Id<renderling::transform::Transform>(14720),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -71.20869,
+        33.790966,
+        85.73744,
+    ),
+    color: Vec4(
+        0.0076795463,
+        0.62384826,
+        0.2103971,
+        1.0,
+    ),
+    intensity: 61.760628,
+}
+Id<renderling::light::Light>(17004): Light {
+    light_type: Point,
+    index: 16996,
+    transform_id: Id<renderling::transform::Transform>(16986),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -73.52121,
+        39.84316,
+        83.56464,
+    ),
+    color: Vec4(
+        0.7455217,
+        0.06382919,
+        0.51204777,
+        1.0,
+    ),
+    intensity: 70.79098,
+}
+Id<renderling::light::Light>(10228): Light {
+    light_type: Point,
+    index: 10220,
+    transform_id: Id<renderling::transform::Transform>(10210),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -50.901886,
+        47.145916,
+        111.39549,
+    ),
+    color: Vec4(
+        0.54008365,
+        0.81548566,
+        0.5111073,
+        1.0,
+    ),
+    intensity: 46.961178,
+}
+Id<renderling::light::Light>(19314): Light {
+    light_type: Point,
+    index: 19306,
+    transform_id: Id<renderling::transform::Transform>(19296),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -99.66124,
+        28.869125,
+        69.396515,
+    ),
+    color: Vec4(
+        0.7421489,
+        0.8242992,
+        0.8321162,
+        1.0,
+    ),
+    intensity: 79.120445,
+}
+Id<renderling::light::Light>(18720): Light {
+    light_type: Point,
+    index: 18712,
+    transform_id: Id<renderling::transform::Transform>(18702),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -67.99999,
+        45.229263,
+        78.93985,
+    ),
+    color: Vec4(
+        0.72421217,
+        0.7909413,
+        0.5956649,
+        1.0,
+    ),
+    intensity: 93.47528,
+}
+Id<renderling::light::Light>(18984): Light {
+    light_type: Point,
+    index: 18976,
+    transform_id: Id<renderling::transform::Transform>(18966),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -113.1403,
+        4.0609326,
+        74.15787,
+    ),
+    color: Vec4(
+        0.49988353,
+        0.86962765,
+        0.34533152,
+        1.0,
+    ),
+    intensity: 37.66789,
+}
+Id<renderling::light::Light>(15970): Light {
+    light_type: Point,
+    index: 15962,
+    transform_id: Id<renderling::transform::Transform>(15952),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -42.14424,
+        57.334972,
+        94.4227,
+    ),
+    color: Vec4(
+        0.87706107,
+        0.19849941,
+        0.89152145,
+        1.0,
+    ),
+    intensity: 99.22268,
+}
+Id<renderling::light::Light>(15860): Light {
+    light_type: Point,
+    index: 15852,
+    transform_id: Id<renderling::transform::Transform>(15842),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -107.09671,
+        6.606737,
+        81.26341,
+    ),
+    color: Vec4(
+        0.57034963,
+        0.13842575,
+        0.7675047,
+        1.0,
+    ),
+    intensity: 73.670906,
+}
+Id<renderling::light::Light>(21778): Light {
+    light_type: Point,
+    index: 21770,
+    transform_id: Id<renderling::transform::Transform>(21760),
+    shadow_map_desc_id: Id<renderling::light::ShadowMapDescriptor>(null),
+}
+details: PointLightDescriptor {
+    position: Vec3(
+        -52.096153,
+        59.919052,
+        108.22235,
+    ),
+    color: Vec4(
+        0.9006374,
+        0.49105757,
+        0.44246408,
+        1.0,
+    ),
+    intensity: 27.273262,
+}    
+```
+
+None of these lights are in the -X,+Y,-Z quadrant.
+I think that means the wrong lights are being selected.
+The light from these point lights is likely being attenuated into nothing by the PBR shader.
+
+This tile has a calculated NDC min and max of
+```
+(
+    Vec2(
+        -0.6625,
+        0.15277779,
+    ),
+    Vec2(
+        -0.65,
+        0.16666663,
+    ),
+)
+```
+
+I think that's it. The tile lives on the bottom-left half of the viewport, so its NDC min and max should be
+negative in both components.
+
+I can write a unit test for this.
+
+Oof! I got it.
+
+I forgot to flip the Y axis when converting from "tile space" to NDC.
+
+After fixing that, the scene is much better!
+
+<div class="image">
+    <label>The scene, with tiling!</label>
+    <img class="pixelated" width="880vw" src="https://renderling.xyz/uploads/1754175040/6-scene.png" />
+</div>
+
+There's obviously some tweaking that's needed, but this is pretty much the whole idea!
+
+My guess is that I need to adjust the radius of illumination of the lights to include more lights.
+
+### Radius of illumination
+
+I'm making the minimum illuminance, used to determine the radius of illumination of a light, as a
+configurable CPU-side value.
+
+Let's see what happens with different numbers.
+
+<div class="images-horizontal">
+  <div class="image">
+    <label>Tiling with minimum illuminance `0.02`</label>
+    <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.02.png" />
+  </div>
+  <div class="image">
+    <label>Tiling with minimum illuminance `0.04`</label>
+    <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.04.png" />
+  </div>
+  <div class="image">
+    <label>Tiling with minimum illuminance `0.08`</label>
+    <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.08.png" />
+  </div>
+  <div class="image">
+    <label>Tiling with minimum illuminance `0.16`</label>
+    <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.16.png" />
+  </div>
+  <div class="image">
+    <label>Tiling with minimum illuminance `0.25`</label>
+    <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.25.png" />
+  </div>
+  <div class="image">
+    <label>Tiling with minimum illuminance `0.5`</label>
+    <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.5.png" />
+  </div>
+</div>
