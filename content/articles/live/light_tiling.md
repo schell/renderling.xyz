@@ -2364,3 +2364,53 @@ Let's see what happens with different numbers.
     <img class="pixelated" width="500vw" src="https://renderling.xyz/uploads/1754178781/6-scene-illuminance-0.5.png" />
   </div>
 </div>
+
+## Light list ordering - Saturday 9 August, 2025
+
+Speaking of minimum illuminance - the concept itself is an optimization to
+get around the fact we can't store all the lights in each tile. We have
+limited space and we need a way to filter out the lights and only apply
+those that have a significant effect on the tile.
+
+But there's an obvious bug here.
+When there are lots of lights affecting the tile, the tile's light array slots
+fill up quickly.
+Exacerbating the situation is the fact that getting a slot in the tile's light
+array is a first-come, first-serve operation.
+We can never be sure of the shader invocation order, which means some lights
+that should be included, are not.
+That makes this whole system temporally unstable.
+In one frame you may get the "strongest" lights in the array, yet in the next
+the tile may be filled with lots of "weak" illuminators. 
+
+So how do we solve this problem?
+
+My intuition is to get rid of the radius of illumination check and instead
+somehow order _all_ the lights by `intensity/distance^2`, and then take the top
+*`N`* "strongest".
+
+But ordering in a parallel shader is really tricky. I honestly don't know
+what that would look like.
+ 
+I've found an interesting article about [GPU hash tables made from "slab lists"](https://arxiv.org/pdf/1710.11246).
+Maybe what I should try doing is something incredibly naive, just to see if
+it fixes the instability issue, then spend some time making it better.
+
+You know what they say - [make it work, make it right, make it
+fast](/articles/adages.html#make-it-work-make-it-right-make-it-fast)
+
+## Do the simplest thing - Sunday 10 August, 2025
+
+So I decided that the simplest thing to do would be to use a spin lock to
+replace the weakest light in the case that the light list is full.
+
+But of course it's always more complicated than that...
+
+After writing the spin lock and updating my shader, I get a `naga` error
+about atomic upgrades, which means my shader isn't being translated
+correctly.
+
+Funny thing is, **I wrote the atomic upgrade code in `naga`**. Lol.
+So this is _my bug_.
+Or maybe `naga` is operating correctly.
+Either way I need to create a minimally reproducible test case.
