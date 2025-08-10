@@ -2414,3 +2414,24 @@ Funny thing is, **I wrote the atomic upgrade code in `naga`**. Lol.
 So this is _my bug_.
 Or maybe `naga` is operating correctly.
 Either way I need to create a minimally reproducible test case.
+
+### Drop and Rust-GPU
+
+It seems the culprit here is `Drop`.
+I had set the spin lock to be RAII and release the lock on `Drop`.
+This turned out not to pass validation when converting to WGSL.
+I'm not sure if that's always the case with Rust-GPU shaders.
+I should figure that out.
+
+Anyway, manually releasing is fine for now, just as a PoC, and now I've run into another `naga` bug.
+
+```
+thread 'light::cpu::test::tiling_e2e_sanity' panicked at /Users/schell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/naga-24.0.0/src/back/msl/writer.rs:2255:17:
+internal error: entered unreachable code
+```
+
+So as a first step, I'm updating `wgpu`, `naga` and `metal`.
+
+That causes a cascade of changes...
+
+I opened a bug report in `naga` for the error in the metal backend [here](https://github.com/gfx-rs/wgpu/issues/8072).
