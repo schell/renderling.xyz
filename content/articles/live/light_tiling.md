@@ -2415,15 +2415,9 @@ So this is _my bug_.
 Or maybe `naga` is operating correctly.
 Either way I need to create a minimally reproducible test case.
 
-### Drop and Rust-GPU
+### Naga bug in the Metal backend
 
-It seems the culprit here is `Drop`.
-I had set the spin lock to be RAII and release the lock on `Drop`.
-This turned out not to pass validation when converting to WGSL.
-I'm not sure if that's always the case with Rust-GPU shaders.
-I should figure that out.
-
-Anyway, manually releasing is fine for now, just as a PoC, and now I've run into another `naga` bug.
+I've run into a `naga` bug.
 
 ```
 thread 'light::cpu::test::tiling_e2e_sanity' panicked at /Users/schell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/naga-24.0.0/src/back/msl/writer.rs:2255:17:
@@ -2435,3 +2429,211 @@ So as a first step, I'm updating `wgpu`, `naga` and `metal`.
 That causes a cascade of changes...
 
 I opened a bug report in `naga` for the error in the metal backend [here](https://github.com/gfx-rs/wgpu/issues/8072).
+
+### Backtracking 
+
+For now, I'm going to park this work, backtrack a bit and see if simply increasing the tile's light array size can help.
+
+It looks like it doesn't much matter what the minimum illuminance value is.
+All the renders look pretty much the same:
+
+<div class="image">
+    <label>After backtracking, slightly different method for determining illumination</label>
+    <img class="pixelated" width="980vw" src="https://renderling.xyz/uploads/1754887013/6-scene-illuminance-0.04.png" />
+</div>
+
+It seems like there's some rather uniform unwanted artifacts here.
+When I change the length of the tile's light list I can see the problem, starkly:
+
+<div class="images-horizontal">
+    <div class="image">
+        <label>Bin of 32</label>
+        <img class="pixelated" width="155vw" src="https://renderling.xyz/uploads/1754888366/6-scene-min-lights-32.png" />
+    </div>
+    <div class="image">
+        <label>Bin of 64</label>
+        <img class="pixelated" width="155vw" src="https://renderling.xyz/uploads/1754888366/6-scene-min-lights-64.png" />
+    </div>
+    <div class="image">
+        <label>Bin of 128</label>
+        <img class="pixelated" width="155vw" src="https://renderling.xyz/uploads/1754888366/6-scene-min-lights-128.png" />
+    </div>
+      <div class="image">
+        <label>Bin of 256</label>
+        <img class="pixelated" width="155vw" src="https://renderling.xyz/uploads/1754888366/6-scene-min-lights-256.png" />
+    </div>
+            <div class="image">
+        <label>Bin of 512</label>
+        <img class="pixelated" width="155vw" src="https://renderling.xyz/uploads/1754888366/6-scene-min-lights-512.png" />
+    </div>
+    <div class="image">
+        <label>Bin of 1024</label>
+        <img class="pixelated" width="155vw" src="https://renderling.xyz/uploads/1754888366/6-scene-min-lights-1024.png" />
+    </div>
+</div>
+
+I think this makes it pretty obvious that there should be some sort of ordering or priority to the lights that get put in
+the bin.
+
+Or maybe we need to find a balance between minimum illuminance and the size of the bin.
+
+## Comparing tiles - Tue 12 August, 2025
+
+I think the problem we're seeing is what I mentioned earlier. 
+When there are a lot of lights that illuminate a tile, slots in the the tile's
+light array fill up.
+Reserving a slot in the array is atomic, but first-come-first-serve, and the
+order of shader invocations is non-deterministic.
+That means that each tile could contain a different set of lights each
+frame when there are lots of lights.
+
+So I think this problem is causing the artfacts we see in the pictures above.
+My guess is that the dark tiles don't contain the directional light that is the
+primary illuminator in the scene.
+
+## Oh shoot, coordinates!
+
+But before I go too far down that rabbit hole, I have a realization. 
+
+Let's reiterate the rough steps in the "light binning" algo:
+
+1. Compute the tile's frustum in NDC coordinates.
+2. Compute each light's position in NDC coordinates.
+3. Compute the light's radius of illumination using the light intensity and the minimum illuminance passed in from the CPU.
+4. Determine if the light intersects the frustum and add it to the bin of lights.
+
+Maybe you spotted the problem here.
+I didn't, until now.
+
+> Compute the light's radius of illumination using the light intensity and the minimum illuminance passed in from the CPU.
+
+There it is.
+Minimum illuminance is in **lux**!
+Lux is Lumens per **meter** squared, and I'm using it in conjuction with the
+frustum and light position in NDC coords!
+
+NDC coords are unitless and completely in terms of the view frustum.
+Meters are meters.
+So here we're not comparing apples to apples.
+
+The  radius of illumination is in meters, but the distance from the light to the
+frustum is in NDC.
+This has resulted in almost every light passing the comparison test and getting
+binned.
+
+This is the real bug here, though this bug greatly exaggerates the effects of
+the bug I _thought_ was the problem.
+
+I think we can live with the other bug, and solve it by tuning the values for
+the minimum illuminance and the tile's bin size, and maybe the tile
+size.
+
+### So much better
+
+After switching to calculating everything in world coords, it looks much better.
+You can still see that at a low bin size we still get a good amount of 
+artifacts, but it's not as bad.
+
+#### Bin size 32
+
+<div class="images-horizontal">
+  <div class="image">
+    <label>min illuminance 0.1</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754951785/6-scene-32-0-0.1.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 0.2</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754951785/6-scene-32-1-0.2.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 0.5</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754951785/6-scene-32-2-0.5.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 1</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754951785/6-scene-32-3-1.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 2</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754951785/6-scene-32-4-2.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 5</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754951785/6-scene-32-5-5.png" />
+  </div>
+</div>
+
+#### Bin size 64
+
+<div class="images-horizontal">
+  <div class="image">
+    <label>min illuminance 0.1</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953799/6-scene-64-0-0.1.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 0.2</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953799/6-scene-64-1-0.2.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 0.5</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953799/6-scene-64-2-0.5.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 1</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953799/6-scene-64-3-1.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 2</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953799/6-scene-64-4-2.png" />
+  </div>
+  <div class="image">
+    <label>min illuminance 5</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953799/6-scene-64-5-5.png" />
+  </div>
+</div>
+
+#### Bin size 128
+
+<div class="images-horizontal">
+  <div class="image">
+    <label>min illuminance 0.1</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953978/6-scene-128-0-0.1.png" />
+</div>
+  <div class="image">
+    <label>min illuminance 0.2</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953978/6-scene-128-1-0.2.png" />
+</div>
+  <div class="image">
+    <label>min illuminance 0.5</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953978/6-scene-128-2-0.5.png" />
+</div>
+  <div class="image">
+    <label>min illuminance 1</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953978/6-scene-128-3-1.png" />
+</div>
+  <div class="image">
+    <label>min illuminance 2</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953978/6-scene-128-4-2.png" />
+</div>
+  <div class="image">
+    <label>min illuminance 5</label>
+    <img class="pixelated" width="310vw" src="https://renderling.xyz/uploads/1754953978/6-scene-128-5-5.png" />
+</div>
+</div>
+
+Here you can see that a tile light bin size of 128 and minimum illuminance of
+0.1 looks good, so I think I can consider this bug squashed!
+
+Now let's see how a bin size of 128 affects runtime performance...
+
+<div class="image">
+    <label>Frame timing with bin size 128</label>
+    <img class="pixelated" width="980vw" src="https://renderling.xyz/uploads/1754954317/frame-time.png" />
+</div>
+
+Wow! It's still well over 100fps.
+
+## Tile size
+
+The last bit of business before considering this feature "done", is to make the
+tile size configurable.
