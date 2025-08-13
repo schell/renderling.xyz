@@ -749,11 +749,11 @@ clearly, and the minimums look closer, as they should (depth 1.0 is on the far p
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753420111/1-scene.png" />
     </div>
     <div class="image">
-        <label>Depth minimums, the furthest parts of the visible scene</label>
+        <label>Depth minimums, the closest parts of the visible scene</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753420111/2-mins.png" />
     </div>
     <div class="image">
-        <label>Depth maximums, the closest parts of the visible scene</label>
+        <label>Depth maximums, the furthest parts of the visible scene</label>
         <img class="pixelated" width="280vw" src="https://renderling.xyz/uploads/1753420111/2-maxs.png" />
     </div>
 </div>
