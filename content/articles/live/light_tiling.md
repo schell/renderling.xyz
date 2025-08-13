@@ -2633,7 +2633,57 @@ Now let's see how a bin size of 128 affects runtime performance...
 
 Wow! It's still well over 100fps.
 
-## Tile size
+### Tile size
 
 The last bit of business before considering this feature "done", is to make the
 tile size configurable.
+
+...
+
+Nothing to report, there.
+Using a smaller tile size makes the radius of illumination very apparent for
+largish values of minimum illuminance: 
+
+<div class="image">
+    <label>Tile size 4, bin size 16, min illuminance 1.0</label>
+    <img class="pixelated" width="980vw" src="https://renderling.xyz/uploads/1755041420/6-scene-4-16-lights-3-1-min-lux.png" />
+</div>
+
+But with that small a tile size, tiling doesn't pay off until we have about 700 lights in the scene:
+
+<div class="image">
+    <label>Tile size 4, bin size 16, min illuminance 1.0</label>
+    <img class="pixelated" width="980vw" src="https://renderling.xyz/uploads/1755041593/frame-time-4-16-lights-3-1-min-lux.png" />
+</div>
+
+A better compromise, at least for this scene, seems to be a tile size of 16, bin size of 128 and minimum illuminance 0.1:
+
+<div class="image">
+    <label>Tile size 16, bin size 128, min illuminance 0.1</label>
+    <img class="pixelated" width="980vw" src="https://renderling.xyz/uploads/1755042142/6-scene-16-128-lights-1-0.1-min-lux.png" />
+</div>
+
+<div class="image">
+    <label>Tile size 16, bin size 128, min illuminance 0.1</label>
+    <img class="pixelated" width="980vw" src="https://renderling.xyz/uploads/1755042209/frame-time-16-128-lights-1-0.1-min-lux.png" />
+</div>
+
+Either way, these parameters can be fine-tuned at will, so any scene can be accommodated.
+
+# That's a wrap!
+
+That's it for the build out!
+Thanks for reading this far.
+
+The [light tiling PR](https://github.com/schell/renderling/pull/163) is a
+whopper, weighing in at 5000 lines, most of it adding tests and moving
+things.
+
+It's been ongoing for about 5 months now!
+This feature is the capstone on the projects 2024 NLNet funding, so I'm really,
+really glad they decided to extend the runway by a couple months.
+It feels good to get this done!
+
+Now on to planning the next year of work!
+
+🙇🙇🙇🙇🙇
