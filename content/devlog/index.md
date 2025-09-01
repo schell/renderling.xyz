@@ -44,6 +44,21 @@ NOTE: THERE MUST NOT BE EMPTY LINES
 
 -->
 
+## Sun 31 August, 2025
+
+[Light tiling is done!](/articles/live/light_tiling.html#comparing-tiles-tue-12-august-2025)
+^ The last part of that article was my favorite, as I got to do lots of comparison graphs of
+light tiling with different parameters.
+
+### WASM updates
+
+It's been a long time coming, but I finally wrote some [proper WASM test infrastructure, and
+tests](https://github.com/schell/renderling/pull/197). 
+
+Running `renderling` on web is a very high priority for me, as I want to write games that
+work everywhere. Now that there are tests that run in a headless Firefox browser, even if not
+yet in CI, the WASM target shouldn't lag behind native.
+
 ## Sat 2 August, 2025
 
 [Light tiling is so close!](/articles/live/light_tiling.html#saturday-2-august-2025)
