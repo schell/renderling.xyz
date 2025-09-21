@@ -3,21 +3,7 @@ title: devlog
 ---
 _Scream of consciousness, live-blogged development notes. No longer updated._
 
-<!-- 
-
-My private stuff used for editing. 
-Pay no attention to the man behind the curtain.
-
-👍🤞🍖🚧🔗🤦🙇☕
-
-...⏱️
-
-😭😈😉😊
-
-🇳🇿 🏝️
-
--->
-                
+              
 # The devlog is now "news"
 
 I've moved the devlog to a new location - [news](/news/index.html).

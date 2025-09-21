@@ -1,5 +1,5 @@
 //! Interpolation of markdown templates.
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use html_parser::Element;
 use markdown::mdast::{
@@ -65,7 +65,7 @@ pub fn make_html_view<V:View>(node: html_parser::Node) -> Option<Node<V>> {
                 let classes = classes.join(" ");
                 attributes.insert("class".into(), Some(classes));
             }
-            for (k, v) in attributes.into_iter() {
+            for (k, v) in BTreeMap::from_iter(attributes.into_iter()).into_iter() {
                 log::trace!("  attribute: ({k}, {v:?})");
                 let value = v.unwrap_or_default();
                 view.set_property(k, value);
