@@ -2,20 +2,33 @@
 
 The [renderling website](https://renderling.xyz).
 
-## developing
+## what stuff
 
-`cargo watch -x 'xtask build'`
+This contains a blog, live development devlogs, a manual and documentation.
 
-meanwhile 
+### manual and docs
 
-`basic-http-server site`
+The manual and docs are built by hand and checked into the repo.
+There's a directory that's gitignore'd for this reason - `renderling`.
 
-## building 
+`xtask` should take care of everything, but just know that the directory is there and ignored.
 
-`cargo xtask build`
+## how stuff
 
-## deploying 
+  ### developing
 
-`cargo xtask -e staging deploy`
+  `cargo watch -x 'xtask build'`
 
-`cargo xtask -e production deploy`
+  meanwhile 
+
+  `basic-http-server site`
+
+  ### building 
+
+  `cargo xtask build`
+
+  ### deploying 
+
+  `cargo xtask -e staging deploy`
+
+  `cargo xtask -e production deploy`

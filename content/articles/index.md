@@ -1,7 +1,7 @@
 ---
 title: articles
 ---
-_A list of the articles, so far._
+_A list of the articles, like live-blogged development logs._
 
 ## [Light Tiling, Live](/articles/live/light_tiling.html)
 
@@ -11,8 +11,11 @@ Live blogged development of Renderling's light tiling feature.
 
 A recap of progress and news from 2024.
 
-## [devlog](/devlog/index.html)
-
-This is the on-going development log.
-
 ## [Quotations, adages, idioms and "rules"](/articles/adages.html)
+
+Things said often enough to warrant a definition somewhere.
+
+## [Old devlog](/devlog/index.html)
+
+This is the old devlog, which eventually was replaced by the [news](/news/index.html)
+page.

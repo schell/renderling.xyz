@@ -20,3 +20,8 @@ local.yaml
 staging.yaml
 production.yaml
 .aider*
+
+# renderling checkout dir, for docs and the manual
+renderling/
+content/docs/
+content/manual/

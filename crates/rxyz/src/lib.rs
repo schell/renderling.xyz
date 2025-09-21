@@ -104,16 +104,26 @@ impl Site {
                     div(class="nav-top") {}
                     ul(class="nav-links") {
                         li() {
+                            a(href = self.site_path("news/index.html")?){
+                                "news"
+                            }
+                        }
+                        li() {
+                            a(href = self.site_path("docs/renderling/index.html")?){
+                                "docs"
+                            }
+                        }
+                        li() {
+                            a(href = self.site_path("manual/index.html")?, alt = "user's manual"){
+                                "manual"
+                            }
+                        }
+                        li() {
                             a(href = self.site_path("articles/index.html")?){
                                 "articles"
                             }
                         }
-                        li() {
-                            a(href = self.site_path("devlog/index.html")?){
-                                "devlog"
-                            }
-                        }
-                        li() {
+                                                li() {
                             a(href = "https://github.com/schell/renderling") {
                                 "github"
                             }
