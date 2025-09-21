@@ -1,0 +1,38 @@
+{
+  "insert-video": {
+    "prefix": "insert-video",
+    "body": [
+      "<video controls width=\"100%\">",
+      "  <source src=\"${1:src}\" type=\"video/mp4\" />",
+      "  Backup text.",
+      "</video>"
+    ],
+    "description": "insert a video tag"
+  },
+  "insert-many-images": {
+    "prefix": "insert-many-images",
+    "body": [
+      "<div class=\"images-horizontal\">",
+      "    <div class=\"image\">",
+      "        <label>${1:label}</label>",
+      "        <img class=\"pixelated\" width=\"100\" src=\"${2:src}\" />",
+      "    </div>",
+      "</div>"
+    ],
+    "description": "insert a multi-image tag and one image"
+  },
+  "insert-image": {
+    "prefix": "insert-image",
+    "body": [
+      "<div class=\"image\">",
+      "    <label>${1:label}</label>",
+      "    <img",
+      "        alt=\"${2:alt}\"",
+      "        ${3:class=\"${4:pixelated}\"}",
+      "        src=\"${5:src}\"",
+      "    />",
+      "</div>"
+    ],
+    "description": "insert one image"
+  }
+}

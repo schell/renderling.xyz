@@ -16,32 +16,6 @@ Pay no attention to the man behind the curtain.
 
 🇳🇿 🏝️
 
-<video controls width="100%">
-  <source src="" type="video/mp4" />
-  Backup text.
-</video>
-
-
-NOTE: THERE MUST NOT BE EMPTY LINES
-
-<div class="images-horizontal">
-    <div class="image">
-        <label>Label</label>
-        <img class="pixelated" width="100" src="" />
-    </div>
-    <div class="image">
-        <label>Label</label>
-        <img class="pixelated" width="100" src="" />
-    </div>
-</div>
-
-<div class="image">
-    <label>Label</label>
-    <img
-        src=""
-        alt="" />
-</div>
-
 -->
 
 ## Sun 21 September, 2025
