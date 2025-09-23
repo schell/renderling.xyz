@@ -25,10 +25,10 @@ There's a directory that's gitignore'd for this reason - `renderling`.
 
   ### building 
 
-  `cargo xtask build`
+  `cargo xtask --renderling-refresh -e local build`
 
   ### deploying 
 
-  `cargo xtask -e staging deploy`
+  `cargo xtask --renderling-refresh -e staging deploy`
 
-  `cargo xtask -e production deploy`
+  `cargo xtask --renderling-refresh -e production deploy`

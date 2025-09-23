@@ -18,6 +18,12 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Wed 24 September, 2025
+
+I've pushed the [lighting chapter of the manual](/manual/lighting.html) live.
+
+Part of this was fixing a bug in image based lighting regarding bindgroup invalidation. 
+
 ## Sun 21 September, 2025
 
 I've done a rework of the API, greatly improved the documentation and created a user's manual
