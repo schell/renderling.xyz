@@ -18,6 +18,41 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Sun 30 Nov, 2025
+
+The past two months I've been pretty slammed with my new job and family stuff,
+but I've still been working on this project, albeit a bit sporadically.
+
+### `crabslab` changes
+I've managed to get a large PR finished on [`crabslab`](https://github.com/schell/crabslab/pull/5)
+that provides synchronization of values changed by shaders on the GPU back to
+their CPU caches.
+
+This change has been a long time coming, and it unlocks a lot of potential for
+interesting changes in Renderling, and beyond.
+
+Specifically these changes help in any situation where a shader computes some
+data that then gets used on the CPU.
+And it does that with a minimal number of writes to and from the GPU.
+
+This is all part of a grand scheme to blur the lines between GPU and CPU, and
+make GPU programming easier, which is essentially the main goal behind
+next year's worth of Renderling work.
+
+### 2026 NLNet project
+
+Renderling was selected for another year of funding by
+[NLnet](https://nlnet.nl/project/Renderling-Ecosystem/).
+I'm currently working on the project plan and we have double the funding of
+last year, which means I'll be able to take on paid contributors and
+get more accomplished in the same amount of time.
+
+Next year's work is focusing on the ecosystem and then riding that rising tide
+towards global illumination.
+
+Global illumination is a very lofty goal, especially for a renderer that targets
+the web, but I think we can get there with some key tradeoffs.
+
 ## Wed 24 September, 2025
 
 I've pushed the [lighting chapter of the manual](/manual/lighting.html) live.
