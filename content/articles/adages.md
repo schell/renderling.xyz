@@ -1,5 +1,5 @@
 ---
-title: Adages, idioms, rules...
+title: Adages, idioms, rules, poetry...
 ---
 _Things said once or twice or more_
 
@@ -34,3 +34,11 @@ This quote plays into the next one.
 
 > Premature optimization is the root of all evil.
 > -- Donald Knuth
+
+## Things are not always as they seem, scan lightly
+
+> Isn't it interesting in certain light, a cat which is black, looks white? 
+> -- Schell Scivally
+
+I said this! It has obvious connections to rendering, but on a deeper level
+it's a philosophical plea to scan lightly.
