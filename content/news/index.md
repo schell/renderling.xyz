@@ -18,6 +18,67 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Wed 11 Feb, 2026
+
+### 2026 NLnet Funding is Official
+
+The Memorandum of Understanding for the
+[Renderling Ecosystem](https://nlnet.nl/project/Renderling-Ecosystem/) project
+has been signed with [NLnet](https://nlnet.nl) under the NGI0 Commons Fund.
+This makes the second year of NLnet funding official, and I'm excited to get
+started on the work ahead.
+
+### A New Direction: Embracing WGSL
+
+The biggest change in this round of work is that Renderling will be moving away
+from Rust-GPU and toward tighter integration with WebGPU and WGSL.
+
+To support this, I've started work on [`wgsl-rs`](https://github.com/schell/wgsl-rs),
+a procedural macro crate that lets you write WGSL shaders in a subset of Rust.
+Code written with `wgsl-rs` runs on the CPU in Rust *and* on the GPU via
+generated WGSL — same types, same logic, fully testable. It works on stable
+Rust, produces human-readable WGSL output, needs no custom toolchains and even
+generates `wgpu` linkage for you!
+
+The funded milestones will take `wgsl-rs` to a beta release on crates.io, then
+adapt `crabslab` and `craballoc` to work with it, and finally rewrite
+Renderling's internals on the new stack.
+
+### GPU ECS: `podecs`
+
+Part of the funded work is a new crate called `podecs` — a GPU-accelerated
+Entity Component System where components are plain old data defined with
+`wgsl-rs`, stored in GPU-accessible slabs, and systems run as compute shaders.
+This is the piece that makes massively parallel scene management possible and
+lays the groundwork for what comes next.
+
+### The Road to Global Illumination
+
+The second half of the project focuses on rendering. The plan is to build a
+GPU ray tracer first, validate it against a reference image suite, and then
+adapt it for real-time performance using techniques like wavefront path tracing
+and raymarching. The end goal is real-time global illumination integrated with
+Renderling's existing lighting system.
+
+### Rend3 Compatibility
+
+[Rend3](https://github.com/BVE-Reborn/rend3) has been an important renderer
+in the Rust ecosystem, and there are projects out there that depend on it.
+Part of this funded work includes designing and implementing an API
+compatibility layer for Rend3 users, along with a migration guide and example
+programs. If you have an existing Rend3 project, Renderling aims to be a
+viable path forward.
+
+### What's Next
+
+I'll be working through these milestones over the course of the year and
+posting updates here as things progress. If you're interested in contributing
+or just following along, check out the repos:
+
+* [`wgsl-rs`](https://github.com/schell/wgsl-rs)
+* [`renderling`](https://github.com/schell/renderling)
+* [`crabslab`](https://github.com/schell/crabslab)
+
 ## Sun 30 Nov, 2025
 
 The past two months I've been pretty slammed with my new job and family stuff,
