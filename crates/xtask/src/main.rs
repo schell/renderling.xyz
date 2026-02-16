@@ -9,37 +9,38 @@ const fn renderling_docs_url(e: Environment) -> &'static str {
     }
 }
 
-const CONFIG: SiteConfig = {
-    const fn root_url(e: Environment) -> &'static str {
+fn config() -> SiteConfig {
+    let root_url = Box::new(|e: Environment| -> String {
         match e {
             Environment::Local => "http://127.0.0.1:4000",
             Environment::Staging => "https://staging.renderling.xyz",
             Environment::Production => "https://renderling.xyz",
         }
-    }
+        .to_string()
+    });
 
-    const fn cloudfront_distro(e: Environment) -> Option<&'static str> {
+    let cloudfront_distro = Box::new(|e: Environment| -> Option<String> {
         match e {
             Environment::Local => None,
-            Environment::Staging => Some("E16FY1FTWBR11T"),
-            Environment::Production => Some("E27AC3A8NB65G6"),
+            Environment::Staging => Some("E16FY1FTWBR11T".to_string()),
+            Environment::Production => Some("E27AC3A8NB65G6".to_string()),
         }
-    }
+    });
 
-    const fn s3_bucket(e: Environment) -> Option<&'static str> {
+    let s3_bucket = Box::new(|e: Environment| -> Option<String> {
         match e {
             Environment::Local => None,
-            Environment::Staging => Some("staging.renderling.xyz"),
-            Environment::Production => Some("renderling.xyz"),
+            Environment::Staging => Some("staging.renderling.xyz".to_string()),
+            Environment::Production => Some("renderling.xyz".to_string()),
         }
-    }
+    });
 
     SiteConfig {
         root_url,
         cloudfront_distro,
         s3_bucket,
     }
-};
+}
 
 /// A cli args struct that is a superset of pusha::Cli.
 #[derive(Parser)]
@@ -228,5 +229,5 @@ async fn main() {
             });
     }
 
-    cli.pusha_args.run::<Rxyz>(&CONFIG, []).await;
+    cli.pusha_args.run::<Rxyz>(&config(), []).await;
 }
