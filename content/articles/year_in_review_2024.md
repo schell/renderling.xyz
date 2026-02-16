@@ -1,5 +1,6 @@
 ---
-title: Year in Review - 2024 
+title: Year in Review - 2024
+date: 2025-01-09
 ---
 
 # Year in Review - 2024

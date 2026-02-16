@@ -9,37 +9,38 @@ const fn renderling_docs_url(e: Environment) -> &'static str {
     }
 }
 
-const CONFIG: SiteConfig = {
-    const fn root_url(e: Environment) -> &'static str {
+fn config() -> SiteConfig {
+    let root_url = Box::new(|e: Environment| -> String {
         match e {
             Environment::Local => "http://127.0.0.1:4000",
             Environment::Staging => "https://staging.renderling.xyz",
             Environment::Production => "https://renderling.xyz",
         }
-    }
+        .to_string()
+    });
 
-    const fn cloudfront_distro(e: Environment) -> Option<&'static str> {
+    let cloudfront_distro = Box::new(|e: Environment| -> Option<String> {
         match e {
             Environment::Local => None,
-            Environment::Staging => Some("E16FY1FTWBR11T"),
-            Environment::Production => Some("E27AC3A8NB65G6"),
+            Environment::Staging => Some("E16FY1FTWBR11T".to_string()),
+            Environment::Production => Some("E27AC3A8NB65G6".to_string()),
         }
-    }
+    });
 
-    const fn s3_bucket(e: Environment) -> Option<&'static str> {
+    let s3_bucket = Box::new(|e: Environment| -> Option<String> {
         match e {
             Environment::Local => None,
-            Environment::Staging => Some("staging.renderling.xyz"),
-            Environment::Production => Some("renderling.xyz"),
+            Environment::Staging => Some("staging.renderling.xyz".to_string()),
+            Environment::Production => Some("renderling.xyz".to_string()),
         }
-    }
+    });
 
     SiteConfig {
         root_url,
         cloudfront_distro,
         s3_bucket,
     }
-};
+}
 
 /// A cli args struct that is a superset of pusha::Cli.
 #[derive(Parser)]
@@ -228,5 +229,40 @@ async fn main() {
             });
     }
 
-    cli.pusha_args.run::<Rxyz>(&CONFIG, []).await;
+    let site_config = config();
+
+    {
+        // Generate RSS and Atom feeds
+        //
+        // The strategy here is to generate these from the markdown files in `content` and then
+        // write them into the `content` directory so they get picked up by pusha.
+        //
+        // The feed XML files are ignored by git.
+        let root_url = (site_config.root_url)(cli.pusha_args.environment);
+        let workspace_dir = std::path::PathBuf::from(std::env!("CARGO_WORKSPACE_DIR"));
+        let content_dir = workspace_dir.join("content");
+
+        log::info!("generating RSS and Atom feeds");
+
+        let news_content = std::fs::read_to_string(content_dir.join("news/index.md"))
+            .expect("could not read news/index.md");
+        let news_items = rxyz::feed::parse_news_entries(&news_content, &root_url);
+        log::info!("  {} news feed items", news_items.len());
+        let article_items = rxyz::feed::parse_articles(&content_dir.join("articles"), &root_url);
+        log::info!("  {} article feed items", article_items.len());
+        let mut all_items = [news_items, article_items].concat();
+        all_items.sort_by(|a, b| b.date.cmp(&a.date));
+
+        log::info!("  {} feed items total", all_items.len());
+
+        let rss = rxyz::feed::generate_rss(&root_url, &all_items);
+        std::fs::write(content_dir.join("feed.xml"), &rss).expect("could not write feed.xml");
+        log::info!("  wrote feed.xml");
+
+        let atom = rxyz::feed::generate_atom(&root_url, &all_items);
+        std::fs::write(content_dir.join("atom.xml"), &atom).expect("could not write atom.xml");
+        log::info!("  wrote atom.xml");
+    }
+
+    cli.pusha_args.run::<Rxyz>(&site_config, []).await;
 }

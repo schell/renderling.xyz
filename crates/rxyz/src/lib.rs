@@ -3,6 +3,7 @@ use md::Node;
 use mogwai::{prelude::*, ssr::Ssr};
 use snafu::prelude::*;
 
+pub mod feed;
 mod md;
 
 #[derive(Debug, Snafu)]
@@ -123,7 +124,12 @@ impl Site {
                                 "articles"
                             }
                         }
-                                                li() {
+                        li() {
+                            a(href = self.site_path("feed.xml")?, title = "RSS Feed"){
+                                "rss"
+                            }
+                        }
+                        li() {
                             a(href = "https://github.com/schell/renderling") {
                                 "github"
                             }
@@ -145,17 +151,36 @@ impl Site {
         Ok(nav)
     }
 
+    fn feed_link<V: View>(
+        &self,
+        mime: &str,
+        feed_title: &str,
+        path: &str,
+    ) -> Result<V::Element, Error> {
+        let link = V::Element::new("link");
+        link.set_property("rel", "alternate");
+        link.set_property("type", mime);
+        link.set_property("title", feed_title);
+        link.set_property("href", self.site_path(path)?);
+        Ok(link)
+    }
+
     fn page<V: View>(
         &self,
         title: impl AsRef<str>,
         content: Vec<Node<V>>,
         main_classes: &str,
     ) -> Result<V::Element, Error> {
+        let rss_link = self.feed_link::<V>("application/rss+xml", "Renderling RSS", "feed.xml")?;
+        let atom_link =
+            self.feed_link::<V>("application/atom+xml", "Renderling Atom", "atom.xml")?;
         rsx! {
             let page = html(lang = "en") {
                 head() {
                     meta(charset = "UTF-8"){}
                     link(rel="icon", href = self.site_path("favicon.ico")?){}
+                    {rss_link}
+                    {atom_link}
                     title() {
                         {title.as_ref().into_text::<V>()}
                     }
