@@ -1,5 +1,7 @@
 ---
 title: LA fires, Jan 2025
+date: 2025-01-08
+exclude_from_rss: true
 ---
 _My thoughts on the fires, mostly concerned with Altadena_
 

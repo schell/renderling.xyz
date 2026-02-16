@@ -23,5 +23,11 @@ production.yaml
 
 # renderling checkout dir, for docs and the manual
 renderling/
+# built docs
 content/docs/
+# built manual
 content/manual/
+# RSS feed
+content/feed.xml
+# Atom feed
+content/atom.xml

@@ -3,19 +3,20 @@ use std::collections::{BTreeMap, HashMap};
 
 use html_parser::Element;
 use markdown::mdast::{
-    self, Code, Definition, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Paragraph, Strong, Table, TableCell, TableRow, Text, ThematicBreak
+    self, Code, Definition, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List,
+    ListItem, Paragraph, Strong, Table, TableCell, TableRow, Text, ThematicBreak,
 };
 use mogwai::prelude::*;
 use snafu::ResultExt;
 
 const SECTION_LINK: &str = "🔗";
 
-pub enum Node<V:View> {
+pub enum Node<V: View> {
     Text(V::Text),
     Element(V::Element),
 }
 
-impl<V:View> ViewChild<V> for Node<V> {
+impl<V: View> ViewChild<V> for Node<V> {
     fn as_append_arg(&self) -> AppendArg<V, impl Iterator<Item = std::borrow::Cow<'_, V::Node>>> {
         match self {
             Node::Text(t) => t.as_boxed_append_arg(),
@@ -24,7 +25,7 @@ impl<V:View> ViewChild<V> for Node<V> {
     }
 }
 
-impl<V:View> Node<V> {
+impl<V: View> Node<V> {
     fn text(t: V::Text) -> Self {
         Node::Text(t)
     }
@@ -34,12 +35,10 @@ impl<V:View> Node<V> {
     }
 }
 
-pub fn make_html_view<V:View>(node: html_parser::Node) -> Option<Node<V>> {
+pub fn make_html_view<V: View>(node: html_parser::Node) -> Option<Node<V>> {
     log::trace!("html node:");
     match node {
-        html_parser::Node::Text(s) => {
-            Some(Node::Text(V::Text::new(s)))
-        }
+        html_parser::Node::Text(s) => Some(Node::Text(V::Text::new(s))),
         html_parser::Node::Element(Element {
             id,
             name,
@@ -50,14 +49,12 @@ pub fn make_html_view<V:View>(node: html_parser::Node) -> Option<Node<V>> {
             source_span: _,
         }) => {
             log::trace!("  element: {name}");
-            let view =V::Element::new(name); 
-            children
-                .into_iter()
-                .for_each(|child| {
-                    if let Some(child) = make_html_view(child) {
-                        view.append_child(&child);
-                    } 
-                });
+            let view = V::Element::new(name);
+            children.into_iter().for_each(|child| {
+                if let Some(child) = make_html_view(child) {
+                    view.append_child(&child);
+                }
+            });
             if let Some(id) = id {
                 attributes.insert("id".into(), Some(id));
             }
@@ -79,10 +76,17 @@ pub fn make_html_view<V:View>(node: html_parser::Node) -> Option<Node<V>> {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct ContentMeta {
     pub title: String,
+
+    #[serde(default)]
+    pub date: Option<String>,
+
+    /// Whether the article should be excluded from RSS feeds
+    #[serde(default)]
+    pub exclude_from_rss: bool,
 }
 
 /// Converts a markdown node into a heading link.
-fn as_link_text(node: &mdast::Node) -> String {
+pub fn as_link_text(node: &mdast::Node) -> String {
     let mut s = String::new();
     let nodes: &[mdast::Node] = match node {
         mdast::Node::Root(_) => todo!(),
@@ -94,12 +98,14 @@ fn as_link_text(node: &mdast::Node) -> String {
             s = mdte.value.clone();
             &[]
         }
-        mdast::Node::Link(Link { title, .. }) => if let Some(t) = title.as_ref() {
-            s = t.clone();
-            &[]
-        } else {
-            &[]
-        },
+        mdast::Node::Link(Link { title, .. }) => {
+            if let Some(t) = title.as_ref() {
+                s = t.clone();
+                &[]
+            } else {
+                &[]
+            }
+        }
         mdast::Node::Strong(s) => &s.children,
         mdast::Node::Text(t) => {
             s = t.value.clone();
@@ -111,29 +117,34 @@ fn as_link_text(node: &mdast::Node) -> String {
         }
         mdast::Node::Heading(h) => &h.children,
         mdast::Node::Table(t) => &t.children,
-        _ => &[]
+        _ => &[],
     };
     let s2 = nodes.iter().map(as_link_text).collect::<Vec<_>>().concat();
     let mut last_char_is_hyphen = false;
-    [s, s2].concat().chars().filter_map(|c| {
-        if c.is_alphanumeric() {
-            last_char_is_hyphen = false;
-            Some(c.to_lowercase().to_string())
-        } else if c.is_whitespace() && last_char_is_hyphen {
-            // last_char_is_hyphen is aready `true`
-            None
-        } else if c.is_whitespace() {
-            last_char_is_hyphen = true;
-            Some("-".to_owned())
-        } else if c == '-' && last_char_is_hyphen {
-            None
-        } else if c == '-' {
-            last_char_is_hyphen = true;
-            Some("-".to_owned())
-        } else {
-            None
-        }
-    }).collect::<Vec<_>>().concat()
+    [s, s2]
+        .concat()
+        .chars()
+        .filter_map(|c| {
+            if c.is_alphanumeric() {
+                last_char_is_hyphen = false;
+                Some(c.to_lowercase().to_string())
+            } else if c.is_whitespace() && last_char_is_hyphen {
+                // last_char_is_hyphen is aready `true`
+                None
+            } else if c.is_whitespace() {
+                last_char_is_hyphen = true;
+                Some("-".to_owned())
+            } else if c == '-' && last_char_is_hyphen {
+                None
+            } else if c == '-' {
+                last_char_is_hyphen = true;
+                Some("-".to_owned())
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>()
+        .concat()
 }
 
 #[derive(Default)]
@@ -164,14 +175,22 @@ impl AstRenderer {
 }
 
 impl AstRenderer {
-        pub fn make_md_view<V:View>(&mut self, node: mdast::Node) -> Vec<Node<V>> {
+    pub fn make_md_view<V: View>(&mut self, node: mdast::Node) -> Vec<Node<V>> {
         match node {
             mdast::Node::Root(root) => {
-                let children: Vec<_> = root.children.into_iter().flat_map(|c| self.make_md_view(c)).collect();
-                children                
+                let children: Vec<_> = root
+                    .children
+                    .into_iter()
+                    .flat_map(|c| self.make_md_view(c))
+                    .collect();
+                children
             }
             mdast::Node::Blockquote(bq) => {
-                let children: Vec<_> = bq.children.into_iter().map(|c| self.make_md_view(c)).collect();
+                let children: Vec<_> = bq
+                    .children
+                    .into_iter()
+                    .map(|c| self.make_md_view(c))
+                    .collect();
                 rsx! {
                     let bq = blockquote {
                         {children}
@@ -220,7 +239,7 @@ impl AstRenderer {
                     let code = code(){ {value} }
                 }
                 vec![Node::el(code)]
-            },
+            }
             mdast::Node::InlineMath(_) => todo!("support for inline math"),
             mdast::Node::Delete(Delete {
                 children,
@@ -259,7 +278,7 @@ impl AstRenderer {
                     let i = img(alt = alt, src = url, title = title.unwrap_or_default()){}
                 }
                 vec![Node::el(i)]
-            },
+            }
             mdast::Node::ImageReference(_) => todo!("support for ImageReference"),
             mdast::Node::MdxJsxTextElement(_) => todo!("support for MdxJsxTextElement"),
             mdast::Node::Link(Link {
@@ -278,7 +297,11 @@ impl AstRenderer {
             }
             mdast::Node::LinkReference(link_ref) => {
                 log::trace!("{link_ref:#?}");
-                let children: Vec<_> = link_ref.children.into_iter().map(|c| self.make_md_view(c)).collect();
+                let children: Vec<_> = link_ref
+                    .children
+                    .into_iter()
+                    .map(|c| self.make_md_view(c))
+                    .collect();
                 // We'll get the definition later in the parsing process
                 let mut proxy = Proxy::<Option<Definition>>::default();
                 rsx! {
@@ -293,7 +316,7 @@ impl AstRenderer {
                     }
                 }
                 self.insert_proxy(link_ref.identifier, proxy);
-                vec![Node::el(a)] 
+                vec![Node::el(a)]
             }
             mdast::Node::Strong(Strong {
                 children,
@@ -316,7 +339,7 @@ impl AstRenderer {
                 log::trace!("code_meta: {meta:#?}");
                 log::trace!("code_value:\n{value}");
                 log::trace!("position:\n{position:#?}");
-                
+
                 if let Some(lang) = lang.as_deref() {
                     use syntect::{highlighting::ThemeSet, parsing::SyntaxSet};
 
@@ -337,10 +360,17 @@ impl AstRenderer {
                         }
                     }
                     for line in syntect::util::LinesWithEndings::from(&value) {
-                        let ranges: Vec<(syntect::highlighting::Style, &str)> = h.highlight_line(line, &ss).unwrap();
-                        for (style, text) in  ranges.iter() {
-                            let color = format!("#{:02x}{:02x}{:02x}", style.foreground.r, style.foreground.g, style.foreground.b);
-                            let bg = format!("#{:02x}{:02x}{:02x}", style.background.r, style.background.g, style.background.b);
+                        let ranges: Vec<(syntect::highlighting::Style, &str)> =
+                            h.highlight_line(line, &ss).unwrap();
+                        for (style, text) in ranges.iter() {
+                            let color = format!(
+                                "#{:02x}{:02x}{:02x}",
+                                style.foreground.r, style.foreground.g, style.foreground.b
+                            );
+                            let bg = format!(
+                                "#{:02x}{:02x}{:02x}",
+                                style.background.r, style.background.g, style.background.b
+                            );
                             let span: V::Element = V::Element::new("span");
                             span.set_style("color", color);
                             span.set_style("background", bg);
@@ -366,50 +396,54 @@ impl AstRenderer {
                 position: _,
                 depth,
             }) => {
-                let id = children.iter().map(as_link_text).collect::<Vec<_>>().concat();
+                let id = children
+                    .iter()
+                    .map(as_link_text)
+                    .collect::<Vec<_>>()
+                    .concat();
                 let href = format!("#{id}");
                 let children: Vec<_> = children.into_iter().map(|c| self.make_md_view(c)).collect();
                 let section_link = V::Text::new(SECTION_LINK);
                 match depth {
                     1 => {
-                        rsx! { 
+                        rsx! {
                             let h = h1(id = id){
                                 {children}
                                 a(class = "heading-link", href = href) { {section_link} }
                             }
                         }
                         vec![Node::el(h)]
-                    },
+                    }
                     2 => {
-                        rsx! { 
+                        rsx! {
                             let h = h2(id = id){
                                 {children}
                                 a(class = "heading-link", href = href) { {section_link} }
                             }
                         }
                         vec![Node::el(h)]
-                    },
+                    }
                     3 => {
-                        rsx! { 
+                        rsx! {
                             let h = h3(id = id){
                                 {children}
                                 a(class = "heading-link", href = href) { {section_link} }
                             }
                         }
                         vec![Node::el(h)]
-                    },
+                    }
                     4 => {
                         rsx! { let h = h4{{children}}}
                         vec![Node::el(h)]
-                    },
+                    }
                     5 => {
                         rsx! { let h = h5{{children}}}
                         vec![Node::el(h)]
-                    },
+                    }
                     _ => {
                         rsx! { let h = h6{{children}} }
                         vec![Node::el(h)]
-                    },
+                    }
                 }
             }
             mdast::Node::Table(Table {
@@ -419,7 +453,7 @@ impl AstRenderer {
             }) => {
                 let ast_head = children.remove(0);
                 let table_head = match ast_head {
-                    mdast::Node::TableRow(TableRow{ children, ..}) => {
+                    mdast::Node::TableRow(TableRow { children, .. }) => {
                         let children = children.into_iter().map(|node| match node {
                             mdast::Node::TableCell(TableCell { children, .. }) => {
                                 rsx! {
@@ -428,7 +462,7 @@ impl AstRenderer {
                                 vec![Node::el(t)]
                             },
                             n => self.make_md_view(n),
-                        }).collect::<Vec<_>>();  
+                        }).collect::<Vec<_>>();
                         rsx! {
                             let t = thead() {
                                 {{children}}
@@ -449,7 +483,9 @@ impl AstRenderer {
                 }
                 vec![Node::el(t)]
             }
-            mdast::Node::ThematicBreak(ThematicBreak { position: _ }) => vec![Node::el(V::Element::new("br"))],
+            mdast::Node::ThematicBreak(ThematicBreak { position: _ }) => {
+                vec![Node::el(V::Element::new("br"))]
+            }
             mdast::Node::TableRow(TableRow {
                 children,
                 position: _,
@@ -460,7 +496,10 @@ impl AstRenderer {
                 }
                 vec![Node::el(t)]
             }
-            mdast::Node::TableCell(TableCell { children, position: _ }) => {
+            mdast::Node::TableCell(TableCell {
+                children,
+                position: _,
+            }) => {
                 let children: Vec<_> = children.into_iter().map(|c| self.make_md_view(c)).collect();
                 rsx! {
                     let t = td() {{children}}
@@ -499,12 +538,12 @@ impl AstRenderer {
     }
 }
 
-pub struct InterpolatedMarkdown<V:View> {
+pub struct InterpolatedMarkdown<V: View> {
     pub title: Option<String>,
     pub view: Vec<Node<V>>,
 }
 
-impl<V:View> InterpolatedMarkdown<V> {
+impl<V: View> InterpolatedMarkdown<V> {
     pub fn new(view: Vec<Node<V>>) -> Self {
         Self { title: None, view }
     }
@@ -528,7 +567,7 @@ pub fn get_frontmatter(node: &mut mdast::Node) -> Option<mdast::Yaml> {
     }
 }
 
-pub fn interpolate_markdown<V:View>(
+pub fn interpolate_markdown<V: View>(
     content: impl AsRef<str>,
 ) -> Result<InterpolatedMarkdown<V>, crate::Error> {
     let mut opts = markdown::ParseOptions::gfm();
