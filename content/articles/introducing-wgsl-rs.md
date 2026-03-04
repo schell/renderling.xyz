@@ -120,13 +120,27 @@ There are also some detriments, but they come more from the implementation of th
    But the kicker here is that you don't know about a gotcha until you hit it.
    I'm sure there are issues I'm not tracking that I simply haven't hit.
 
-Lastly, the rest of the maintainers have incorporated and are working on their product, and the communication (at least with me) has kinda
-dried up. I took this as a sign to get my priorities straight and made a decision rely on my own tech stack.
+## Rust-GPU to Vectorware
+
+Lastly, the rest of the Rust-GPU maintainers have incorporated as "vectorware" and are working on their product, and the communication (at least with me) has kinda
+dried up.
+It makes sense.
+Startups are a lot of work.
+I took this as a sign to get my priorities straight and made a decision to rely on my own tech stack.
+The other maintainers are great.
+They're awesome engineers and I wish them the best in their corporate endeavor.
+I however, am on a quest for graphics and sound and games, and they are on a quest for AI and general compute and startups, so we are walking our own paths.
+Our paths will likely cross often!
+
+...but they're separate.
    
 ## Worse is better?
 
 Given Rust-GPU's strengths and limitations, I decided to write a crate that could give me 80% of the benefit that Rust-GPU provides me, with
 20% of the effort.
+
+(It's probably more like 10% or 5% - these numbers are squishy and hand-wavey).
+
 That crate is called [`wgsl-rs`] and it is a procedural macro crate that lets you write WGSL shaders in a subset of Rust.
 You annotate a Rust module with `#[wgsl]` and the macro does two things:
 it leaves your Rust code intact (so it compiles and runs on the CPU as normal), and it transpiles that same code
@@ -289,9 +303,11 @@ Here's what you're trading away.
    You only get what's in the WGSL spec.
    If you need cutting-edge GPU features, you'll need a different tool.
 
-But here's the thing: `wgsl-rs` and Rust-GPU are not mutually exclusive. You can start with `wgsl-rs`, get
-productive fast, and reach for Rust-GPU later if you hit a wall. I'm actively working on making the two
-co-habitable. Whether or not that becomes a reality I really can't say as just getting from zero-to-one is
+But here's the thing: `wgsl-rs` and Rust-GPU are not mutually exclusive. At least not over the evolution of
+a software product.
+You can start with `wgsl-rs`, get productive fast, and reach for Rust-GPU later if you hit a wall.
+I'm actively working on making the two co-habitable.
+Whether or not that becomes a reality I really can't say as just getting from zero-to-one is
 a lot of work, but there is at least an easy migration path.
 
 ## What's next
