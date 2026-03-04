@@ -3,6 +3,10 @@ title: articles
 ---
 _A list of the articles, like live-blogged development logs._
 
+## [Introducing `wgsl-rs`](/articles/introducing-wgsl-rs.html)
+
+A new direction for Renderling, and the birth of a new crate.
+
 ## [Light Tiling, Live](/articles/live/light_tiling.html)
 
 Live blogged development of Renderling's light tiling feature.

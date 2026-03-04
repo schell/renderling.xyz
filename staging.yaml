@@ -33,7 +33,7 @@ files:
     destination: articles/year_in_review_2024.html
   content/atom.xml:
     origin: content/atom.xml
-    origin_modified: 2026-02-16T22:20:47.361761741Z
+    origin_modified: 2026-02-16T22:22:12.975470904Z
     built_filepath: site/atom.xml
     hash: 74A889DB5D2CA52357D23AC73D629D1AB3FF1B08548613763998233BF3A4AA72
     destination: atom.xml
@@ -5979,7 +5979,7 @@ files:
     destination: favicon.ico
   content/feed.xml:
     origin: content/feed.xml
-    origin_modified: 2026-02-16T22:20:47.361560115Z
+    origin_modified: 2026-02-16T22:22:12.975278153Z
     built_filepath: site/feed.xml
     hash: EF0D62A1D9CDB53EBF53A0B30474C483087CDCC3B34432D31ADD6FBB8F54BB28
     destination: feed.xml

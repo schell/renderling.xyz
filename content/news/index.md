@@ -18,6 +18,34 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Thu 5 March, 2026
+
+### Getting close with [`wgsl-rs`], significant work on [`crabslab`] adaptation
+
+#### [`wgsl-rs`]
+I've almost wrapped up the initial build out of [`wgsl-rs`].
+The last bit is the derivative builtins (`dpdx`, `dpdy`, `fwidth`, etc.) and
+the `discard` statement. 
+
+I really don't know what I'm going to do for the CPU semantics of the `discard` statement yet.
+Maybe something like `return Default::default()`? That _might work_?
+
+Anyway - I took a break from furiously pawing at my keyboard to produce code this weekend to
+furiously paw at my keyboard to write an article introducing the library.
+
+[Please check out the article introducing `wgsl-rs`](/content/articles/introducing-wgsl-rs.html).
+
+#### [`crabslab`]
+
+Both [`crabslab`] and [`craballoc`] are successfully using [`wgsl-rs`] in a branch.
+Once [`wgsl-rs`] is on crates.io as a beta release, I'll do beta releases of those as well.
+
+...
+
+That's all the news that's fit to print :)
+
+🙇☕
+
 ## Wed 11 Feb, 2026
 
 ### 2026 NLnet Funding is Official
@@ -196,3 +224,8 @@ image based lighting automatically.
 I decided to decouple these now, as there are valid situations where you may not want
 IBL, but do want a skybox.
 
+
+[`wgsl-rs`]: https://github.com/schell/wgsl-rs
+[`renderling`]: https://github.com/schell/renderling
+[`crabslab`]: https://github.com/schell/crabslab
+[`craballoc`]: https://github.com/schell/crabslab/tree/main/crates/craballoc
