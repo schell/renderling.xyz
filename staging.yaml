@@ -15,9 +15,9 @@ files:
     destination: articles/index.html
   content/articles/introducing-wgsl-rs.md:
     origin: content/articles/introducing-wgsl-rs.md
-    origin_modified: 2026-03-04T22:36:34.113415936Z
+    origin_modified: 2026-03-04T23:22:35.071603027Z
     built_filepath: site/articles/introducing-wgsl-rs.html
-    hash: 820F6302EB440C50974D0A74E6528CD04956F2762C13BCF58E56040102914107
+    hash: 6EDE37AE24DA0E51C2BDF2AF72634B2E37E8DCFB6FDC8709907F8B396CCC934D
     destination: articles/introducing-wgsl-rs.html
   content/articles/la_fires_jan_2025.md:
     origin: content/articles/la_fires_jan_2025.md
@@ -39,7 +39,7 @@ files:
     destination: articles/year_in_review_2024.html
   content/atom.xml:
     origin: content/atom.xml
-    origin_modified: 2026-03-04T23:03:50.071411940Z
+    origin_modified: 2026-03-04T23:23:18.473403132Z
     built_filepath: site/atom.xml
     hash: E8E8DC3704063552EC84387FEA198BA360714D37FFA2BFC99F5C8F631738DD82
     destination: atom.xml
@@ -5985,7 +5985,7 @@ files:
     destination: favicon.ico
   content/feed.xml:
     origin: content/feed.xml
-    origin_modified: 2026-03-04T23:03:50.071240398Z
+    origin_modified: 2026-03-04T23:23:18.473186673Z
     built_filepath: site/feed.xml
     hash: E2F7363C426DD9A8D9FB7FC9EF29B46AF370FE6C3D3EC5DD7BDE19085DA526C9
     destination: feed.xml

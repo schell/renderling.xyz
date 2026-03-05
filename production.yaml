@@ -9,10 +9,16 @@ files:
     destination: articles/adages.html
   content/articles/index.md:
     origin: content/articles/index.md
-    origin_modified: 2025-09-20T23:36:05.650627312Z
+    origin_modified: 2026-03-04T22:50:57.817682895Z
     built_filepath: site/articles/index.html
-    hash: A109332F9552ED83000C525E6EBB0B8B8EB4F934D761E7829BEF2E17DD6C4391
+    hash: F17DE6FD8AF0A08782E74494357773BEC74A3B9A074C8CD90428B4CC94F1B593
     destination: articles/index.html
+  content/articles/introducing-wgsl-rs.md:
+    origin: content/articles/introducing-wgsl-rs.md
+    origin_modified: 2026-03-04T23:22:35.071603027Z
+    built_filepath: site/articles/introducing-wgsl-rs.html
+    hash: FB0AD1807B412E233E58624C88E0BBE2D34C3C2181EED87E70A896733125B2C8
+    destination: articles/introducing-wgsl-rs.html
   content/articles/la_fires_jan_2025.md:
     origin: content/articles/la_fires_jan_2025.md
     origin_modified: 2026-02-16T22:15:34.669358410Z
@@ -33,9 +39,9 @@ files:
     destination: articles/year_in_review_2024.html
   content/atom.xml:
     origin: content/atom.xml
-    origin_modified: 2026-02-16T22:22:57.760300175Z
+    origin_modified: 2026-03-04T23:23:32.995863634Z
     built_filepath: site/atom.xml
-    hash: 08719E66B6337E4D1312C639AD4CEBEA661EADBB25B46FF7A321B40C4F8BFF89
+    hash: 3388D2EAA3F32DA71A0064060595DA1CB8C637FA29BB631B10C297F20A83EFB0
     destination: atom.xml
   content/devlog/index.md:
     origin: content/devlog/index.md
@@ -5979,9 +5985,9 @@ files:
     destination: favicon.ico
   content/feed.xml:
     origin: content/feed.xml
-    origin_modified: 2026-02-16T22:22:57.760108674Z
+    origin_modified: 2026-03-04T23:23:32.995656925Z
     built_filepath: site/feed.xml
-    hash: 88B7C0D974FF7A58B404E6166F38AA345E5F47A793775D7A6132F1C4EE78FE8F
+    hash: 89D8BA6F296D60B22B4916588ED4B7986FF8F6309E72FA631BF8E25542FC40C7
     destination: feed.xml
   content/img/logo.png:
     origin: content/img/logo.png
@@ -6381,9 +6387,9 @@ files:
     destination: manual/welcome.html
   content/news/index.md:
     origin: content/news/index.md
-    origin_modified: 2026-02-11T03:20:03.168403042Z
+    origin_modified: 2026-03-04T22:38:46.715937731Z
     built_filepath: site/news/index.html
-    hash: 671A96E83440D429A2606340FB6724806993FB5B0CF4DF364C29B2307C1341D0
+    hash: 6F335A856000259B601BEA88BDC1CC7DF1471F0360C8E15D33F4FD76D2D742DE
     destination: news/index.html
   content/syntax-highlighting-test/index.md:
     origin: content/syntax-highlighting-test/index.md
