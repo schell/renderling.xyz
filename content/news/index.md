@@ -18,6 +18,30 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Sun 22 Mar, 2026
+
+### `wgsl-rs` first milestone almost complete
+
+I've been working hard on the first milestone of `wgsl-rs`, which is essentially to get it feature complete.
+All WGSL vocabulary is now supported (WGSL "std" library including built-in functions, types, texture sampling),
+excluding extensions.
+
+The last step is including exhaustive roundtrip tests for builtins to ensure the CPU runtime is coherent with the GPU.
+
+### New revamped 2d UI stuff
+
+[I've revamped the 2d renderer](https://github.com/schell/renderling/pull/223).
+It now has its own shaders, which are much better fit for purpose.
+
+Next on the roadmap for the 2d renderer are events, hit testing, sprite sheet animations and 9-slice buttons.
+
+### Other accomplishments
+
+* [Welcomed a contribution from **m0ppers** for GLTF animations](https://github.com/schell/renderling/pull/224), thank you 🙇!
+  - [Original PR is here](https://github.com/schell/renderling/pull/217)
+* [Added a global ambient lighting term to the PBR shader](https://github.com/schell/renderling/pull/219)
+* improved formatting and CI cache situation
+
 ## Thu 5 March, 2026
 
 ### Getting close with [`wgsl-rs`], significant work on [`crabslab`] adaptation
