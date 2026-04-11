@@ -57,7 +57,7 @@ Maybe something like `return Default::default()`? That _might work_?
 Anyway - I took a break from furiously pawing at my keyboard to produce code this weekend to
 furiously paw at my keyboard to write an article introducing the library.
 
-[Please check out the article introducing `wgsl-rs`](/content/articles/introducing-wgsl-rs.html).
+[Please check out the article introducing `wgsl-rs`](/articles/introducing-wgsl-rs.html).
 
 #### [`crabslab`]
 
