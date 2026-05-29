@@ -39,9 +39,9 @@ files:
     destination: articles/year_in_review_2024.html
   content/atom.xml:
     origin: content/atom.xml
-    origin_modified: 2026-04-11T23:40:57.160131491Z
+    origin_modified: 2026-05-29T18:01:46.476854275Z
     built_filepath: site/atom.xml
-    hash: EB480166F7BE574A157356C49E93A70F2F4BBF337BFD11CDC462AD84D710C55F
+    hash: A65A90A9C987118B23FF1087A3919AA165634757EE8FC760BD1BC79EED24A826
     destination: atom.xml
   content/devlog/index.md:
     origin: content/devlog/index.md
@@ -5985,9 +5985,9 @@ files:
     destination: favicon.ico
   content/feed.xml:
     origin: content/feed.xml
-    origin_modified: 2026-04-11T23:40:57.159950366Z
+    origin_modified: 2026-05-29T18:01:46.476068233Z
     built_filepath: site/feed.xml
-    hash: 96FE1CB4E4E96A25A4D1DC0B2F1F5F431F7A30EBE793297CDC46E89796402D38
+    hash: 1647E811D608E16354E162BC6058C12B36615AEBF60374C187F79A5ADA55609F
     destination: feed.xml
   content/img/logo.png:
     origin: content/img/logo.png
@@ -6387,9 +6387,9 @@ files:
     destination: manual/welcome.html
   content/news/index.md:
     origin: content/news/index.md
-    origin_modified: 2026-04-11T23:40:37.979852188Z
+    origin_modified: 2026-05-29T17:56:50.693040025Z
     built_filepath: site/news/index.html
-    hash: 2AC32824EDAB5256CEAA02E735CA57C72ABBD24E3630AFDB139E2277D672961F
+    hash: 54D0D6FD27FBA355CA495597BABE18364570B6DC9CA86B90581BDD8360509B10
     destination: news/index.html
   content/syntax-highlighting-test/index.md:
     origin: content/syntax-highlighting-test/index.md
