@@ -26,18 +26,18 @@ The [first milestone](https://github.com/schell/wgsl-rs/milestone/1) for [`wgsl-
 <smaller>It was actually done a while ago, but I've been lagging writing this update.</smaller>
 The library now covers the full WGSL vocabulary and has shipped several major _other_ features:
 
-#### With Generics!
+#### Generics!
 
 The initial generics implementation [landed](https://github.com/schell/wgsl-rs/pull/101),
 allowing WGSL functions and types to be parameterized.
 
-This was tricky feature, and I had a lot of internal back and forth about how far to take it.
-When I first started the project I decided I would not tackle generics, but then I started talking
-to Bevy engineers (primarily `ncthbrt`) about the possibility of using `wgsl-rs` in Bevy and
-I realized that generics would significantly improve that effort.
+This was a tricky feature, and I had a lot of internal back and forth about how far to take it.
+When I first started the project I decided I would not tackle generics.
+Then I started talking to Bevy engineers (primarily `ncthbrt` in [this issue](https://github.com/schell/wgsl-rs/issues/96))
+about the possibility of using `wgsl-rs` in Bevy and I realized that generics would significantly improve that effort.
 Progress rewriting `crabslab` for `wgsl-rs` was also tricky without generics.
-The API would have had to change dramatically without generics.
-Those factors combined were quite a heavy thumb on the scale in favor of generics.
+The API would have had to change dramatically without it.
+Those factors combined were quite a heavy thumb on the scale in favor of shipping some sort of generics support.
 
 As far as the implementation goes - the main change is that the proc-macro that underlies
 `wgsl-rs` no longer emits `const` static strings.
@@ -50,7 +50,7 @@ But this feature was already only available if your module was written without i
 
 The Rust code still passes through untouched, so this IR is still a strict subset of Rust.
 
-#### And exhaustive roundtrip tests
+#### Exhaustive roundtrip tests
 
 [Two PRs](https://github.com/schell/wgsl-rs/pull/100)
 [landed](https://github.com/schell/wgsl-rs/pull/104) with exhaustive roundtrip tests for WGSL builtins.
@@ -65,7 +65,7 @@ provide custom derives that hook into the WGSL code generation pipeline.
 
 Writing an "extension" requires writing a derive macro for the Rust side and then implementing
 a trait to provide the WGSL side.
-I expect that writing extensions for `wgsl-rs` to be about twice the effort of writing derive macros
+I expect writing extensions for `wgsl-rs` to be about twice the effort of writing derive macros
 for Rust alone, but at least there's a solution.
 
 ### Stars on github
