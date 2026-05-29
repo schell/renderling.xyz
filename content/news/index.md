@@ -18,6 +18,89 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Fri 29 May, 2026
+
+### First wgsl-rs milestone complete
+
+The [first milestone](https://github.com/schell/wgsl-rs/milestone/1) for [`wgsl-rs`] is done!
+<smaller>It was actually done a while ago, but I've been lagging writing this update.</smaller>
+The library now covers the full WGSL vocabulary and has shipped several major _other_ features:
+
+#### With Generics!
+
+The initial generics implementation [landed](https://github.com/schell/wgsl-rs/pull/101),
+allowing WGSL functions and types to be parameterized.
+
+This was tricky feature, and I had a lot of internal back and forth about how far to take it.
+When I first started the project I decided I would not tackle generics, but then I started talking
+to Bevy engineers (primarily `ncthbrt`) about the possibility of using `wgsl-rs` in Bevy and
+I realized that generics would significantly improve that effort.
+Progress rewriting `crabslab` for `wgsl-rs` was also tricky without generics.
+The API would have had to change dramatically without generics.
+Those factors combined were quite a heavy thumb on the scale in favor of generics.
+
+As far as the implementation goes - the main change is that the proc-macro that underlies
+`wgsl-rs` no longer emits `const` static strings.
+Instead it builds up a WGSL IR AST which include generic parameters.
+The paramaters can be instantiated at runtime from the CPU, which then monomorphizes
+your shaders and outputs the WGSL as a string.
+This obviously has trade-offs.
+Primarily we lost compile-time `naga` validation.
+But this feature was already only available if your module was written without imports, so it's no big loss.
+
+The Rust code still passes through untouched, so this IR is still a strict subset of Rust.
+
+#### And exhaustive roundtrip tests
+
+[Two PRs](https://github.com/schell/wgsl-rs/pull/100)
+[landed](https://github.com/schell/wgsl-rs/pull/104) with exhaustive roundtrip tests for WGSL builtins.
+These ensure that code compiled through `wgsl-rs` and run on the CPU produces the same
+results as the equivalent WGSL running on the GPU.
+
+### Extensions: derive macros for WGSL
+
+I've designed a solution for **extensions** that will make it possible to provide derive macros
+on WGSL types. This opens the door for a plugin ecosystem around `wgsl-rs`, where crates can
+provide custom derives that hook into the WGSL code generation pipeline.
+
+Writing an "extension" requires writing a derive macro for the Rust side and then implementing
+a trait to provide the WGSL side.
+I expect that writing extensions for `wgsl-rs` to be about twice the effort of writing derive macros
+for Rust alone, but at least there's a solution.
+
+### Stars on github
+
+After the [introductory article](/articles/introducing-wgsl-rs.html) went live, `wgsl-rs` saw a
+solid uptick in GitHub stars.
+It's encouraging to see interest from the Rust gamedev community.
+
+
+<div class="image">
+    <label>`wgsl-rs` stars as of May 2026</label>
+    <img
+        width="750vw"
+        src="https://renderling.xyz/uploads/1780075688/star-history-2026529.png"
+        alt="`wgsl-rs` stars as of May 2026" />
+</div>
+
+### Bevy discussions
+
+I've been chatting with Bevy developers about whether `wgsl-rs` could serve as the shader layer for
+[the Bevy game engine](https://bevyengine.org/).
+It's early days and entirely likely this won't pan out, but the conversations have been productive
+and it's exciting to explore the possibility.
+
+[See the discussion thread on the Bevy Discord render-dev channel](https://discord.com/channels/691052431525675048/743663924229963868).
+
+Search for "wgsl-rs".
+
+### What's next
+
+I'm polishing for the initial release of `wgsl-rs`, including writing a layout extension and creating documentation.
+After that I'm dogfooding the library to re-re-write `crabslab` with generics.
+
+Happy hacking! 🙇☕
+
 ## Sun 22 Mar, 2026
 
 ### `wgsl-rs` first milestone almost complete
