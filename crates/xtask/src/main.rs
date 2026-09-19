@@ -55,6 +55,16 @@ struct Cli {
     #[clap(long)]
     renderling_refresh: bool,
 
+    /// The branch to checkout the wgsl-rs repo from.
+    ///
+    /// This is used to generate the wgsl-rs operator's manual.
+    #[clap(long, default_value = "main")]
+    wgsl_rs_branch: String,
+
+    /// Whether or not to refresh the wgsl-rs checkout
+    #[clap(long)]
+    wgsl_rs_refresh: bool,
+
     #[command(flatten)]
     pusha_args: pusha::PushaCli,
 }
@@ -225,6 +235,135 @@ async fn main() {
             .await
             .unwrap_or_else(|e| {
                 log::error!("could not move built manual dir into the content directory: {e}");
+                panic!("{e}");
+            });
+    }
+
+    let wgsl_rs_checkout_dir =
+        std::path::PathBuf::from(std::env!("CARGO_WORKSPACE_DIR")).join("wgsl-rs");
+    let wgsl_rs_manual_dir =
+        std::path::PathBuf::from(std::env!("CARGO_WORKSPACE_DIR")).join("content/wgsl-rs/manual");
+
+    let wgsl_rs_manual_rebuild = if wgsl_rs_checkout_dir.is_dir() {
+        if cli.wgsl_rs_refresh {
+            log::info!(
+                "refreshing the wgsl-rs checkout at branch '{}'",
+                cli.wgsl_rs_branch
+            );
+            let child = tokio::process::Command::new("git")
+                .args(["checkout", &cli.wgsl_rs_branch])
+                .current_dir(&wgsl_rs_checkout_dir)
+                .spawn()
+                .unwrap();
+            match child.wait_with_output().await {
+                Ok(_) => {
+                    log::info!("...checkout successful");
+                }
+                Err(e) => {
+                    log::error!("could not checkout branch: {e}");
+                    panic!("{e}");
+                }
+            }
+
+            let child = tokio::process::Command::new("git")
+                .args(["pull", "origin", &cli.wgsl_rs_branch])
+                .current_dir(&wgsl_rs_checkout_dir)
+                .spawn()
+                .unwrap();
+            match child.wait_with_output().await {
+                Ok(_) => {
+                    log::info!("...pull successful");
+                }
+                Err(e) => {
+                    log::error!("could not pull branch: {e}");
+                    panic!("{e}");
+                }
+            }
+        } else {
+            log::warn!("not refreshing the wgsl-rs checkout");
+        }
+
+        cli.wgsl_rs_refresh || !wgsl_rs_manual_dir.exists()
+    } else {
+        log::info!(
+            "cloning the wgsl-rs repo at branch '{}'",
+            cli.wgsl_rs_branch
+        );
+        let child = tokio::process::Command::new("git")
+            .args(["clone", "https://github.com/schell/wgsl-rs.git", "--branch"])
+            .arg(&cli.wgsl_rs_branch)
+            .arg(&wgsl_rs_checkout_dir)
+            .spawn()
+            .unwrap();
+        match child.wait_with_output().await {
+            Ok(_) => {
+                log::info!("...clone successful");
+            }
+            Err(e) => {
+                log::error!("...could not clone the wgsl-rs repo: {e}");
+                panic!("{e}");
+            }
+        }
+        true
+    };
+
+    if wgsl_rs_manual_rebuild {
+        log::info!("rebuilding the wgsl-rs operator's manual");
+        tokio::fs::create_dir_all(&wgsl_rs_manual_dir)
+            .await
+            .unwrap();
+        let wgsl_rs_cargo_workspace = wgsl_rs_checkout_dir.canonicalize().unwrap();
+        let child = tokio::process::Command::new("mdbook")
+            .args(["build", "book/"])
+            .current_dir(&wgsl_rs_cargo_workspace)
+            .spawn();
+        let child = match child {
+            Ok(child) => child,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                log::error!("could not build the wgsl-rs manual: `mdbook` not found on PATH");
+                // NOTE: prefer 0.4.x — the renderling manual's `mdbook-environment`
+                // preprocessor is built against mdbook ^0.4 and cannot parse mdbook
+                // 0.5's preprocessor input. The wgsl-rs book builds on both.
+                log::error!("install it with `cargo install mdbook --version 0.4.52`");
+                panic!("{e}");
+            }
+            Err(e) => {
+                log::error!("could not build the wgsl-rs manual: {e}");
+                panic!("{e}");
+            }
+        };
+        match child.wait_with_output().await {
+            Ok(output) => {
+                if output.status.success() {
+                    log::info!("...built the wgsl-rs manual");
+                } else {
+                    log::error!("...wgsl-rs manual building was unsuccessful");
+                    panic!("could not build the wgsl-rs manual");
+                }
+            }
+            Err(e) => {
+                log::error!("could not build the wgsl-rs manual: {e}");
+                panic!("{e}");
+            }
+        }
+
+        log::info!("moving the wgsl-rs manual into the content directory");
+        let built_wgsl_rs_manual = wgsl_rs_cargo_workspace
+            .join("book/book")
+            .canonicalize()
+            .unwrap();
+        tokio::fs::remove_dir_all(&wgsl_rs_manual_dir)
+            .await
+            .unwrap_or_else(|e| {
+                log::error!("could not remove existing wgsl-rs manual dir: {e}");
+                panic!("{e}");
+            });
+        tokio::fs::rename(&built_wgsl_rs_manual, &wgsl_rs_manual_dir)
+            .await
+            .unwrap_or_else(|e| {
+                log::error!(
+                    "could not move the built wgsl-rs manual into the content directory: {e}"
+                );
                 panic!("{e}");
             });
     }

@@ -25,6 +25,10 @@ renderling/
 content/docs/
 # built manual
 content/manual/
+# wgsl-rs checkout dir, for the operator's manual
+wgsl-rs/
+# built wgsl-rs manual
+content/wgsl-rs/manual/
 # RSS feed
 content/feed.xml
 # Atom feed

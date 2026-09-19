@@ -120,6 +120,11 @@ impl Site {
                             }
                         }
                         li() {
+                            a(href = self.site_path("wgsl-rs/manual/index.html")?, alt = "wgsl-rs operator's manual"){
+                                "wgsl-rs"
+                            }
+                        }
+                        li() {
                             a(href = self.site_path("articles/index.html")?){
                                 "articles"
                             }
