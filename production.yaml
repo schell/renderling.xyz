@@ -5,41 +5,41 @@ files:
     origin: content/articles/adages.md
     origin_modified: 2026-01-26T23:05:22.067382899Z
     built_filepath: site/articles/adages.html
-    hash: 54C001F2C91165942D2CCB94C148BD472DCF73ABEBE7B4C675EB16A8E7C1E44D
+    hash: D14271848CC2A2BE145E68550A5CE810FA9606DDB416A4BFD6C0C0EA270BF834
     destination: articles/adages.html
   content/articles/index.md:
     origin: content/articles/index.md
     origin_modified: 2026-03-04T22:50:57.817682895Z
     built_filepath: site/articles/index.html
-    hash: F17DE6FD8AF0A08782E74494357773BEC74A3B9A074C8CD90428B4CC94F1B593
+    hash: 887D6F4BE8341600C4427ADE0B37EC9B6FDA6A034ECF5FF68B48D6B225762C3D
     destination: articles/index.html
   content/articles/introducing-wgsl-rs.md:
     origin: content/articles/introducing-wgsl-rs.md
     origin_modified: 2026-03-04T23:22:35.071603027Z
     built_filepath: site/articles/introducing-wgsl-rs.html
-    hash: FB0AD1807B412E233E58624C88E0BBE2D34C3C2181EED87E70A896733125B2C8
+    hash: 853CACD2E9D21E8ED4881AB36E817ED38EEDEAAA32727337FDAAA66824F3008A
     destination: articles/introducing-wgsl-rs.html
   content/articles/la_fires_jan_2025.md:
     origin: content/articles/la_fires_jan_2025.md
     origin_modified: 2026-02-16T22:15:34.669358410Z
     built_filepath: site/articles/la_fires_jan_2025.html
-    hash: A1B519E724A58B56D132BF7AE689890464291481688E7C7B9F5C094C53BFD581
+    hash: 20466BF8958FD8B8F5C0D182EE8AD77D462B9B1E7A9835888123E47296CC0711
     destination: articles/la_fires_jan_2025.html
   content/articles/live/light_tiling.md:
     origin: content/articles/live/light_tiling.md
     origin_modified: 2025-08-13T00:18:33.133994155Z
     built_filepath: site/articles/live/light_tiling.html
-    hash: 837127445E4B56A4CAC00F409BF40F6D566E8DB8BAA2BD43230F456C4067EE36
+    hash: 79B2DF57328635B324A398D2EE73148D8AAEC15A0431140869B5E560A573B90C
     destination: articles/live/light_tiling.html
   content/articles/year_in_review_2024.md:
     origin: content/articles/year_in_review_2024.md
     origin_modified: 2026-02-16T22:15:34.669948246Z
     built_filepath: site/articles/year_in_review_2024.html
-    hash: 8C0A4C4C5F5673F03062744B04713D946A1D92ED5506CABA33F57E0AD2B6808C
+    hash: 00ECF15DC2B3A5893BAECD1B16017907C86C92CC2400CF8D2CCC2D46E6F53CD0
     destination: articles/year_in_review_2024.html
   content/atom.xml:
     origin: content/atom.xml
-    origin_modified: 2026-05-29T18:01:46.476854275Z
+    origin_modified: 2026-09-19T21:52:43.214199Z
     built_filepath: site/atom.xml
     hash: A65A90A9C987118B23FF1087A3919AA165634757EE8FC760BD1BC79EED24A826
     destination: atom.xml
@@ -47,7 +47,7 @@ files:
     origin: content/devlog/index.md
     origin_modified: 2025-09-21T02:30:58.122344515Z
     built_filepath: site/devlog/index.html
-    hash: DC1B212BC44C4DC6E7924C1301363A2BA05DA27D76421E61F9D5E6333259DF3A
+    hash: 0D44C462748F36D4A1576437D64FCA90F6858933A53CD1975BE8803EE80AAC1F
     destination: devlog/index.html
   content/docs/.lock:
     origin: content/docs/.lock
@@ -5597,7 +5597,7 @@ files:
     origin: content/docs/static.files/SourceSerif4-LICENSE-a2cfd9d5.md
     origin_modified: 2025-09-23T23:12:58.338635367Z
     built_filepath: site/docs/static.files/SourceSerif4-LICENSE-a2cfd9d5.html
-    hash: 0E4E5E3E07C079FF4C6A849F7E093B811C7EACB33EC51071A7B29770997B262E
+    hash: 6A467E92257906FA89CD2C15CB6EA8A07F133118345AD02BAA8B746D2DC660DC
     destination: docs/static.files/SourceSerif4-LICENSE-a2cfd9d5.html
   content/docs/static.files/SourceSerif4-Regular-6b053e98.ttf.woff2:
     origin: content/docs/static.files/SourceSerif4-Regular-6b053e98.ttf.woff2
@@ -5985,7 +5985,7 @@ files:
     destination: favicon.ico
   content/feed.xml:
     origin: content/feed.xml
-    origin_modified: 2026-05-29T18:01:46.476068233Z
+    origin_modified: 2026-09-19T21:52:43.213325423Z
     built_filepath: site/feed.xml
     hash: 1647E811D608E16354E162BC6058C12B36615AEBF60374C187F79A5ADA55609F
     destination: feed.xml
@@ -5999,7 +5999,7 @@ files:
     origin: content/index.md
     origin_modified: 2025-07-03T01:40:36.022968331Z
     built_filepath: site/index.html
-    hash: 53B57E4B830D549531CFEE8F4DE082B06D3E6ECB6469E71588E44952D249A1DB
+    hash: FFA818D2066AE4EF43230E13A3719267F16AD1E004F7D2EE06336F64FED11D54
     destination: index.html
   content/manual/.nojekyll:
     origin: content/manual/.nojekyll
@@ -6389,11 +6389,845 @@ files:
     origin: content/news/index.md
     origin_modified: 2026-05-29T17:56:50.693040025Z
     built_filepath: site/news/index.html
-    hash: 54D0D6FD27FBA355CA495597BABE18364570B6DC9CA86B90581BDD8360509B10
+    hash: FD77333AD429E5B3E5B7C3346F610A380538966BB3352E3FF4F6C362E408A9B4
     destination: news/index.html
   content/syntax-highlighting-test/index.md:
     origin: content/syntax-highlighting-test/index.md
     origin_modified: 2025-07-03T01:40:36.023096661Z
     built_filepath: site/syntax-highlighting-test/index.html
-    hash: 62B07113A656301F77E261004276F76AED3E4232E668945C13055CF425EEB0E5
+    hash: CA6D5DDC55512EF60BFBBB50CADEA67B6D4BA028471DDEBBD5747AAA356A280C
     destination: syntax-highlighting-test/index.html
+  content/wgsl-rs/manual/.nojekyll:
+    origin: content/wgsl-rs/manual/.nojekyll
+    origin_modified: 2026-09-19T21:42:40.870657861Z
+    built_filepath: site/wgsl-rs/manual/.nojekyll
+    hash: 235D4F83C4C71612F43995DBDA167720CD0C5384BF9EA64F9328B187C409B51D
+    destination: wgsl-rs/manual/.nojekyll
+  content/wgsl-rs/manual/404.html:
+    origin: content/wgsl-rs/manual/404.html
+    origin_modified: 2026-09-19T21:42:41.170518377Z
+    built_filepath: site/wgsl-rs/manual/404.html
+    hash: A44384FBD9A82B1344D1A113A5A4199C7BC39E578D45912BB2A0DEEADE866198
+    destination: wgsl-rs/manual/404.html
+  content/wgsl-rs/manual/FontAwesome/css/font-awesome.css:
+    origin: content/wgsl-rs/manual/FontAwesome/css/font-awesome.css
+    origin_modified: 2026-09-19T21:42:40.844373239Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/css/font-awesome.css
+    hash: 799AEB25CC0373FDEE0E1B1DB7AD6C2F6A0E058DFADAA3379689F583213190BD
+    destination: wgsl-rs/manual/FontAwesome/css/font-awesome.css
+  content/wgsl-rs/manual/FontAwesome/fonts/FontAwesome.ttf:
+    origin: content/wgsl-rs/manual/FontAwesome/fonts/FontAwesome.ttf
+    origin_modified: 2026-09-19T21:42:40.846352201Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/fonts/FontAwesome.ttf
+    hash: AA58F33F239A0FB02F5C7A6C45C043D7A9AC9A093335806694ECD6D4EDC0D6A8
+    destination: wgsl-rs/manual/FontAwesome/fonts/FontAwesome.ttf
+  content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.eot:
+    origin: content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.eot
+    origin_modified: 2026-09-19T21:42:40.844770273Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.eot
+    hash: 7BFCAB6DB99D5CFBF1705CA0536DDC78585432CC5FA41BBD7AD0F009033B2979
+    destination: wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.eot
+  content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.svg:
+    origin: content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.svg
+    origin_modified: 2026-09-19T21:42:40.845138558Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.svg
+    hash: AD6157926C1622BA4E1D03D478F1541368524BFC46F51E42FE0D945F7EF323E4
+    destination: wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.svg
+  content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.ttf:
+    origin: content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.ttf
+    origin_modified: 2026-09-19T21:42:40.845492342Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.ttf
+    hash: AA58F33F239A0FB02F5C7A6C45C043D7A9AC9A093335806694ECD6D4EDC0D6A8
+    destination: wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.ttf
+  content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff:
+    origin: content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff
+    origin_modified: 2026-09-19T21:42:40.845832336Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff
+    hash: BA0C59DEB5450F5CB41B3F93609EE2D0D995415877DDFA223E8A8A7533474F07
+    destination: wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff
+  content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff2:
+    origin: content/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff2
+    origin_modified: 2026-09-19T21:42:40.846105331Z
+    built_filepath: site/wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff2
+    hash: 2ADEFCBC041E7D18FCF2D417879DC5A09997AA64D675B7A3C4B6CE33DA13F3FE
+    destination: wgsl-rs/manual/FontAwesome/fonts/fontawesome-webfont.woff2
+  content/wgsl-rs/manual/ayu-highlight.css:
+    origin: content/wgsl-rs/manual/ayu-highlight.css
+    origin_modified: 2026-09-19T21:42:40.842825518Z
+    built_filepath: site/wgsl-rs/manual/ayu-highlight.css
+    hash: 56612340A6F36525686C259F1BF2A8A3796181E97FCDD1EDA5DE3F24AC472DCE
+    destination: wgsl-rs/manual/ayu-highlight.css
+  content/wgsl-rs/manual/book.js:
+    origin: content/wgsl-rs/manual/book.js
+    origin_modified: 2026-09-19T21:42:40.831212949Z
+    built_filepath: site/wgsl-rs/manual/book.js
+    hash: 9576A2DB89AB6CCC0CE9E07E436ECC6D3767C87390747D9F5C6A1954764C2F4A
+    destination: wgsl-rs/manual/book.js
+  content/wgsl-rs/manual/clipboard.min.js:
+    origin: content/wgsl-rs/manual/clipboard.min.js
+    origin_modified: 2026-09-19T21:42:40.843777209Z
+    built_filepath: site/wgsl-rs/manual/clipboard.min.js
+    hash: 1626706AFC88D95EBE1173B553EC732C6DC82A576989315FDF5E7779AF738A44
+    destination: wgsl-rs/manual/clipboard.min.js
+  content/wgsl-rs/manual/contributing/ai-disclosure.html:
+    origin: content/wgsl-rs/manual/contributing/ai-disclosure.html
+    origin_modified: 2026-09-19T21:42:41.164016835Z
+    built_filepath: site/wgsl-rs/manual/contributing/ai-disclosure.html
+    hash: 29E832960CA7A268BF0A6297D4E9EC0469F511BEED8E008E0030A9B374BCFE63
+    destination: wgsl-rs/manual/contributing/ai-disclosure.html
+  content/wgsl-rs/manual/contributing/code-style.html:
+    origin: content/wgsl-rs/manual/contributing/code-style.html
+    origin_modified: 2026-09-19T21:42:41.166219585Z
+    built_filepath: site/wgsl-rs/manual/contributing/code-style.html
+    hash: 0538DB039445473933A2FA884E1839F3167AEDA8BAC54F03C2FBC238F1CA9C17
+    destination: wgsl-rs/manual/contributing/code-style.html
+  content/wgsl-rs/manual/contributing/xtask-ci.html:
+    origin: content/wgsl-rs/manual/contributing/xtask-ci.html
+    origin_modified: 2026-09-19T21:42:41.168355002Z
+    built_filepath: site/wgsl-rs/manual/contributing/xtask-ci.html
+    hash: B3899EC6AA19E00AFFC4A68E1F27501784E4258DEF0699A59D91471511044766
+    destination: wgsl-rs/manual/contributing/xtask-ci.html
+  content/wgsl-rs/manual/css/chrome.css:
+    origin: content/wgsl-rs/manual/css/chrome.css
+    origin_modified: 2026-09-19T21:42:40.835729446Z
+    built_filepath: site/wgsl-rs/manual/css/chrome.css
+    hash: C0E702BF607966D3B4814A6D03857CAB486F6C78BBE0C067DAB377694C683D48
+    destination: wgsl-rs/manual/css/chrome.css
+  content/wgsl-rs/manual/css/general.css:
+    origin: content/wgsl-rs/manual/css/general.css
+    origin_modified: 2026-09-19T21:42:40.832201763Z
+    built_filepath: site/wgsl-rs/manual/css/general.css
+    hash: 4C35105AE741C32499C216488FCA90C3CF5AE35EFA513F90F559296F195B30DC
+    destination: wgsl-rs/manual/css/general.css
+  content/wgsl-rs/manual/css/print.css:
+    origin: content/wgsl-rs/manual/css/print.css
+    origin_modified: 2026-09-19T21:42:40.836333643Z
+    built_filepath: site/wgsl-rs/manual/css/print.css
+    hash: AD67D3508C83110E60CC3B50E179E06300F3DDE7BA53FAC0E5A93386A0447481
+    destination: wgsl-rs/manual/css/print.css
+  content/wgsl-rs/manual/css/variables.css:
+    origin: content/wgsl-rs/manual/css/variables.css
+    origin_modified: 2026-09-19T21:42:40.837483579Z
+    built_filepath: site/wgsl-rs/manual/css/variables.css
+    hash: 3865FFDA3EDA65190054753AEF5A152A93B61F7DBB2499756DC4880415703DF8
+    destination: wgsl-rs/manual/css/variables.css
+  content/wgsl-rs/manual/design-decisions/highlights.html:
+    origin: content/wgsl-rs/manual/design-decisions/highlights.html
+    origin_modified: 2026-09-19T21:42:41.161761170Z
+    built_filepath: site/wgsl-rs/manual/design-decisions/highlights.html
+    hash: B8B1D8F6BE12BEE0B091112DBB224B11F010699B4678717F324C1109EAA97FA6
+    destination: wgsl-rs/manual/design-decisions/highlights.html
+  content/wgsl-rs/manual/elasticlunr.min.js:
+    origin: content/wgsl-rs/manual/elasticlunr.min.js
+    origin_modified: 2026-09-19T21:42:40.864603685Z
+    built_filepath: site/wgsl-rs/manual/elasticlunr.min.js
+    hash: EF4E11C157B1E2E89782D30BD726F2D5FF7834EA5E26AD02474325F8B1F126C9
+    destination: wgsl-rs/manual/elasticlunr.min.js
+  content/wgsl-rs/manual/entry-points/default-annotations.html:
+    origin: content/wgsl-rs/manual/entry-points/default-annotations.html
+    origin_modified: 2026-09-19T21:42:40.964198531Z
+    built_filepath: site/wgsl-rs/manual/entry-points/default-annotations.html
+    hash: F4BE5D97A5E230EE8F83C3C763FF9EA42FC26B463E182C0F04F7C47FFC6A9CA9
+    destination: wgsl-rs/manual/entry-points/default-annotations.html
+  content/wgsl-rs/manual/entry-points/inter-stage-io.html:
+    origin: content/wgsl-rs/manual/entry-points/inter-stage-io.html
+    origin_modified: 2026-09-19T21:42:40.961793119Z
+    built_filepath: site/wgsl-rs/manual/entry-points/inter-stage-io.html
+    hash: 99C51A55EC41F4646C4938DE3A18C4F407E50DA33E8A0DD65E001B33D3BC07C9
+    destination: wgsl-rs/manual/entry-points/inter-stage-io.html
+  content/wgsl-rs/manual/entry-points/stages.html:
+    origin: content/wgsl-rs/manual/entry-points/stages.html
+    origin_modified: 2026-09-19T21:42:40.959047379Z
+    built_filepath: site/wgsl-rs/manual/entry-points/stages.html
+    hash: CA2D05965F83B4EB035CAFA94399CA102E45C0E77EB763FA438016FC1BEE66B3
+    destination: wgsl-rs/manual/entry-points/stages.html
+  content/wgsl-rs/manual/examples/advanced-numeric.html:
+    origin: content/wgsl-rs/manual/examples/advanced-numeric.html
+    origin_modified: 2026-09-19T21:42:41.100805960Z
+    built_filepath: site/wgsl-rs/manual/examples/advanced-numeric.html
+    hash: EB4C6FFBA4078BDAEC923D112968241FFCED5CE2B25003A60210C10EC59993C6
+    destination: wgsl-rs/manual/examples/advanced-numeric.html
+  content/wgsl-rs/manual/examples/atomics.html:
+    origin: content/wgsl-rs/manual/examples/atomics.html
+    origin_modified: 2026-09-19T21:42:41.091392265Z
+    built_filepath: site/wgsl-rs/manual/examples/atomics.html
+    hash: 816006283D41D7F8D7A68BEEE072764054FDE4EE0C043CC358FD2740A965271B
+    destination: wgsl-rs/manual/examples/atomics.html
+  content/wgsl-rs/manual/examples/binary-ops.html:
+    origin: content/wgsl-rs/manual/examples/binary-ops.html
+    origin_modified: 2026-09-19T21:42:41.071281358Z
+    built_filepath: site/wgsl-rs/manual/examples/binary-ops.html
+    hash: 3944640EED40BBD8A6003DE9FB70D6EA7C3AFA0F87FD94B86AD85651EA0A6C79
+    destination: wgsl-rs/manual/examples/binary-ops.html
+  content/wgsl-rs/manual/examples/bitcast.html:
+    origin: content/wgsl-rs/manual/examples/bitcast.html
+    origin_modified: 2026-09-19T21:42:41.096268506Z
+    built_filepath: site/wgsl-rs/manual/examples/bitcast.html
+    hash: 2E7A836C88B6CE8FE17599CD2C7A8A99B8281A256E036F7CF788467874F7E5A2
+    destination: wgsl-rs/manual/examples/bitcast.html
+  content/wgsl-rs/manual/examples/catalog.html:
+    origin: content/wgsl-rs/manual/examples/catalog.html
+    origin_modified: 2026-09-19T21:42:41.042040501Z
+    built_filepath: site/wgsl-rs/manual/examples/catalog.html
+    hash: 6C67623AA5D51E22A405FB53A38603B94005D707178EA55D2E06487E204BF910
+    destination: wgsl-rs/manual/examples/catalog.html
+  content/wgsl-rs/manual/examples/compute-shader.html:
+    origin: content/wgsl-rs/manual/examples/compute-shader.html
+    origin_modified: 2026-09-19T21:42:41.055357913Z
+    built_filepath: site/wgsl-rs/manual/examples/compute-shader.html
+    hash: A46CFE8D4A68EE06D2A39DC4C8D3A1B09706A25BF5483C74483015F1F7214667
+    destination: wgsl-rs/manual/examples/compute-shader.html
+  content/wgsl-rs/manual/examples/control-flow.html:
+    origin: content/wgsl-rs/manual/examples/control-flow.html
+    origin_modified: 2026-09-19T21:42:41.085220467Z
+    built_filepath: site/wgsl-rs/manual/examples/control-flow.html
+    hash: AC49FEC754E50499C68D216672628DA6E0E7827576E01B70C7BE20D91A297AB3
+    destination: wgsl-rs/manual/examples/control-flow.html
+  content/wgsl-rs/manual/examples/derivatives.html:
+    origin: content/wgsl-rs/manual/examples/derivatives.html
+    origin_modified: 2026-09-19T21:42:41.112714774Z
+    built_filepath: site/wgsl-rs/manual/examples/derivatives.html
+    hash: 4336EB037B1C9746CC434B9D3BA7E9EF7189C6FB67C9A899491D3747770196A6
+    destination: wgsl-rs/manual/examples/derivatives.html
+  content/wgsl-rs/manual/examples/discard.html:
+    origin: content/wgsl-rs/manual/examples/discard.html
+    origin_modified: 2026-09-19T21:42:41.114960898Z
+    built_filepath: site/wgsl-rs/manual/examples/discard.html
+    hash: A125FCAFC5A194B99CE406CF329E7DC820403C72CBEA00F455369751C1C70CE4
+    destination: wgsl-rs/manual/examples/discard.html
+  content/wgsl-rs/manual/examples/enum.html:
+    origin: content/wgsl-rs/manual/examples/enum.html
+    origin_modified: 2026-09-19T21:42:41.065360971Z
+    built_filepath: site/wgsl-rs/manual/examples/enum.html
+    hash: 511CD201E2F1665B57B260D1F7B62441DA0F26058D80A984EEE47B410AF7DA0C
+    destination: wgsl-rs/manual/examples/enum.html
+  content/wgsl-rs/manual/examples/for-loop.html:
+    origin: content/wgsl-rs/manual/examples/for-loop.html
+    origin_modified: 2026-09-19T21:42:41.076286429Z
+    built_filepath: site/wgsl-rs/manual/examples/for-loop.html
+    hash: 5D6F831F6B7D8C0848E6A7045D605F0C8AF454431FBFD665B6BCF3123FA7C1E2
+    destination: wgsl-rs/manual/examples/for-loop.html
+  content/wgsl-rs/manual/examples/generic-functions.html:
+    origin: content/wgsl-rs/manual/examples/generic-functions.html
+    origin_modified: 2026-09-19T21:42:41.120177590Z
+    built_filepath: site/wgsl-rs/manual/examples/generic-functions.html
+    hash: 1EBC112C98B303BAA60DAA0675B7EE26DFE531797668D70178EBC36C5CB44935
+    destination: wgsl-rs/manual/examples/generic-functions.html
+  content/wgsl-rs/manual/examples/generic-structs.html:
+    origin: content/wgsl-rs/manual/examples/generic-structs.html
+    origin_modified: 2026-09-19T21:42:41.135177136Z
+    built_filepath: site/wgsl-rs/manual/examples/generic-structs.html
+    hash: 8871717700670372C9AD76E8ABD11C8906C3E33DDB7AF44C754DC645FB513730
+    destination: wgsl-rs/manual/examples/generic-structs.html
+  content/wgsl-rs/manual/examples/hello-triangle.html:
+    origin: content/wgsl-rs/manual/examples/hello-triangle.html
+    origin_modified: 2026-09-19T21:42:41.044309832Z
+    built_filepath: site/wgsl-rs/manual/examples/hello-triangle.html
+    hash: 9016B94C3EC9431944A2E153AEA5E193CDFC2FAA388DF360FA35175B3714F80A
+    destination: wgsl-rs/manual/examples/hello-triangle.html
+  content/wgsl-rs/manual/examples/impl.html:
+    origin: content/wgsl-rs/manual/examples/impl.html
+    origin_modified: 2026-09-19T21:42:41.062963976Z
+    built_filepath: site/wgsl-rs/manual/examples/impl.html
+    hash: 868BD292B19E5DC3F053EC978850BFD7C8C8C8E8C8CBACA45B6427D89B852797
+    destination: wgsl-rs/manual/examples/impl.html
+  content/wgsl-rs/manual/examples/macro-rules.html:
+    origin: content/wgsl-rs/manual/examples/macro-rules.html
+    origin_modified: 2026-09-19T21:42:41.107578081Z
+    built_filepath: site/wgsl-rs/manual/examples/macro-rules.html
+    hash: 36073EDFD85F9C93259E9B86BAD8BF9F208581B44E0644DAC756FE0CD2D05DC9
+    destination: wgsl-rs/manual/examples/macro-rules.html
+  content/wgsl-rs/manual/examples/matrix-builtin.html:
+    origin: content/wgsl-rs/manual/examples/matrix-builtin.html
+    origin_modified: 2026-09-19T21:42:41.103003585Z
+    built_filepath: site/wgsl-rs/manual/examples/matrix-builtin.html
+    hash: 53361C2D39C546F7033D60B440D0586617FB645F5E1342E6397343710E895FAD
+    destination: wgsl-rs/manual/examples/matrix-builtin.html
+  content/wgsl-rs/manual/examples/matrix.html:
+    origin: content/wgsl-rs/manual/examples/matrix.html
+    origin_modified: 2026-09-19T21:42:41.060244944Z
+    built_filepath: site/wgsl-rs/manual/examples/matrix.html
+    hash: 3D9BD41EDE9A7E9CF965A8C2523E2F87D97617BEFA54F43DB81ED70C0C754F7B
+    destination: wgsl-rs/manual/examples/matrix.html
+  content/wgsl-rs/manual/examples/packing.html:
+    origin: content/wgsl-rs/manual/examples/packing.html
+    origin_modified: 2026-09-19T21:42:41.098569878Z
+    built_filepath: site/wgsl-rs/manual/examples/packing.html
+    hash: 2B03BD376F11CF266335F9E098416013B3F24748913B2158DC66825E033F4634
+    destination: wgsl-rs/manual/examples/packing.html
+  content/wgsl-rs/manual/examples/phantom-data.html:
+    origin: content/wgsl-rs/manual/examples/phantom-data.html
+    origin_modified: 2026-09-19T21:42:41.145285943Z
+    built_filepath: site/wgsl-rs/manual/examples/phantom-data.html
+    hash: 78EC702F7FCDE8575EFE20F304F8A59BF1403C644856EF7520CAA5FEB02DB76A
+    destination: wgsl-rs/manual/examples/phantom-data.html
+  content/wgsl-rs/manual/examples/ptr.html:
+    origin: content/wgsl-rs/manual/examples/ptr.html
+    origin_modified: 2026-09-19T21:42:41.089454261Z
+    built_filepath: site/wgsl-rs/manual/examples/ptr.html
+    hash: 0CD988B45CCA9E51F08299256AD5AB1127AD734816E6827DE6A8689F7E7D13F2
+    destination: wgsl-rs/manual/examples/ptr.html
+  content/wgsl-rs/manual/examples/renderer-specialization-simple.html:
+    origin: content/wgsl-rs/manual/examples/renderer-specialization-simple.html
+    origin_modified: 2026-09-19T21:42:41.132902305Z
+    built_filepath: site/wgsl-rs/manual/examples/renderer-specialization-simple.html
+    hash: C836FAB7344C63396EDC6C4460D088F644A61342A84A9FEAD8E76500CBFBB6F3
+    destination: wgsl-rs/manual/examples/renderer-specialization-simple.html
+  content/wgsl-rs/manual/examples/renderer-specialization.html:
+    origin: content/wgsl-rs/manual/examples/renderer-specialization.html
+    origin_modified: 2026-09-19T21:42:41.130207190Z
+    built_filepath: site/wgsl-rs/manual/examples/renderer-specialization.html
+    hash: DCDCEB6173294BA343A0F1F07ED4608EEBC38DFFF943ED1BC5611A2CED157580
+    destination: wgsl-rs/manual/examples/renderer-specialization.html
+  content/wgsl-rs/manual/examples/runtime-array.html:
+    origin: content/wgsl-rs/manual/examples/runtime-array.html
+    origin_modified: 2026-09-19T21:42:41.087417133Z
+    built_filepath: site/wgsl-rs/manual/examples/runtime-array.html
+    hash: D59DC8FD9761251C372BC6207C8B93B1D77AFA0ACC37DDD0E69E98434DF54A8B
+    destination: wgsl-rs/manual/examples/runtime-array.html
+  content/wgsl-rs/manual/examples/shared-inter-stage.html:
+    origin: content/wgsl-rs/manual/examples/shared-inter-stage.html
+    origin_modified: 2026-09-19T21:42:41.140208415Z
+    built_filepath: site/wgsl-rs/manual/examples/shared-inter-stage.html
+    hash: 7CBF8E3841137901F7210E0985E8CF99E885D7B4B651E7EC0B5AB2C6623A0291
+    destination: wgsl-rs/manual/examples/shared-inter-stage.html
+  content/wgsl-rs/manual/examples/slab-read-write.html:
+    origin: content/wgsl-rs/manual/examples/slab-read-write.html
+    origin_modified: 2026-09-19T21:42:41.110086200Z
+    built_filepath: site/wgsl-rs/manual/examples/slab-read-write.html
+    hash: D0DD834E44ADFB0499861048C1D1EFFB1C5953E75DBA4965EF67D286C0A3E42A
+    destination: wgsl-rs/manual/examples/slab-read-write.html
+  content/wgsl-rs/manual/examples/structs.html:
+    origin: content/wgsl-rs/manual/examples/structs.html
+    origin_modified: 2026-09-19T21:42:41.050201428Z
+    built_filepath: site/wgsl-rs/manual/examples/structs.html
+    hash: FE754C1F6D0F6B008636333849BE59CD7112A2EF8B53EE13AC29E2E0A37F020C
+    destination: wgsl-rs/manual/examples/structs.html
+  content/wgsl-rs/manual/examples/synchronization.html:
+    origin: content/wgsl-rs/manual/examples/synchronization.html
+    origin_modified: 2026-09-19T21:42:41.105405289Z
+    built_filepath: site/wgsl-rs/manual/examples/synchronization.html
+    hash: 13FE0A3AA23F3D17CD1BCED51E49F813964F9A3578A8F9EC7690C3D3CF70DCEB
+    destination: wgsl-rs/manual/examples/synchronization.html
+  content/wgsl-rs/manual/examples/texture.html:
+    origin: content/wgsl-rs/manual/examples/texture.html
+    origin_modified: 2026-09-19T21:42:41.093946508Z
+    built_filepath: site/wgsl-rs/manual/examples/texture.html
+    hash: C4E3294ED2B15B6235323925C93F2E1AE1A5427B659A10F51F70E4AB63C423FD
+    destination: wgsl-rs/manual/examples/texture.html
+  content/wgsl-rs/manual/examples/trait-impls.html:
+    origin: content/wgsl-rs/manual/examples/trait-impls.html
+    origin_modified: 2026-09-19T21:42:41.125389199Z
+    built_filepath: site/wgsl-rs/manual/examples/trait-impls.html
+    hash: B6F07C781752DA290DFF98CAC282FB7C0DB89C6AB04CECB79734EE1278FC1D45
+    destination: wgsl-rs/manual/examples/trait-impls.html
+  content/wgsl-rs/manual/examples/while-loop.html:
+    origin: content/wgsl-rs/manual/examples/while-loop.html
+    origin_modified: 2026-09-19T21:42:41.081141045Z
+    built_filepath: site/wgsl-rs/manual/examples/while-loop.html
+    hash: 05F8C43C89293113632F8006AE99A42275E0BB7DE8D1C4CB44C9712F63F5857B
+    destination: wgsl-rs/manual/examples/while-loop.html
+  content/wgsl-rs/manual/extensions/examples.html:
+    origin: content/wgsl-rs/manual/extensions/examples.html
+    origin_modified: 2026-09-19T21:42:41.025257697Z
+    built_filepath: site/wgsl-rs/manual/extensions/examples.html
+    hash: 76EA157D20E0B48A55B0E57004FCD7AB98E0B1885026F41F6AF90D3EC6D7954D
+    destination: wgsl-rs/manual/extensions/examples.html
+  content/wgsl-rs/manual/extensions/ir-attributes.html:
+    origin: content/wgsl-rs/manual/extensions/ir-attributes.html
+    origin_modified: 2026-09-19T21:42:41.022887950Z
+    built_filepath: site/wgsl-rs/manual/extensions/ir-attributes.html
+    hash: 11A7AE2A0AD0D38DD4ECF0BC12AA0175D53AF1322F2F66373CF81075624AE07B
+    destination: wgsl-rs/manual/extensions/ir-attributes.html
+  content/wgsl-rs/manual/extensions/modify-ir.html:
+    origin: content/wgsl-rs/manual/extensions/modify-ir.html
+    origin_modified: 2026-09-19T21:42:41.020770449Z
+    built_filepath: site/wgsl-rs/manual/extensions/modify-ir.html
+    hash: DAFAE94981A39ABCF114439BA08776523A1876120C7F558A7D1CDE2296736AA0
+    destination: wgsl-rs/manual/extensions/modify-ir.html
+  content/wgsl-rs/manual/extensions/pitfalls.html:
+    origin: content/wgsl-rs/manual/extensions/pitfalls.html
+    origin_modified: 2026-09-19T21:42:41.027247742Z
+    built_filepath: site/wgsl-rs/manual/extensions/pitfalls.html
+    hash: FE5FA52F5660865D313EC1A52ED1E9CC257A1FC9B2DC85EFB5FC3AE29DA4EC9A
+    destination: wgsl-rs/manual/extensions/pitfalls.html
+  content/wgsl-rs/manual/extensions/trait.html:
+    origin: content/wgsl-rs/manual/extensions/trait.html
+    origin_modified: 2026-09-19T21:42:41.018301663Z
+    built_filepath: site/wgsl-rs/manual/extensions/trait.html
+    hash: 2731009E7194900525A9DEF4D44FB7F1DEC1DC9D9BE698E3E2329BC3C2C4E378
+    destination: wgsl-rs/manual/extensions/trait.html
+  content/wgsl-rs/manual/favicon.png:
+    origin: content/wgsl-rs/manual/favicon.png
+    origin_modified: 2026-09-19T21:42:40.837865155Z
+    built_filepath: site/wgsl-rs/manual/favicon.png
+    hash: 8114D1FC74F4B5621AD9AFDE7746ED9CF7E420BE317A6E29023D2298D58AA15B
+    destination: wgsl-rs/manual/favicon.png
+  content/wgsl-rs/manual/favicon.svg:
+    origin: content/wgsl-rs/manual/favicon.svg
+    origin_modified: 2026-09-19T21:42:40.842104199Z
+    built_filepath: site/wgsl-rs/manual/favicon.svg
+    hash: DE23E50B1C4DD6E052B3E21D444FCD4B13568B3840AC3C99D9BE4E9263C0EF59
+    destination: wgsl-rs/manual/favicon.svg
+  content/wgsl-rs/manual/fonts/OPEN-SANS-LICENSE.txt:
+    origin: content/wgsl-rs/manual/fonts/OPEN-SANS-LICENSE.txt
+    origin_modified: 2026-09-19T21:42:40.847400264Z
+    built_filepath: site/wgsl-rs/manual/fonts/OPEN-SANS-LICENSE.txt
+    hash: CFC7749B96F63BD31C3C42B5C471BF756814053E847C10F3EB003417BC523D30
+    destination: wgsl-rs/manual/fonts/OPEN-SANS-LICENSE.txt
+  content/wgsl-rs/manual/fonts/SOURCE-CODE-PRO-LICENSE.txt:
+    origin: content/wgsl-rs/manual/fonts/SOURCE-CODE-PRO-LICENSE.txt
+    origin_modified: 2026-09-19T21:42:40.847672884Z
+    built_filepath: site/wgsl-rs/manual/fonts/SOURCE-CODE-PRO-LICENSE.txt
+    hash: D1E6D465A83BA1A3BE52DB6484868CF5812AE9BBF91ABDAD3900BA0165AFCF93
+    destination: wgsl-rs/manual/fonts/SOURCE-CODE-PRO-LICENSE.txt
+  content/wgsl-rs/manual/fonts/fonts.css:
+    origin: content/wgsl-rs/manual/fonts/fonts.css
+    origin_modified: 2026-09-19T21:42:40.846926065Z
+    built_filepath: site/wgsl-rs/manual/fonts/fonts.css
+    hash: 5F4B25E5825D45A726110BE816301F643829CA895F71C3BD0EDCA2E67152494C
+    destination: wgsl-rs/manual/fonts/fonts.css
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300.woff2
+    origin_modified: 2026-09-19T21:42:40.847905546Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300.woff2
+    hash: 7736AA3596C468515C3209F2F9D68CFAE96D94C05689BCC11A5DCE426A6EE2E8
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300italic.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300italic.woff2
+    origin_modified: 2026-09-19T21:42:40.848153375Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300italic.woff2
+    hash: 2C7B95C08DF0D228CAEC6D4BFED06DA0F7AB6B76EA5CC3F75B5C6AE416BC571B
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-300italic.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600.woff2
+    origin_modified: 2026-09-19T21:42:40.848994484Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600.woff2
+    hash: 486C67592731A0B36A89DBA1FD0B97AEB73F236BBF60DBF28D7C6B5723C07989
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600italic.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600italic.woff2
+    origin_modified: 2026-09-19T21:42:40.849253062Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600italic.woff2
+    hash: 1A3E865977024F444834A75A1B33B89B93134C93007AE3D6E14F24E6C88D8DFB
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-600italic.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700.woff2
+    origin_modified: 2026-09-19T21:42:40.849506182Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700.woff2
+    hash: C22FE8C70C36F1D862903B772EAED864D3A8FA849473C9CAFF224FDB852428E4
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700italic.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700italic.woff2
+    origin_modified: 2026-09-19T21:42:40.849745303Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700italic.woff2
+    hash: 238AE9593944112BEE8DD65F8EBC5F3D3862160A8A245FBE1EE3150BC9A2FD81
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-700italic.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800.woff2
+    origin_modified: 2026-09-19T21:42:40.849985257Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800.woff2
+    hash: 3D2C812ADF74DEB36FEAD3FF8469800D3C0B23EB2C858AE49310291F89490146
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800italic.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800italic.woff2
+    origin_modified: 2026-09-19T21:42:40.850245002Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800italic.woff2
+    hash: BA1521EC219DB9BC5BFEC0E3E7A897369D98B30D4E853EE4AA525322784428B8
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-800italic.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-italic.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-italic.woff2
+    origin_modified: 2026-09-19T21:42:40.848695281Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-italic.woff2
+    hash: 6C9463F7096C0B9D610E095ED248AC1E8A8DA7E92D17E9BE544F3BACED7B62B2
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-italic.woff2
+  content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-regular.woff2:
+    origin: content/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-regular.woff2
+    origin_modified: 2026-09-19T21:42:40.848446744Z
+    built_filepath: site/wgsl-rs/manual/fonts/open-sans-v17-all-charsets-regular.woff2
+    hash: 2E3B1D34AC67763AB50652DA19305D4B3694C6B6E6BF35F4B98411CE4AF646D2
+    destination: wgsl-rs/manual/fonts/open-sans-v17-all-charsets-regular.woff2
+  content/wgsl-rs/manual/fonts/source-code-pro-v11-all-charsets-500.woff2:
+    origin: content/wgsl-rs/manual/fonts/source-code-pro-v11-all-charsets-500.woff2
+    origin_modified: 2026-09-19T21:42:40.850609703Z
+    built_filepath: site/wgsl-rs/manual/fonts/source-code-pro-v11-all-charsets-500.woff2
+    hash: 2BDD9410B0141DB3CBBF4CFC3818CC6FAD279E8E63940940E06CD6AF76CCBFCF
+    destination: wgsl-rs/manual/fonts/source-code-pro-v11-all-charsets-500.woff2
+  content/wgsl-rs/manual/generics/generic-functions.html:
+    origin: content/wgsl-rs/manual/generics/generic-functions.html
+    origin_modified: 2026-09-19T21:42:40.950295422Z
+    built_filepath: site/wgsl-rs/manual/generics/generic-functions.html
+    hash: 2B2D2013DF6DEC959A9F60DA48FBFD60381B1520456D65F6B79786F4DE6D51F9
+    destination: wgsl-rs/manual/generics/generic-functions.html
+  content/wgsl-rs/manual/generics/generic-structs.html:
+    origin: content/wgsl-rs/manual/generics/generic-structs.html
+    origin_modified: 2026-09-19T21:42:40.953484277Z
+    built_filepath: site/wgsl-rs/manual/generics/generic-structs.html
+    hash: 6D18AF04235C7EFEBD5969212BEA057988F9AB1191D9D9049A06E7AC115870A4
+    destination: wgsl-rs/manual/generics/generic-structs.html
+  content/wgsl-rs/manual/generics/templates.html:
+    origin: content/wgsl-rs/manual/generics/templates.html
+    origin_modified: 2026-09-19T21:42:40.956171684Z
+    built_filepath: site/wgsl-rs/manual/generics/templates.html
+    hash: 26FE464DA1DB58E92BA6F3700EDCF66F8D488285797B851B979D2BF60FDEC4BC
+    destination: wgsl-rs/manual/generics/templates.html
+  content/wgsl-rs/manual/getting-started/cargo-features.html:
+    origin: content/wgsl-rs/manual/getting-started/cargo-features.html
+    origin_modified: 2026-09-19T21:42:40.888509145Z
+    built_filepath: site/wgsl-rs/manual/getting-started/cargo-features.html
+    hash: 1C588E51FFF13E83FF23825343D45B205AC810A851CCFDFBC752B08FB017CF2B
+    destination: wgsl-rs/manual/getting-started/cargo-features.html
+  content/wgsl-rs/manual/getting-started/hello-triangle.html:
+    origin: content/wgsl-rs/manual/getting-started/hello-triangle.html
+    origin_modified: 2026-09-19T21:42:40.885837862Z
+    built_filepath: site/wgsl-rs/manual/getting-started/hello-triangle.html
+    hash: 2B1F5ED9B00AA3282C12378D3903A8C9406BAC7E37E89D773A8549E26F4C9B81
+    destination: wgsl-rs/manual/getting-started/hello-triangle.html
+  content/wgsl-rs/manual/getting-started/installation.html:
+    origin: content/wgsl-rs/manual/getting-started/installation.html
+    origin_modified: 2026-09-19T21:42:40.882202515Z
+    built_filepath: site/wgsl-rs/manual/getting-started/installation.html
+    hash: 4EA77CA39985027A3BBAC9F6F58BB4CCEFF2C3CB8930D421D92CA19DA5986129
+    destination: wgsl-rs/manual/getting-started/installation.html
+  content/wgsl-rs/manual/highlight.css:
+    origin: content/wgsl-rs/manual/highlight.css
+    origin_modified: 2026-09-19T21:42:40.842362861Z
+    built_filepath: site/wgsl-rs/manual/highlight.css
+    hash: 493F70E1527D895653B5AC7157ABBA8E2C656E43698DA93B6C1997E2855A5059
+    destination: wgsl-rs/manual/highlight.css
+  content/wgsl-rs/manual/highlight.js:
+    origin: content/wgsl-rs/manual/highlight.js
+    origin_modified: 2026-09-19T21:42:40.843128679Z
+    built_filepath: site/wgsl-rs/manual/highlight.js
+    hash: ABC7F01D0CE8C64E4BA9E131D651E48AE1A567B2A1254FEA8AAB03502288DE58
+    destination: wgsl-rs/manual/highlight.js
+  content/wgsl-rs/manual/index.html:
+    origin: content/wgsl-rs/manual/index.html
+    origin_modified: 2026-09-19T21:42:40.877715393Z
+    built_filepath: site/wgsl-rs/manual/index.html
+    hash: D03D53B0CC45495515D5962AAD5C732B34539CD26BAFE7EAA1AA08ACF4A5652D
+    destination: wgsl-rs/manual/index.html
+  content/wgsl-rs/manual/introduction.html:
+    origin: content/wgsl-rs/manual/introduction.html
+    origin_modified: 2026-09-19T21:42:40.875969134Z
+    built_filepath: site/wgsl-rs/manual/introduction.html
+    hash: D03D53B0CC45495515D5962AAD5C732B34539CD26BAFE7EAA1AA08ACF4A5652D
+    destination: wgsl-rs/manual/introduction.html
+  content/wgsl-rs/manual/layout/derive.html:
+    origin: content/wgsl-rs/manual/layout/derive.html
+    origin_modified: 2026-09-19T21:42:41.034649767Z
+    built_filepath: site/wgsl-rs/manual/layout/derive.html
+    hash: E54F7C4798B42F11435DFB32009D1F885A822E5B5A0B904BADE659D91ADD65FE
+    destination: wgsl-rs/manual/layout/derive.html
+  content/wgsl-rs/manual/layout/field-layout.html:
+    origin: content/wgsl-rs/manual/layout/field-layout.html
+    origin_modified: 2026-09-19T21:42:41.036932598Z
+    built_filepath: site/wgsl-rs/manual/layout/field-layout.html
+    hash: 6F467AAF7011775755B504712909037C6B5A0EBC81746B530E0653E7511DE429
+    destination: wgsl-rs/manual/layout/field-layout.html
+  content/wgsl-rs/manual/layout/overview.html:
+    origin: content/wgsl-rs/manual/layout/overview.html
+    origin_modified: 2026-09-19T21:42:41.030042439Z
+    built_filepath: site/wgsl-rs/manual/layout/overview.html
+    hash: 440DCFB751270448EB0AAFDA677382D7324A4596EC3DD7D1AFA7F4FD79B50526
+    destination: wgsl-rs/manual/layout/overview.html
+  content/wgsl-rs/manual/layout/svg-diagrams.html:
+    origin: content/wgsl-rs/manual/layout/svg-diagrams.html
+    origin_modified: 2026-09-19T21:42:41.039292012Z
+    built_filepath: site/wgsl-rs/manual/layout/svg-diagrams.html
+    hash: 39197FB0F6093981728C145B53E8C1BCAE8E62C3807D5F62F9D9878EE6897AF3
+    destination: wgsl-rs/manual/layout/svg-diagrams.html
+  content/wgsl-rs/manual/layout/traits.html:
+    origin: content/wgsl-rs/manual/layout/traits.html
+    origin_modified: 2026-09-19T21:42:41.032427393Z
+    built_filepath: site/wgsl-rs/manual/layout/traits.html
+    hash: 56779912CEEBEABEE2C02D097D0FCEDEF0C7A8FA437264921A33DBB4F4093468
+    destination: wgsl-rs/manual/layout/traits.html
+  content/wgsl-rs/manual/linkage/bind-groups.html:
+    origin: content/wgsl-rs/manual/linkage/bind-groups.html
+    origin_modified: 2026-09-19T21:42:41.005375243Z
+    built_filepath: site/wgsl-rs/manual/linkage/bind-groups.html
+    hash: B230FC2F28D7DBCE3DCE141F12C5C9DD90F7787EF1879EFC3B3BD20C12B7A142
+    destination: wgsl-rs/manual/linkage/bind-groups.html
+  content/wgsl-rs/manual/linkage/overview.html:
+    origin: content/wgsl-rs/manual/linkage/overview.html
+    origin_modified: 2026-09-19T21:42:41.000611210Z
+    built_filepath: site/wgsl-rs/manual/linkage/overview.html
+    hash: 409B0796F40A058E97185D04B95102904DC41A94A90CF37C785AD38AD01887E8
+    destination: wgsl-rs/manual/linkage/overview.html
+  content/wgsl-rs/manual/linkage/pipeline-layouts.html:
+    origin: content/wgsl-rs/manual/linkage/pipeline-layouts.html
+    origin_modified: 2026-09-19T21:42:41.010341315Z
+    built_filepath: site/wgsl-rs/manual/linkage/pipeline-layouts.html
+    hash: 907E978C1AF87DAFB8FB0D259E6018E1DE95EE5265D2E6EC862DA2F3B1FA7FD5
+    destination: wgsl-rs/manual/linkage/pipeline-layouts.html
+  content/wgsl-rs/manual/linkage/shader-stages.html:
+    origin: content/wgsl-rs/manual/linkage/shader-stages.html
+    origin_modified: 2026-09-19T21:42:41.015205431Z
+    built_filepath: site/wgsl-rs/manual/linkage/shader-stages.html
+    hash: 3DFF57C17FEF0C1195BDD6526C1266F8D618097358F3603F1B9F2825A10301D4
+    destination: wgsl-rs/manual/linkage/shader-stages.html
+  content/wgsl-rs/manual/linkage/template-linkage.html:
+    origin: content/wgsl-rs/manual/linkage/template-linkage.html
+    origin_modified: 2026-09-19T21:42:41.012868308Z
+    built_filepath: site/wgsl-rs/manual/linkage/template-linkage.html
+    hash: 398F6C01B05AD882495D05D767F8D455D56D920D01DDE3B5C5637AB484FB4954
+    destination: wgsl-rs/manual/linkage/template-linkage.html
+  content/wgsl-rs/manual/mark.min.js:
+    origin: content/wgsl-rs/manual/mark.min.js
+    origin_modified: 2026-09-19T21:42:40.863822575Z
+    built_filepath: site/wgsl-rs/manual/mark.min.js
+    hash: 09E88C2CFAF23EA8A37B5681433EAFEA97033AF632ECC948C8C1EE9944647743
+    destination: wgsl-rs/manual/mark.min.js
+  content/wgsl-rs/manual/print.html:
+    origin: content/wgsl-rs/manual/print.html
+    origin_modified: 2026-09-19T21:42:41.201963943Z
+    built_filepath: site/wgsl-rs/manual/print.html
+    hash: 3ACA7A7E041075F1761E0BA55E0BA37EAD1DD72E3CA28BF34586C82DC4BABA97
+    destination: wgsl-rs/manual/print.html
+  content/wgsl-rs/manual/reference/cargo-features.html:
+    origin: content/wgsl-rs/manual/reference/cargo-features.html
+    origin_modified: 2026-09-19T21:42:41.154407769Z
+    built_filepath: site/wgsl-rs/manual/reference/cargo-features.html
+    hash: A7821A0CF35E9E35D033AF6273C499290CBF40C08FC2B0F6FF3AE6C1558814DB
+    destination: wgsl-rs/manual/reference/cargo-features.html
+  content/wgsl-rs/manual/reference/errors.html:
+    origin: content/wgsl-rs/manual/reference/errors.html
+    origin_modified: 2026-09-19T21:42:41.159199886Z
+    built_filepath: site/wgsl-rs/manual/reference/errors.html
+    hash: 87AB9D12F216727BD0AA382DE2D39E83746BBF45D50658D00328F0EBE10785B8
+    destination: wgsl-rs/manual/reference/errors.html
+  content/wgsl-rs/manual/reference/ir-types.html:
+    origin: content/wgsl-rs/manual/reference/ir-types.html
+    origin_modified: 2026-09-19T21:42:41.156873847Z
+    built_filepath: site/wgsl-rs/manual/reference/ir-types.html
+    hash: 55112C66F2E5CDE5E4C50B9F8968150AC3F036DF409F45C440F08DE985AAAFB6
+    destination: wgsl-rs/manual/reference/ir-types.html
+  content/wgsl-rs/manual/reference/macro-attributes.html:
+    origin: content/wgsl-rs/manual/reference/macro-attributes.html
+    origin_modified: 2026-09-19T21:42:41.152335433Z
+    built_filepath: site/wgsl-rs/manual/reference/macro-attributes.html
+    hash: E12915C350C328DD5391F123EB0205B62CB2086A567D4B7F1827BA4871B85F5C
+    destination: wgsl-rs/manual/reference/macro-attributes.html
+  content/wgsl-rs/manual/reference/supported-subset.html:
+    origin: content/wgsl-rs/manual/reference/supported-subset.html
+    origin_modified: 2026-09-19T21:42:41.150178891Z
+    built_filepath: site/wgsl-rs/manual/reference/supported-subset.html
+    hash: A5C545465055136B1540885D70AADE55B58CAFB45E80C7C9940DD000BAA9930F
+    destination: wgsl-rs/manual/reference/supported-subset.html
+  content/wgsl-rs/manual/searcher.js:
+    origin: content/wgsl-rs/manual/searcher.js
+    origin_modified: 2026-09-19T21:42:40.857355574Z
+    built_filepath: site/wgsl-rs/manual/searcher.js
+    hash: 964EE5EAA57A82F0CBC1563424CDB4EAB0020922691DA121019DED63F38E4C22
+    destination: wgsl-rs/manual/searcher.js
+  content/wgsl-rs/manual/searchindex.js:
+    origin: content/wgsl-rs/manual/searchindex.js
+    origin_modified: 2026-09-19T21:42:40.851797972Z
+    built_filepath: site/wgsl-rs/manual/searchindex.js
+    hash: 1A23764B5D2BC22C114ABC6FC125559D3F34C3BC84BE4F3D767BB2064BA488E3
+    destination: wgsl-rs/manual/searchindex.js
+  content/wgsl-rs/manual/std/bitcast.html:
+    origin: content/wgsl-rs/manual/std/bitcast.html
+    origin_modified: 2026-09-19T21:42:40.987419712Z
+    built_filepath: site/wgsl-rs/manual/std/bitcast.html
+    hash: 73E7438AC7FB6F912FD7F50461D096D674950005E2561241DA55AAF91CC68131
+    destination: wgsl-rs/manual/std/bitcast.html
+  content/wgsl-rs/manual/std/derivatives.html:
+    origin: content/wgsl-rs/manual/std/derivatives.html
+    origin_modified: 2026-09-19T21:42:40.985197671Z
+    built_filepath: site/wgsl-rs/manual/std/derivatives.html
+    hash: 8070975E7B9FFD210B45F64A69C2577EAE2EC9B1D9E5A97643741E402336E03E
+    destination: wgsl-rs/manual/std/derivatives.html
+  content/wgsl-rs/manual/std/discard.html:
+    origin: content/wgsl-rs/manual/std/discard.html
+    origin_modified: 2026-09-19T21:42:40.994069585Z
+    built_filepath: site/wgsl-rs/manual/std/discard.html
+    hash: 51E3D94DB3C6387C4CF32E7698F04851C6CE75EBA487180438A8AE08FB524A62
+    destination: wgsl-rs/manual/std/discard.html
+  content/wgsl-rs/manual/std/matrix-vector.html:
+    origin: content/wgsl-rs/manual/std/matrix-vector.html
+    origin_modified: 2026-09-19T21:42:40.980105643Z
+    built_filepath: site/wgsl-rs/manual/std/matrix-vector.html
+    hash: BB37AC07898B50BB0E6A04162A04F541D18E57E03D1BFDD29058564CDCAD2739
+    destination: wgsl-rs/manual/std/matrix-vector.html
+  content/wgsl-rs/manual/std/numeric.html:
+    origin: content/wgsl-rs/manual/std/numeric.html
+    origin_modified: 2026-09-19T21:42:40.977355029Z
+    built_filepath: site/wgsl-rs/manual/std/numeric.html
+    hash: 2F3E58C68037F20E639249D772821166A0A60238219FCC9A9AED8B976E2EA493
+    destination: wgsl-rs/manual/std/numeric.html
+  content/wgsl-rs/manual/std/overview.html:
+    origin: content/wgsl-rs/manual/std/overview.html
+    origin_modified: 2026-09-19T21:42:40.974576666Z
+    built_filepath: site/wgsl-rs/manual/std/overview.html
+    hash: 983A319DB92393A3D030C192AD305CDAD336F659AC077B1AEEC6011579E22749
+    destination: wgsl-rs/manual/std/overview.html
+  content/wgsl-rs/manual/std/packing.html:
+    origin: content/wgsl-rs/manual/std/packing.html
+    origin_modified: 2026-09-19T21:42:40.989589295Z
+    built_filepath: site/wgsl-rs/manual/std/packing.html
+    hash: A0BA2C490352467F2C697A78D56EFB5E5A76C66D114CDB4F6D47A75B0229A023
+    destination: wgsl-rs/manual/std/packing.html
+  content/wgsl-rs/manual/std/synchronization.html:
+    origin: content/wgsl-rs/manual/std/synchronization.html
+    origin_modified: 2026-09-19T21:42:40.991801628Z
+    built_filepath: site/wgsl-rs/manual/std/synchronization.html
+    hash: 50214F38914BE95C4A8B99F52884255041EA8FA2C63C0347C9511582311E604A
+    destination: wgsl-rs/manual/std/synchronization.html
+  content/wgsl-rs/manual/std/texture-sampler.html:
+    origin: content/wgsl-rs/manual/std/texture-sampler.html
+    origin_modified: 2026-09-19T21:42:40.982850007Z
+    built_filepath: site/wgsl-rs/manual/std/texture-sampler.html
+    hash: 6423E095D8371D9D9EB258BBBC99B6EF531155467A70D3853F45D7FE19355DF5
+    destination: wgsl-rs/manual/std/texture-sampler.html
+  content/wgsl-rs/manual/toc.html:
+    origin: content/wgsl-rs/manual/toc.html
+    origin_modified: 2026-09-19T21:42:40.870322243Z
+    built_filepath: site/wgsl-rs/manual/toc.html
+    hash: 62B452211E86E8B5EA3928E10AA26E003BA20FE62908ADE7C7430CF49D78FD33
+    destination: wgsl-rs/manual/toc.html
+  content/wgsl-rs/manual/toc.js:
+    origin: content/wgsl-rs/manual/toc.js
+    origin_modified: 2026-09-19T21:42:40.865567042Z
+    built_filepath: site/wgsl-rs/manual/toc.js
+    hash: DCCF5D49F0C7CDFCFD8122176D2CC8A07BF034FE26ED308900AD86D40E3AB4BC
+    destination: wgsl-rs/manual/toc.js
+  content/wgsl-rs/manual/tomorrow-night.css:
+    origin: content/wgsl-rs/manual/tomorrow-night.css
+    origin_modified: 2026-09-19T21:42:40.842598856Z
+    built_filepath: site/wgsl-rs/manual/tomorrow-night.css
+    hash: 4C0AE647A06EF1699806FB9B4B6D0EF72DE026708C6E8581362641C9298CB5F7
+    destination: wgsl-rs/manual/tomorrow-night.css
+  content/wgsl-rs/manual/types/arrays.html:
+    origin: content/wgsl-rs/manual/types/arrays.html
+    origin_modified: 2026-09-19T21:42:40.944740945Z
+    built_filepath: site/wgsl-rs/manual/types/arrays.html
+    hash: D50C69E5DD5E7C5F88668AC2AF1260DDC769B4F490D7E3EE3ADDF3F32787EEF3
+    destination: wgsl-rs/manual/types/arrays.html
+  content/wgsl-rs/manual/types/atomics.html:
+    origin: content/wgsl-rs/manual/types/atomics.html
+    origin_modified: 2026-09-19T21:42:40.947245688Z
+    built_filepath: site/wgsl-rs/manual/types/atomics.html
+    hash: 26231770A45726160B1397BA65BC6DF71F6BBBB8B9446819EBA2C5E06DFCF762
+    destination: wgsl-rs/manual/types/atomics.html
+  content/wgsl-rs/manual/types/matrices.html:
+    origin: content/wgsl-rs/manual/types/matrices.html
+    origin_modified: 2026-09-19T21:42:40.942000705Z
+    built_filepath: site/wgsl-rs/manual/types/matrices.html
+    hash: B9F96698BBE6EFA5C68C6C92B0C0E4989F573A98F4F1DADEE6A9F6D082EA69E6
+    destination: wgsl-rs/manual/types/matrices.html
+  content/wgsl-rs/manual/types/scalars.html:
+    origin: content/wgsl-rs/manual/types/scalars.html
+    origin_modified: 2026-09-19T21:42:40.936676349Z
+    built_filepath: site/wgsl-rs/manual/types/scalars.html
+    hash: 9451D8EF09C9510BD60F0C0C4D2D92F08BCE3396695B7204F9502EB6F8E89B61
+    destination: wgsl-rs/manual/types/scalars.html
+  content/wgsl-rs/manual/types/vectors.html:
+    origin: content/wgsl-rs/manual/types/vectors.html
+    origin_modified: 2026-09-19T21:42:40.939221925Z
+    built_filepath: site/wgsl-rs/manual/types/vectors.html
+    hash: 47AB6887093CCB531AB208B0DA2F9A75A10EE545463AADC8093BF01551210AAF
+    destination: wgsl-rs/manual/types/vectors.html
+  content/wgsl-rs/manual/validation/auto-tests.html:
+    origin: content/wgsl-rs/manual/validation/auto-tests.html
+    origin_modified: 2026-09-19T21:42:40.966567152Z
+    built_filepath: site/wgsl-rs/manual/validation/auto-tests.html
+    hash: EA3A92E50809C0F6EFE10EA68EE57CC8C4D882E37F87CC4E114565F959A6AABB
+    destination: wgsl-rs/manual/validation/auto-tests.html
+  content/wgsl-rs/manual/validation/disabling.html:
+    origin: content/wgsl-rs/manual/validation/disabling.html
+    origin_modified: 2026-09-19T21:42:40.971269479Z
+    built_filepath: site/wgsl-rs/manual/validation/disabling.html
+    hash: 388CAD9823DD743328818204C8A365E18613D8E450574DC281FE9DE79872F2F2
+    destination: wgsl-rs/manual/validation/disabling.html
+  content/wgsl-rs/manual/validation/runtime.html:
+    origin: content/wgsl-rs/manual/validation/runtime.html
+    origin_modified: 2026-09-19T21:42:40.968964690Z
+    built_filepath: site/wgsl-rs/manual/validation/runtime.html
+    hash: 115ECCD6845995D81377DB91A086B5072A04FCE615B96E48E7A99B5EB18F2E34
+    destination: wgsl-rs/manual/validation/runtime.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros.html
+    origin_modified: 2026-09-19T21:42:40.910016234Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros.html
+    hash: FDD72C3B61AC82C921026F427D5BC879C74DB9C1A46F1C9F3AD00F333063B733
+    destination: wgsl-rs/manual/writing-shaders/binding-macros.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros/discard.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros/discard.html
+    origin_modified: 2026-09-19T21:42:40.934266312Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros/discard.html
+    hash: 80212D87C687222FB1949CE5DEFC07558731E3CBA2DFA5354522972D1A7D9ABC
+    destination: wgsl-rs/manual/writing-shaders/binding-macros/discard.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros/ptr.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros/ptr.html
+    origin_modified: 2026-09-19T21:42:40.932127144Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros/ptr.html
+    hash: 25F79627D2F375B3BCBCB1463F36BAEF879F97D4E42B4D0A060DEFF88AD6A3F6
+    destination: wgsl-rs/manual/writing-shaders/binding-macros/ptr.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros/storage.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros/storage.html
+    origin_modified: 2026-09-19T21:42:40.920548532Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros/storage.html
+    hash: D62071D6C841E8CE1D0E4D26D621AB321F0C49E279091B6AE7F3B66E8EED82DD
+    destination: wgsl-rs/manual/writing-shaders/binding-macros/storage.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros/texture-sampler.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros/texture-sampler.html
+    origin_modified: 2026-09-19T21:42:40.929623775Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros/texture-sampler.html
+    hash: 9485856D6C5330D0ACAD6346F06D2C92F664A23C25869C2704D490AFEAA71D0B
+    destination: wgsl-rs/manual/writing-shaders/binding-macros/texture-sampler.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros/uniform.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros/uniform.html
+    origin_modified: 2026-09-19T21:42:40.915384422Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros/uniform.html
+    hash: 631F2DA93AEDD93F9E717BEDA8EB2F58649176419F4E11800198C775DCA44B4A
+    destination: wgsl-rs/manual/writing-shaders/binding-macros/uniform.html
+  content/wgsl-rs/manual/writing-shaders/binding-macros/workgroup.html:
+    origin: content/wgsl-rs/manual/writing-shaders/binding-macros/workgroup.html
+    origin_modified: 2026-09-19T21:42:40.926440419Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/binding-macros/workgroup.html
+    hash: 9D9D0829BC48D4C9F5FC4AE5C2237D09EDA9D6FFE20D5960F56716863913AA74
+    destination: wgsl-rs/manual/writing-shaders/binding-macros/workgroup.html
+  content/wgsl-rs/manual/writing-shaders/constants.html:
+    origin: content/wgsl-rs/manual/writing-shaders/constants.html
+    origin_modified: 2026-09-19T21:42:40.901942929Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/constants.html
+    hash: EBB6CE70D8D894FD71F04BF3AB2F6653FD8574238EC33F72C347A4D4CCB7DC79
+    destination: wgsl-rs/manual/writing-shaders/constants.html
+  content/wgsl-rs/manual/writing-shaders/control-flow.html:
+    origin: content/wgsl-rs/manual/writing-shaders/control-flow.html
+    origin_modified: 2026-09-19T21:42:40.904459840Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/control-flow.html
+    hash: C296C0531E26E44317347379133CC644E8F342C74737E6B122B532DC8EBC05A5
+    destination: wgsl-rs/manual/writing-shaders/control-flow.html
+  content/wgsl-rs/manual/writing-shaders/functions.html:
+    origin: content/wgsl-rs/manual/writing-shaders/functions.html
+    origin_modified: 2026-09-19T21:42:40.896702738Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/functions.html
+    hash: 4F68C1BC64890112D71F7A16A5F368CCAA5188CFF6E76C9C0E5ADB0CDFA28325
+    destination: wgsl-rs/manual/writing-shaders/functions.html
+  content/wgsl-rs/manual/writing-shaders/modules-and-imports.html:
+    origin: content/wgsl-rs/manual/writing-shaders/modules-and-imports.html
+    origin_modified: 2026-09-19T21:42:40.893867001Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/modules-and-imports.html
+    hash: FA5B288BBCFA11D2DD302017862E957F9346EF8D6F2F7536F42870439B7EEA97
+    destination: wgsl-rs/manual/writing-shaders/modules-and-imports.html
+  content/wgsl-rs/manual/writing-shaders/operators.html:
+    origin: content/wgsl-rs/manual/writing-shaders/operators.html
+    origin_modified: 2026-09-19T21:42:40.906938292Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/operators.html
+    hash: F8FE1DAAD52D8D9A5D6D359436A578BF3D084E4CD7BF180B0E44C6D45A294631
+    destination: wgsl-rs/manual/writing-shaders/operators.html
+  content/wgsl-rs/manual/writing-shaders/structs-and-impls.html:
+    origin: content/wgsl-rs/manual/writing-shaders/structs-and-impls.html
+    origin_modified: 2026-09-19T21:42:40.899671515Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/structs-and-impls.html
+    hash: B5A4B3B57CADB6F55B92B47D8448E0E27E041556DD61022EE15F1FB563A080CE
+    destination: wgsl-rs/manual/writing-shaders/structs-and-impls.html
+  content/wgsl-rs/manual/writing-shaders/the-wgsl-macro.html:
+    origin: content/wgsl-rs/manual/writing-shaders/the-wgsl-macro.html
+    origin_modified: 2026-09-19T21:42:40.891372382Z
+    built_filepath: site/wgsl-rs/manual/writing-shaders/the-wgsl-macro.html
+    hash: 733A785774CEF166449848DC8C3A2398CF947E9E885810D664C329FEB3EF37E0
+    destination: wgsl-rs/manual/writing-shaders/the-wgsl-macro.html
