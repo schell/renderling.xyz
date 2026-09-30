@@ -4,8 +4,9 @@ members = [
 	"crates/xtask"
 ]
 
-excludes = [
-	"renderling"
+exclude = [
+	"renderling",
+	"wgsl-rs"
 ]
 
 resolver = "2"

@@ -18,6 +18,27 @@ Pay no attention to the man behind the curtain.
 
 -->
 
+## Thu 01 Oct, 2026
+
+### wgsl-rs beta released on crates.io
+
+I finished [all three milestones and then some](https://github.com/users/schell/projects/3) to
+bring `wgsl-rs` to beta. It's not up on [crates.io](https://crates.io/crates/wgsl-rs).
+
+Read the [release retro article for details](/articles/wgsl-rs-beta-release.html).
+
+### More renderling manual articles
+
+I've added a number of articles to the [manual](/manual/index.html): 
+
+* [Shadow mapping](manual/lighting/shadow-mapping.html)
+* [Materials and textures](manual/material.html)
+* [Post-processing](manual/postprocessing.html)
+* [Debug modes](manual/debug.html)
+* [Scene hierarchy](manual/scene.html)
+* [Animation](manual/animation.html)
+* [Performance](manual/performance.html)
+
 ## Fri 29 May, 2026
 
 ### First wgsl-rs milestone complete

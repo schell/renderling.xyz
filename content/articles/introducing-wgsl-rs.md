@@ -1,6 +1,6 @@
 ---
 title: Introducing wgsl-rs
-date: Thu 05 Mar, 2026
+date: 2026-03-05
 ---
 
 _Wherein I introduce a new WGSL library_
